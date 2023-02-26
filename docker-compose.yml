@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: api
+    ports:
+      - 8000:8000
+    environment:
+      DB_LOCAL: mongodb://db/empDB
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+
+  db:
+    image: mongo:latest
+    container_name: db
+    ports:
+      - 27017:27017
+    volumes:
+      - empDB:/data/db
+
+volumes:
+  empDB:

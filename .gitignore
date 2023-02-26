@@ -1,0 +1,13 @@
+__pycache__/
+
+node_modules/
+work_dir/
+venv/
+
+.DS_Store
+.git/
+.env
+.idea/
+
+# tailwind
+input.css

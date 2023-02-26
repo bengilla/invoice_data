@@ -1,8 +1,9 @@
-import cv2 
+import cv2
 import pendulum
 from models.mongodb import MongoDB
 
 _db = MongoDB()
+
 
 class QRCode:
     def generate(self, image):
@@ -16,11 +17,12 @@ class QRCode:
         date = list_data[5]
         amount = list_data[4]
 
-        dt = pendulum.from_format(date, 'YYYYMMDD')
+        dt = pendulum.from_format(date, "YYYYMMDD")
+        self.month = dt.month
 
-        data = {
-            "_id": code,
-            "date": dt.to_date_string(),
-            "amount": float(amount)
-        }
+        data = {"_id": code, "date": dt.to_date_string(), "amount": float(amount)}
+
         _db.send_data(dt.month).insert_one(data)
+
+    def get_month(self):
+        return self.month

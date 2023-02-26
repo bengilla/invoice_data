@@ -1,13 +1,13 @@
-__pycache__/
+__pycache__
 
-node_modules/
-work_dir/
-venv/
+node_modules
+work_dir
+venv
 
 .DS_Store
-.git/
+.git
 .env
-.idea/
+.idea
 
 # tailwind
 input.css

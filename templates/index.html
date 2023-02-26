@@ -13,7 +13,7 @@
     <div class="px-2 grid place-content-center">
         <!-- header -->
         <div class="w-full my-4 grid place-content-center">
-            <span class="text-4xl font-bold">Bill Calculate</span>
+            <span class="text-4xl font-bold">Invoice Calculate</span>
         </div>
 
         <div class="flex">
@@ -52,11 +52,29 @@
             </div>
         </div>
 
+        {% if msg%}
+        <div class="p-2 px-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center">{{ msg }}</div>
+        {% endif %}
+
         <!-- form -->
-        <div class="w-full my-4 grid place-content-center">
+        <div class="w-full mt-4 grid place-content-center">
             <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
-                <input type="file" name="image">
-                <input type="submit" class="w-full p-1 mt-3 border border-2 border-slate-400">
+                <!-- QRCode -->
+                <div class="flex">
+                    <div>
+                        <div class="text-sm text-slate-500">QRCode</div>
+                        <input type="file" name="qrcode_image" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                    </div>
+                    <!-- File -->
+                    <div>
+                        <div class="text-sm text-slate-500">PDF</div>
+                        <input type="file" name="pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                    </div>
+                </div>
+                <!-- Submit -->
+                <div>
+                    <input type="submit" class="w-full rounded-full p-1 mt-3 border border-2 border-slate-400">
+                </div>
             </form>
         </div>
 

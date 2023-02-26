@@ -20,7 +20,10 @@ num = list_collection()[0]
 
 @app.get("/", response_class=RedirectResponse, status_code=302)
 async def index():
-    return f"/{num}"
+    if len(num) != 0:
+        return f"/{num}"
+    else:
+        return "/"
 
 @app.get("/{num}", response_class=HTMLResponse)
 async def first(request: Request, num: str):

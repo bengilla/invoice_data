@@ -20,7 +20,7 @@
             {% for i in list_col%}
             <div class="m-1 pb-2">
                 <a href="{{ i }}">
-                    <div class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded-lg hover:bg-slate-300 ease-in-out">
+                    <div class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 ease-in-out">
                         {{ i }}
                     </div>
                 </a>
@@ -31,24 +31,31 @@
         <!-- body -->
         <div class="border-2 border-orange-500 rounded-lg">
             <!-- thead -->
-            <div class="grid grid-cols-3 bg-orange-500 text-slate-100">
-                <div class="p-2 grid place-content-center border-r border-dotted border-orange-500">date</div>
-                <div class="p-2 grid place-content-center border-r border-dotted border-orange-500">code</div>
-                <div class="p-2 grid place-content-center">amount</div>
+            <div class="w-full flex bg-orange-500 text-slate-100">
+                <div class="w-[10%] p-2 grid place-content-center">pdf</div>
+                <div class="w-[25%] p-2 grid place-content-center border-r border-dotted border-orange-500">date</div>
+                <div class="w-[35%] p-2 grid place-content-center border-r border-dotted border-orange-500">code</div>
+                <div class="w-[30%] p-2 grid place-content-center">amount</div>
             </div>
             <!-- tbody -->
             {% for i in data %}
-            <div class="w-full grid grid-cols-3 text-sm border-b border-dotted border-orange-500">
-                <div class="p-1 grid place-content-center border-r border-dotted border-orange-500">{{ i.date }}</div>
-                <div class="p-1 grid place-content-center border-r border-dotted border-orange-500">{{ i._id }}</div>
-                <div class="p-1 grid place-content-center">{{ i.amount }}</div>
+            <div class="w-full flex text-sm border-b border-dotted border-orange-500">
+                <div class="w-[10%] p-1 grid place-content-center border-r border-dotted border-orange-500">
+                    {% if i.pdf %}
+                    <img src="{{ url_for('static', path='image/pdf.png') }}" alt="PDF image" width="20px">
+                    {% endif %}
+                </div>
+                <div class="w-[25%] p-1 grid place-content-center border-r border-dotted border-orange-500">{{ i.date }}</div>
+                <div class="w-[35%] p-1 grid place-content-center border-r border-dotted border-orange-500">{{ i._id }}</div>
+                <div class="w-[30%] p-1 grid place-content-center">{{ i.amount }}</div>
             </div>
             {% endfor%}
             <!-- tbottom -->
-            <div class="w-full grid grid-cols-3 text-sm">
-                <div class="p-2 grid place-content-center"></div>
-                <div class="p-2 grid place-content-center border-r border-dotted border-orange-500"></div>
-                <div class="p-2 grid place-content-center font-bold">{{ total }}</div>
+            <div class="w-full flex text-sm">
+                <div class="w-[10%] p-2 grid place-content-center"></div>
+                <div class="w-[25%] p-2 grid place-content-center"></div>
+                <div class="w-[35%] p-2 grid place-content-center border-r border-dotted border-orange-500"></div>
+                <div class="w-[30%] p-2 grid place-content-center font-bold">{{ total }}</div>
             </div>
         </div>
 
@@ -63,17 +70,17 @@
                 <div class="flex">
                     <div>
                         <div class="text-sm text-slate-500">QRCode</div>
-                        <input type="file" name="qrcode_image" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        <input type="file" name="qrcode_image" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" required>
                     </div>
                     <!-- File -->
                     <div>
                         <div class="text-sm text-slate-500">PDF</div>
-                        <input type="file" name="pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        <input type="file" name="pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" required>
                     </div>
                 </div>
                 <!-- Submit -->
                 <div>
-                    <input type="submit" class="w-full rounded-full p-1 mt-3 border border-2 border-slate-400">
+                    <input type="submit" class="w-full rounded-full p-1 mt-3 border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 ease-in-out">
                 </div>
             </form>
         </div>

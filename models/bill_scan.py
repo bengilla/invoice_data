@@ -5,8 +5,8 @@ from models.mongodb import MongoDB
 _db = MongoDB()
 
 
-class QRCode:
-    def generate(self, image):
+class Invoice:
+    def qrcode(self, image, pdf):
         qrcode = cv2.imread(image)
         detector = cv2.QRCodeDetector()
         data = detector.detectAndDecode(qrcode)
@@ -20,9 +20,11 @@ class QRCode:
         dt = pendulum.from_format(date, "YYYYMMDD")
         self.month = dt.month
 
-        data = {"_id": code, "date": dt.to_date_string(), "amount": float(amount)}
+        data = {
+            "_id": code,
+            "date": dt.to_date_string(),
+            "amount": float(amount),
+            "pdf": pdf,
+        }
 
         _db.send_data(dt.month).insert_one(data)
-
-    def get_month(self):
-        return self.month

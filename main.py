@@ -41,7 +41,7 @@ async def first(request: Request, num: str):
         }
     )
 
-@app.post("/", response_class=HTMLResponse)
+@app.post("/", response_class=RedirectResponse, status_code=302)
 async def send_file(request: Request, image: UploadFile = File(None)):
     qrcode = QRCode()
     with Image.open(image.file) as im:
@@ -50,5 +50,6 @@ async def send_file(request: Request, image: UploadFile = File(None)):
     file = 'invoice.png'
     qrcode.generate(file)
     os.remove(file)
-    return templates.TemplateResponse(
-        "index.html", {"request": request})
+
+    request_url = request.url_for("index")
+    return RedirectResponse(request_url, status_code=status.HTTP_302_FOUND)

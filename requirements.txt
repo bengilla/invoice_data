@@ -1,9 +1,10 @@
 fastapi
 uvicorn
+jinja2
 opencv-python-headless
 pendulum
 pymongo
 python-dotenv
-jinja2
 python-multipart
 Pillow
+# opencv-python

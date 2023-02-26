@@ -41,7 +41,7 @@ async def first(request: Request, num: str):
         }
     )
 
-@app.post("/", response_class=RedirectResponse, status_code=302)
+@app.post("/{num}", response_class=RedirectResponse)
 async def send_file(request: Request, image: UploadFile = File(None)):
     qrcode = QRCode()
     with Image.open(image.file) as im:

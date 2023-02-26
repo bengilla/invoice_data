@@ -16,14 +16,18 @@ def list_collection():
     list_collection = [x for x in _db.list_collections()]
     return sorted(list_collection)
 
-@app.get("/", response_class=RedirectResponse, status_code=302)
+@app.get("/", response_class=RedirectResponse)
 async def index(request: Request):
     if len(list_collection()) != 0:
         num = list_collection()[0]
         return f"/{num}"
     else:
         return templates.TemplateResponse(
-            "index.html", {"request": request}
+            "index.html",
+            {
+                "request": request,
+                "list_col": list_collection(),
+            }
         )
 
 @app.get("/{num}", response_class=HTMLResponse)

@@ -7,4 +7,5 @@ pymongo
 python-dotenv
 python-multipart
 Pillow
+pdfminer.six
 # opencv-python

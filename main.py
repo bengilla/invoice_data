@@ -1,116 +1,92 @@
 import os
+import shutil
+from typing import List
+from config.settings import settings
 
-from fastapi import FastAPI, Request, File, UploadFile, Cookie
+from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from models.bill_scan import Invoice
 from models.mongodb import MongoDB
-from PIL import Image
 
-_db = MongoDB()
 
-app = FastAPI(title="Invoice Calculate")
+app = FastAPI(title=settings.TITLE)
 app.mount("/statis", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-
+_db = MongoDB()
 invoice = Invoice()
-
-
-def list_collection():
-    list_collection = [x for x in _db.list_collections()]
-    return sorted(list_collection)
+errors = []
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    if len(list_collection()) == 0:
+    if len(_db.list_collections()) == 0:
         return templates.TemplateResponse(
             "index.html",
-            {
-                "request": request,
-                "list_col": list_collection(),
-            },
+            {"request": request, "list_col": _db.list_collections()},
         )
     else:
-        num = list_collection()[0]
+        num = _db.list_collections()[0]
         response_url = request.url_for("first", num=num)
         return RedirectResponse(response_url, status_code=302)
 
 
 @app.get("/{num}", response_class=HTMLResponse)
-async def first(request: Request, num: str, message: str | None = Cookie(default=None)):
+async def first(request: Request, num: str):
     invoice_data = [x for x in _db.send_data(num).find({})]
-    amount = [x["amount"] for x in invoice_data]
+    amount = [float(x["amount"]) for x in invoice_data]
 
     invoice_data.sort(key=lambda x: x["date"])
 
-    if message:
-        msg = message
-    else:
-        msg = ""
+    if errors != 0:
+        msg = errors
 
     response = templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "list_col": list_collection(),
+            "list_col": _db.list_collections(),
             "data": invoice_data,
-            "total": round(sum(amount), 2),
+            "total": "{:0.2f}".format(sum(amount)),
             "msg": msg,
         },
     )
-    response.delete_cookie(key="message")
+    errors.clear()
     return response
 
 
 @app.post("/", response_class=RedirectResponse)
 async def send_file(
     request: Request,
-    qrcode_image: UploadFile = File(...),
-    pdf: UploadFile = File(...),
+    files: List[UploadFile] = File(None),
 ):
-    # QRCode image
-    with Image.open(qrcode_image.file) as im:
-        im.save("invoice.png")
-    qrcode_file = "invoice.png"
-
-    # PDF
-    pdf_content = await pdf.read()
-
-    invoice.qrcode(image=qrcode_file, pdf=pdf_content)
-    os.remove(qrcode_file)
-
-    # PDF
-
-    request_url = request.url_for("index")
+    for file in files:
+        with open(file.filename, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            err_msg = invoice.qrcode(file.filename)
+            os.remove(file.filename)
+            if err_msg:
+                errors.append(err_msg)
+        num = invoice.month
+    request_url = request.url_for("first", num=num)
     return RedirectResponse(request_url, status_code=302)
 
 
 @app.post("/{num}", response_class=RedirectResponse)
 async def send_file(
     request: Request,
-    qrcode_image: UploadFile = File(...),
-    pdf: UploadFile = File(...),
+    files: List[UploadFile] = File(None),
 ):
-    try:
-        with Image.open(qrcode_image.file) as im:
-            im.save("invoice.png")
-        qrcode_file = "invoice.png"
-
-        # PDF
-        pdf_content = await pdf.read()
-
-        invoice.qrcode(image=qrcode_file, pdf=pdf_content)
-        os.remove(qrcode_file)
-
-        num = invoice.month
-        request_url = request.url_for("first", num=num)
-        return RedirectResponse(request_url, status_code=302)
-    except:
-        request_url = request.url_for("index")
-        response = RedirectResponse(request_url, status_code=302)
-        response.set_cookie(key="message", value="Invoice is exists")
-        return response
+    for file in files:
+        with open(file.filename, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            err_msg = invoice.qrcode(file.filename)
+            os.remove(file.filename)
+            if err_msg:
+                errors.append(err_msg)
+    num = invoice.month
+    request_url = request.url_for("first", num=num)
+    return RedirectResponse(request_url, status_code=302)

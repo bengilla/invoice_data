@@ -6,14 +6,14 @@ from config.settings import settings
 class MongoDB:
     def __init__(self) -> None:
         # Local Testing MongoDB-------------------------------
-        # self.client = MongoClient(settings.DB_LOCAL, serverSelectionTimeoutMS=3000)
-        self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
+        self.client = MongoClient(settings.DB_LOCAL, serverSelectionTimeoutMS=3000)
+        # self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
 
-        # member info
-        self.bill = self.client["BILL"]
+        # collection info
+        self.invoice = self.client["INVOICE"]
 
     # db status
-    def status(self):
+    def status(self) -> bool:
         """DB status"""
         try:
             server_info = self.client.server_info()
@@ -22,8 +22,13 @@ class MongoDB:
         except ServerSelectionTimeoutError:
             return False
 
-    def send_data(self, month):
-        return self.bill[str(month)]
+    # collection
+    def send_data(self, month: str):
+        return self.invoice[str(month)]
 
-    def list_collections(self):
-        return self.bill.list_collection_names()
+    # list of collection
+    def list_collections(self) -> list:
+        """return sort list collection"""
+        collection = self.invoice.list_collection_names()
+        list_collection = [x for x in collection]
+        return sorted(list_collection)

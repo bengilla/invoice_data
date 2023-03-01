@@ -5,7 +5,9 @@ load_dotenv()
 
 
 class Settings:
-    TITLE = "Bill Calculate"
+    """Config all settings"""
+
+    TITLE = "Invoice Calculate"
     VERSION = "0.1"
     DESCRIPTION = ""
 

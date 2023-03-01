@@ -1,11 +1,24 @@
+# fastapi
 fastapi
 uvicorn
+
+# jinja2
 jinja2
-opencv-python-headless
-pendulum
-pymongo
-python-dotenv
+
+# form
 python-multipart
-Pillow
-pdfminer.six
-# opencv-python
+
+# mongodb
+pymongo
+
+# date
+pendulum
+
+# env
+python-dotenv
+
+# pdf
+pdfplumber
+
+opencv-python-headless
+

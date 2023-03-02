@@ -139,3 +139,22 @@ async def download(request: Request, file: str):
     return templates.TemplateResponse(
         "download.html", {"request": request, "file": file}
     )
+
+
+@app.get("/check/file")
+async def check(request: Request):
+    file_list = []
+    for root, dir, files in os.walk("/"):
+        for name in files:
+            if fnmatch.fnmatch(name, "*.zip"):
+                file_list.append(name)
+    return {"message": file_list}
+
+
+@app.get("/remove/file")
+async def check(request: Request):
+    for root, dir, files in os.walk("/"):
+        for name in files:
+            if fnmatch.fnmatch(name, "*.zip"):
+                os.remove(name)
+    return {"message": "Remove succesful"}

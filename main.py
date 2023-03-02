@@ -3,7 +3,7 @@ import codecs
 import shutil
 from typing import List
 from config.settings import settings
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo, is_zipfile
 
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -105,7 +105,7 @@ async def send_file(
             # total all the price
             output_total_amount = sum(get_amount)
             # zip
-            zip_name = f"{num}月-¥{'{:0.2f}'.format(output_total_amount)}.zip"
+            zip_name = f"{num}-{'{:0.2f}'.format(output_total_amount)}.zip"
 
             with ZipFile(zip_name, "w") as file_zip:
                 for root, dir, files in os.walk("/"):

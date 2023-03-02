@@ -139,6 +139,7 @@ async def download():
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
                 file_list.append(name)
+                os.remove(name)
     return {"message": file_list}
 
     # URL = f"http://localhot:8000/download/file/{file_list[0]}"

@@ -114,6 +114,8 @@ async def send_file(
                         if fnmatch.fnmatch(name, "*.pdf"):
                             file_zip.write(name)
                             os.remove(name)
+            request_url = request.url_for("download", file=zip_name)
+            return RedirectResponse(request_url, status_code=302)
         else:
             for file in files:
                 with open(file.filename, "wb") as buffer:
@@ -132,16 +134,8 @@ async def send_file(
         return RedirectResponse(request_url, status_code=302)
 
 
-@app.get("/download/file")
-async def download():
-    file_list = []
-    for root, dir, files in os.walk("/"):
-        for name in files:
-            if fnmatch.fnmatch(name, "*.zip"):
-                file_list.append(name)
-                os.remove(name)
-    return {"message": file_list}
-
-    # URL = f"http://localhot:8000/download/file/{file_list[0]}"
-    # response = requests.get(URL)
-    # return response
+@app.get("/download/{file}")
+async def download(request: Request, file: str):
+    return templates.TemplateResponse(
+        "download.html", {"request": request, "file": file}
+    )

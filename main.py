@@ -1,7 +1,6 @@
 import os, fnmatch
 import codecs
 import shutil
-import requests
 from typing import List
 from config.settings import settings
 from zipfile import ZipFile
@@ -141,20 +140,44 @@ async def download(request: Request, file: str):
     )
 
 
-@app.get("/check/file")
+@app.get("/file/check")
 async def check(request: Request):
+    """check all zip and pdf file"""
+
+    def count_size(size):
+        if size < 1000:
+            return f"{size} bytes"
+        elif size >= 1000 and size < 100000:
+            return f"{round(size / 1000, 2)} KB"
+        else:
+            return f"{round(size / 1000000, 2)} MB"
+
+    def file_info(file, size):
+        data = {"filename": file, "filesize": size}
+        return data
+
     file_list = []
     for root, dir, files in os.walk("/"):
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
-                file_list.append(name)
+                get_size = os.path.getsize(name)
+                output_data = file_info(name, count_size(get_size))
+                file_list.append(output_data)
+            if fnmatch.fnmatch(name, "*.pdf"):
+                get_size = os.path.getsize(name)
+                output_data = file_info(name, count_size(get_size))
+                file_list.append(output_data)
+
     return {"message": file_list}
 
 
-@app.get("/remove/file")
+@app.get("/file/remove")
 async def check(request: Request):
+    """delete all zip and pdf file"""
     for root, dir, files in os.walk("/"):
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
+                os.remove(name)
+            if fnmatch.fnmatch(name, "*.pdf"):
                 os.remove(name)
     return {"message": "Remove succesful"}

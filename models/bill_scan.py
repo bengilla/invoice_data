@@ -11,7 +11,7 @@ _db = MongoDB()
 class Invoice:
     """All function about invoice calculate"""
 
-    def qrcode(self, file: UploadFile | None) -> dict:
+    def pdf_file(self, file: UploadFile | None) -> dict:
         # calculate
         try:
             with pdfplumber.open(file) as pdf:
@@ -52,6 +52,7 @@ class Invoice:
                 amount_output = float(amount[1][num + 1 :])
 
                 dt = pendulum.from_format(date_output, "YYYYMMDD")
+                self.year = dt.year
                 self.month = dt.month
 
                 with open(file, "rb") as f:
@@ -69,3 +70,5 @@ class Invoice:
                 _db.send_data(dt.month).insert_one(data)
         except DuplicateKeyError:
             return f"File duplicate, '_id' {num_output}".upper()
+        except Exception as error:
+            return f"Error: {error}"

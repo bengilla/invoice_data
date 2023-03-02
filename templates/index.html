@@ -6,125 +6,165 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <title>Bill Calculate</title>
+    <script src="{{ url_for('static', path='/js/jquery-3.6.3.min.js') }}"></script>
+    <title>Invoice Calculate</title>
 </head>
 
 <body>
-    <div class="w-full px-1 pb-12 grid place-content-center">
-        <!-- header -->
-        <div class="w-full my-4 grid place-content-center">
-            <span class="text-4xl font-bold">Invoice Calculate</span>
-        </div>
+    <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
+        <div class="w-full px-1 pb-12 grid place-content-center">
 
-        <div class="flex my-4">
-            {% for i in list_col%}
-            <div class="px-1">
-                <a href="{{ i }}">
-                    <div id="/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 ease-in">
-                        {{ i }}
-                    </div>
-                </a>
+            <!-- header -->
+            <div class="w-full my-4 grid place-content-center">
+                <span class="text-4xl font-bold">Invoice Calculate</span>
             </div>
-            {% endfor%}
-        </div>
+            <!-- end header -->
 
-        <!-- body -->
-        <div class="border-2 border-orange-500 rounded-lg">
-            <table class="table-fixed">
-                <!-- thead -->
-                <thead>
-                    <tr class="bg-orange-500 text-slate-50">
-                        <th class="px-2 bg-orange-500">
-                            <input type="checkbox" name="" id="main_checkbox" onclick="toggle(this)" />
-                        </th>
-                        <th>号</th>
-                        <th>文件</th>
-                        <th>日期</th>
-                        <th>发票号码</th>
-                        <th>发票代码</th>
-                        <th class="p-4">总数</th>
-                    </tr>
-                </thead>
-                <!-- tbody -->
-                <tbody>
-                    {% for i in data %}
-                    <tr class="border-b-[1px] border-dotted border-orange-500 text-sm">
-                        <td class="p-2 text-center">
-                            <input type="checkbox" name="ids" id="{{ i._id }}">
-                        </td>
-                        <td class="p-2 text-center">{{ loop.index }}</td>
-                        <td class="p-2 text-center">
-                            {% if i.pdf %}
-                            <img src="{{ url_for('static', path='image/pdf.png') }}" alt="PDF image" width="20px">
-                            {% endif %}
-                        </td>
-                        <td class="p-2 text-center">{{ i.date }}</td>
-                        <td class="p-2 text-center">{{ i._id }}</td>
-                        <td class="p-2 text-center">{{ i.code }}</td>
-                        <td class="p-2 text-center">{{ i.amount }}</td>
-                    </tr>
-                    {% endfor%}
-
-                    <tr class="bg-orange-500 text-slate-50 font-bold">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="p-4 text-center">
-                            ¥ {{ total }}
-                        </td>
-                    </tr>
-                </tbody>
-                <!-- tbottom -->
-            </table>
-        </div>
-
-        {% for err in msg%}
-        <div class="p-2 px-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center error">{{ err }}</div>
-        {% endfor %}
-
-        <!-- form -->
-        <div class="w-full mt-8 grid place-content-center">
-            <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
-                <!-- File -->
-                <div class="pl-1 text-xs text-slate-500">INVOICE FILE (PDF)</div>
-                <div class="flex">
-                    <div>
-                        <input type="file" name="files" class="b-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple required>
-                    </div>
-                    <!-- Submit -->
-                    <div>
-                        <input type="submit" class="w-full p-1 px-6 rounded-lg border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 ease-in-out">
-                    </div>
+            <!-- month list -->
+            <div class="flex my-4">
+                {% for i in list_col%}
+                <div class="px-1">
+                    <a href="{{ i }}">
+                        <div id="/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 transition ease-in-out">
+                            {{ i }}
+                        </div>
+                    </a>
                 </div>
-            </form>
-        </div>
+                {% endfor%}
+            </div>
+            <!-- end month list -->
 
-        <div>{{ output }}</div>
-        <!-- footer -->
-    </div>
-    <script language="JavaScript">
-        // checkbox function
+            <!-- body -->
+            <div class="border-2 border-orange-500 rounded-lg">
+                <table class="table-fixed">
+                    <!-- thead -->
+                    <thead id="title-box">
+                        <tr class="bg-orange-500 text-slate-50">
+                            <th class="px-2 bg-orange-500">
+                                <input type="checkbox" id="main-checkbox" onclick="toggle(this), single(this)" />
+                            </th>
+                            <th>号</th>
+                            <th>文件</th>
+                            <th>日期</th>
+                            <th>发票号码</th>
+                            <th>发票代码</th>
+                            <th class="p-4">总数</th>
+                        </tr>
+                    </thead>
+                    <!-- end thead -->
+
+                    <!-- tbody -->
+                    <tbody>
+                        <!-- INVOICE -->
+                        {% for i in data %}
+                        <tr class="border-b-[1px] border-dotted border-orange-500 text-sm">
+                            <td class="p-2 text-center">
+                                <input type="checkbox" name="ids" value="{{ i._id }}" onclick="single(this)" />
+                            </td>
+                            <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
+                            <td class="p-2 text-center">
+                                {% if i.pdf %}
+                                <img src="{{ url_for('static', path='image/pdf.png') }}" alt="PDF image" width="20px">
+                                {% endif %}
+                            </td>
+                            <td class="p-2 text-center">{{ i.date }}</td>
+                            <td class="p-2 text-center">{{ i._id }}</td>
+                            <td class="p-2 text-center">{{ i.code }}</td>
+                            <td class="p-2 text-center">{{ i.amount }}</td>
+                        </tr>
+                        {% endfor%}
+                        <!-- END INVOICE -->
+
+                        <!-- TOTAL -->
+                        <tr class="bg-orange-500 text-slate-50 font-bold">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="p-4 text-center">
+                                ¥ {{ total }}
+                            </td>
+                        </tr>
+                        <!-- END TOTAL -->
+                    </tbody>
+                    <!-- end tbody -->
+                </table>
+            </div>
+            <!-- end body -->
+
+            <hr class="my-4 h-1 border-1 bg-slate-300">
+
+            <!-- error message -->
+            {% for err in msg%}
+            <div class="w-full p-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center error">{{ err }}</div>
+            {% endfor %}
+            <!-- end error message -->
+
+            <!-- form -->
+            <div class="w-full mt-8 grid place-content-center">
+                <!-- File -->
+                <div class="pl-1 text-xs text-slate-500">UPLOAD INVOICE FILE (PDF)</div>
+                <div>
+                    <input type="file" name="files" class="b-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
+                </div>
+                <!-- Submit -->
+                <div>
+                    <input type="submit" value="upload & download file" class="w-full mt-8 py-3 px-6 text-sm text-slate-500 rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
+                </div>
+            </div>
+            <!-- end form -->
+        </div>
+    </form>
+    <script>
+        // checkbox function (jquery)
         function toggle(source) {
-            checkboxes = document.getElementsByName('ids');
-            for (var i = 0, n = checkboxes.length; i < n; i++) {
-                checkboxes[i].checked = source.checked;
+            checkboxs = $("[name='ids']");
+            for (var i = 0, n = checkboxs.length; i < n; i++) {
+                checkboxs[i].checked = source.checked;
             }
         }
 
+        // single button
+        function single(source) {
+            checkboxs = $("[name='ids']");
+            let count = 0;
+
+            for (var i = 0, n = checkboxs.length; i < n; i++) {
+                if (checkboxs[i].type === "checkbox" && checkboxs[i].checked === true) {
+                    count++;
+                }
+            }
+            if (count > 0) {
+                console.log(count);
+            } else {
+                document.getElementById("main-checkbox").checked = false;
+            }
+        }
+
+        // url pathname
+        let url = location.pathname;
+
+        // if empty hide title box (jquery)
+        const title = $("#title-box");
+        if (url === "/") {
+            title.css("display", "none");
+        } else {
+            title.css("display", "");
+        }
+
         // button color
-        var pathname = location.pathname;
-        document.getElementById(pathname).style.backgroundColor = '#f97316';
-        document.getElementById(pathname).style.borderColor = '#f97316';
+        let btn = document.getElementById(url)
+        btn.style.backgroundColor = "#f97316";
+        btn.style.borderColor = "#f97316";
+        btn.style.color = "#fff";
 
         // fadeout (jquery)
-        const errordiv = $('.error');
+        const errordiv = $(".error");
         if (errordiv) {
             setTimeout(function () {
-                $('.error').fadeOut('fast');
+                $(".error").fadeOut("fast");
             }, 5000);
         }
     </script>

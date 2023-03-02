@@ -1,6 +1,7 @@
 import os, fnmatch
 import codecs
 import shutil
+import requests
 from typing import List
 from config.settings import settings
 from zipfile import ZipFile
@@ -91,29 +92,28 @@ async def send_file(
             for x in ids:
                 pdf = _db.send_data(num).find_one({"_id": int(x)})
 
+                id_number = pdf["_id"]
                 date = pdf["date"]
                 amount = pdf["amount"]
                 code = pdf["pdf"]
 
                 get_amount.append(float(amount))
 
-                name = f"{date}[¥{amount}].pdf"
+                name = f"{date}({id_number}-¥{amount}).pdf"
                 with open(name, "wb") as f:
                     f.write(codecs.decode(code, "base64"))
 
             # total all the price
             output_total_amount = sum(get_amount)
+            # zip
             zip_name = f"{num}月-¥{'{:0.2f}'.format(output_total_amount)}.zip"
-            zip_obj = ZipFile(zip_name, "w")
 
-            for root, dir, files in os.walk("/"):
-                for name in files:
-                    if fnmatch.fnmatch(name, "*.pdf"):
-                        zip_obj.write(name)
-                        os.remove(name)
-
-            zip_obj.close()
-
+            with ZipFile(zip_name, "w") as file_zip:
+                for root, dir, files in os.walk("/"):
+                    for name in files:
+                        if fnmatch.fnmatch(name, "*.pdf"):
+                            file_zip.write(name)
+                            os.remove(name)
         else:
             for file in files:
                 with open(file.filename, "wb") as buffer:
@@ -130,3 +130,17 @@ async def send_file(
         errors.append("No file upload")
         request_url = request.url_for("first", num=num)
         return RedirectResponse(request_url, status_code=302)
+
+
+@app.get("/download/file")
+async def download():
+    file_list = []
+    for root, dir, files in os.walk("/"):
+        for name in files:
+            if fnmatch.fnmatch(name, "*.zip"):
+                file_list.append(name)
+    return {"message": file_list}
+
+    # URL = f"http://localhot:8000/download/file/{file_list[0]}"
+    # response = requests.get(URL)
+    # return response

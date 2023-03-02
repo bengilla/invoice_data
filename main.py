@@ -137,8 +137,8 @@ async def send_file(
 
 @app.get("/download/{file}", response_class=FileResponse)
 async def download(file: str):
-    response = FileResponse(file, filename=file)
-    return {"message": response}
+    response = FileResponse(path=file, filename=file)
+    return response
 
 
 @app.get("/check/")

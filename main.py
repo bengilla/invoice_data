@@ -6,7 +6,7 @@ from config.settings import settings
 from zipfile import ZipFile
 
 from fastapi import FastAPI, Request, File, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -23,6 +23,7 @@ invoice = Invoice()
 errors = []
 
 
+# perform when data is empty
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     if len(_db.list_collections()) == 0:
@@ -36,7 +37,25 @@ async def index(request: Request):
         return RedirectResponse(response_url, status_code=302)
 
 
-@app.get("/{num}", response_class=HTMLResponse)
+@app.post("/", response_class=RedirectResponse)
+async def send_file(
+    request: Request,
+    files: List[UploadFile] = File(None),
+):
+    for file in files:
+        with open(file.filename, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            err_msg = invoice.pdf_file(file.filename)
+            os.remove(file.filename)
+            if err_msg:
+                errors.append(err_msg)
+    num: str = invoice.month
+    request_url = request.url_for("first", num=num)
+    return RedirectResponse(request_url, status_code=302)
+
+
+# perform when data is valid
+@app.get("/month/{num}", response_class=HTMLResponse)
 async def first(request: Request, num: str):
     invoice_data = [x for x in _db.send_data(num).find({})]
     amount: float = [float(x["amount"]) for x in invoice_data]
@@ -60,24 +79,7 @@ async def first(request: Request, num: str):
     return response
 
 
-@app.post("/", response_class=RedirectResponse)
-async def send_file(
-    request: Request,
-    files: List[UploadFile] = File(None),
-):
-    for file in files:
-        with open(file.filename, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            err_msg = invoice.pdf_file(file.filename)
-            os.remove(file.filename)
-            if err_msg:
-                errors.append(err_msg)
-    num: str = invoice.month
-    request_url = request.url_for("first", num=num)
-    return RedirectResponse(request_url, status_code=302)
-
-
-@app.post("/{num}", response_class=RedirectResponse)
+@app.post("/month/{num}", response_class=RedirectResponse)
 async def send_file(
     *,
     request: Request,
@@ -133,15 +135,14 @@ async def send_file(
         return RedirectResponse(request_url, status_code=302)
 
 
-@app.get("/download/{file}")
-async def download(request: Request, file: str):
-    return templates.TemplateResponse(
-        "download.html", {"request": request, "file": file}
-    )
+@app.get("/download/{file}", response_class=FileResponse)
+async def download(file: str):
+    response = FileResponse(file, filename=file)
+    return {"message": response}
 
 
-@app.get("/file/check")
-async def check(request: Request):
+@app.get("/check/")
+async def check():
     """check all zip and pdf file"""
 
     def count_size(size):
@@ -171,7 +172,7 @@ async def check(request: Request):
     return {"message": file_list}
 
 
-@app.get("/file/remove")
+@app.get("/remove")
 async def check(request: Request):
     """delete all zip and pdf file"""
     for root, dir, files in os.walk("/"):

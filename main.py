@@ -1,10 +1,10 @@
+"""Invoice Calculate"""
 import os
 import fnmatch
 import codecs
 import shutil
 import secrets
 from typing import List
-from config.settings import settings
 from zipfile import ZipFile
 
 from fastapi import FastAPI, Request, File, UploadFile, Depends, HTTPException
@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
+from config.settings import settings
 from models.bill_scan import Invoice
 from models.mongodb import MongoDB
 
@@ -28,6 +29,7 @@ errors = []
 
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    """Basic HTTPAuth"""
     current_username_bytes = credentials.username.encode("utf8")
     correct_username_bytes = bytes(settings.USERNAME, encoding="utf8")
     is_correct_username = secrets.compare_digest(
@@ -48,6 +50,7 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 def delete_all_file():
+    """Delete pdf and zip function"""
     for _root, _dir, files in os.walk("/"):
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
@@ -107,7 +110,7 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
             "request": request,
             "list_col": _db.list_collections(),
             "data": invoice_data,
-            "total": "{:0.2f}".format(sum(amount)),
+            "total": f"{sum(amount):0.2f}",
             "msg": errors,
         },
     )
@@ -130,9 +133,9 @@ async def send_file(
         # ids are return from html checkbox
         if ids:
             get_amount = []
-            for x in ids:
+            for _id in ids:
                 # get info from db
-                pdf = _db.send_data(num).find_one({"_id": int(x)})
+                pdf = _db.send_data(num).find_one({"_id": int(_id)})
 
                 id_number = pdf["_id"]
                 date = pdf["date"]
@@ -143,14 +146,14 @@ async def send_file(
 
                 # save file to the server
                 name = f"{date}({id_number}-¥{amount}).pdf"
-                with open(name, "wb") as f:
-                    f.write(codecs.decode(code, "base64"))
+                with open(name, "wb") as file:
+                    file.write(codecs.decode(code, "base64"))
 
             # total all the price
             output_total_amount = sum(get_amount)
 
             # zip
-            zip_name = f"{num}月-¥{'{:0.2f}'.format(output_total_amount)}.zip"
+            zip_name = f"{num}月-¥{output_total_amount:0.2f}.zip"
 
             # search pdf on server and zip all the file
             with ZipFile(zip_name, "w") as file_zip:

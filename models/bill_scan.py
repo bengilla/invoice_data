@@ -11,7 +11,7 @@ class Invoice:
     """All function about invoice calculate"""
 
     def pdf_file(self, file) -> dict:
-        # calculate
+        """Calculate invoice data"""
         try:
             with pdfplumber.open(file) as pdf:
                 content = []
@@ -19,12 +19,13 @@ class Invoice:
                     page = pdf.pages[i]
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
-                print(content)
+                # print(content)
 
+                date = []
                 code = []
                 number = []
-                date = []
                 amount = []
+
                 for i in content[0]:
                     if "发票代码" in i:
                         for x in i:
@@ -46,14 +47,16 @@ class Invoice:
                         num = amount[1].index(x)
 
                 date_output = "".join(date)
-                num_output = int("".join(number))
                 code_output = int("".join(code))
+                num_output = int("".join(number))
                 amount_output = float(amount[1][num + 1:])
 
+                # date section, year and month are from invoice data
                 dt = pendulum.from_format(date_output, "YYYYMMDD")
                 self.year = dt.year
                 self.month = dt.month
 
+                # encode pdf file and store to db
                 with open(file, "rb") as f:
                     encoded = base64.b64encode(f.read())
 
@@ -66,8 +69,11 @@ class Invoice:
                 }
                 # print(data)
 
+                # store to db
                 _db.send_data(str(dt.month)).insert_one(data)
         except DuplicateKeyError:
+            # when duplicate file
             return f"File duplicate, '_id' {num_output}".upper()
         except Exception as error:
+            # other error
             return f"Error: {error}"

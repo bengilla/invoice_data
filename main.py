@@ -58,7 +58,7 @@ def delete_all_file():
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, _=Depends(get_current_username)):
-    """When all data is empty"""
+    """Upload pdf file when db is empty"""
     delete_all_file()  # delete all zip and pdf file
 
     if len(_db.list_collections()) == 0:
@@ -77,6 +77,7 @@ async def send_file(
     files: List[UploadFile] = File(None),
     _=Depends(get_current_username),
 ):
+    """Upload pdf file when db is empty"""
     for file in files:
         with open(file.filename, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -90,12 +91,14 @@ async def send_file(
 
 @app.get("/month/{num}", response_class=HTMLResponse)
 async def main(*, request: Request, _=Depends(get_current_username), num: str):
-    """When data is valid"""
+    """When previous pdf file is in db"""
     delete_all_file()  # delete all zip and pdf file
 
+    # receive all invoice amount information
     invoice_data = [x for x in _db.send_data(num).find({})]
     amount = [float(x["amount"]) for x in invoice_data]
 
+    # sort by date
     invoice_data.sort(key=lambda x: x["date"])
 
     response = templates.TemplateResponse(
@@ -108,6 +111,7 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
             "msg": errors,
         },
     )
+    # clear the error message list
     errors.clear()
     return response
 
@@ -121,10 +125,13 @@ async def send_file(
     _=Depends(get_current_username),
     num: str,
 ):
+    """Upload pdf file when db has previous file"""
     try:
+        # ids are return from html checkbox
         if ids:
             get_amount = []
             for x in ids:
+                # get info from db
                 pdf = _db.send_data(num).find_one({"_id": int(x)})
 
                 id_number = pdf["_id"]
@@ -134,25 +141,31 @@ async def send_file(
 
                 get_amount.append(float(amount))
 
+                # save file to the server
                 name = f"{date}({id_number}-¥{amount}).pdf"
                 with open(name, "wb") as f:
                     f.write(codecs.decode(code, "base64"))
 
             # total all the price
             output_total_amount = sum(get_amount)
+
             # zip
             zip_name = f"{num}月-¥{'{:0.2f}'.format(output_total_amount)}.zip"
 
+            # search pdf on server and zip all the file
             with ZipFile(zip_name, "w") as file_zip:
                 for _root, _dir, files in os.walk("/"):
                     for name in files:
                         if fnmatch.fnmatch(name, "*.pdf"):
                             file_zip.write(name)
                             os.remove(name)
+
+            # jump to download page and download zip file
             return RedirectResponse(
                 request.url_for("download", file=zip_name), status_code=302
             )
         else:
+            # upload pdf file section
             for file in files:
                 with open(file.filename, "wb") as buffer:
                     shutil.copyfileobj(file.file, buffer)
@@ -176,7 +189,7 @@ async def download(*, _=Depends(get_current_username), file: str):
 
 @app.get("/check/")
 async def check(_=Depends(get_current_username)):
-    """check all zip and pdf file"""
+    """Check all zip and pdf file"""
 
     def count_size(size):
         if size < 1000:

@@ -20,5 +20,4 @@ python-dotenv
 # pdf
 pdfplumber
 
-requests
 opencv-python-headless

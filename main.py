@@ -1,4 +1,5 @@
-import os, fnmatch
+import os
+import fnmatch
 import codecs
 import shutil
 import secrets
@@ -47,7 +48,7 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 def delete_all_file():
-    for root, dir, files in os.walk("/"):
+    for _root, _dir, files in os.walk("/"):
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
                 os.remove(name)
@@ -93,12 +94,9 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
     delete_all_file()  # delete all zip and pdf file
 
     invoice_data = [x for x in _db.send_data(num).find({})]
-    amount: float = [float(x["amount"]) for x in invoice_data]
+    amount = [float(x["amount"]) for x in invoice_data]
 
     invoice_data.sort(key=lambda x: x["date"])
-
-    if errors != 0:
-        msg = errors
 
     response = templates.TemplateResponse(
         "index.html",
@@ -107,7 +105,7 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
             "list_col": _db.list_collections(),
             "data": invoice_data,
             "total": "{:0.2f}".format(sum(amount)),
-            "msg": msg,
+            "msg": errors,
         },
     )
     errors.clear()
@@ -146,7 +144,7 @@ async def send_file(
             zip_name = f"{num}月-¥{'{:0.2f}'.format(output_total_amount)}.zip"
 
             with ZipFile(zip_name, "w") as file_zip:
-                for root, dir, files in os.walk("/"):
+                for _root, _dir, files in os.walk("/"):
                     for name in files:
                         if fnmatch.fnmatch(name, "*.pdf"):
                             file_zip.write(name)
@@ -165,7 +163,7 @@ async def send_file(
             num: str = invoice.month
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
-    except:
+    except FileNotFoundError:
         errors.append("No file upload")
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
@@ -183,17 +181,17 @@ async def check(_=Depends(get_current_username)):
     def count_size(size):
         if size < 1000:
             return f"{size} bytes"
-        elif size >= 1000 and size < 100000:
+        elif 100000 > size >= 1000:
             return f"{round(size / 1000, 2)} KB"
         else:
             return f"{round(size / 1000000, 2)} MB"
 
     def file_info(file, size):
-        data = {"filename": file, "filesize": size}
+        data = {"file_name": file, "file_size": size}
         return data
 
     file_list = []
-    for root, dir, files in os.walk("/"):
+    for _root, _dir, files in os.walk("/"):
         for name in files:
             if fnmatch.fnmatch(name, "*.zip"):
                 get_size = os.path.getsize(name)

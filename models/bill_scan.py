@@ -1,7 +1,6 @@
 import base64
 import pendulum
 import pdfplumber
-from fastapi import UploadFile
 from models.mongodb import MongoDB
 from pymongo.errors import DuplicateKeyError
 
@@ -11,7 +10,7 @@ _db = MongoDB()
 class Invoice:
     """All function about invoice calculate"""
 
-    def pdf_file(self, file: UploadFile | None) -> dict:
+    def pdf_file(self, file) -> dict:
         # calculate
         try:
             with pdfplumber.open(file) as pdf:
@@ -20,7 +19,7 @@ class Invoice:
                     page = pdf.pages[i]
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
-                # print(content)
+                print(content)
 
                 code = []
                 number = []
@@ -49,7 +48,7 @@ class Invoice:
                 date_output = "".join(date)
                 num_output = int("".join(number))
                 code_output = int("".join(code))
-                amount_output = float(amount[1][num + 1 :])
+                amount_output = float(amount[1][num + 1:])
 
                 dt = pendulum.from_format(date_output, "YYYYMMDD")
                 self.year = dt.year
@@ -67,7 +66,7 @@ class Invoice:
                 }
                 # print(data)
 
-                _db.send_data(dt.month).insert_one(data)
+                _db.send_data(str(dt.month)).insert_one(data)
         except DuplicateKeyError:
             return f"File duplicate, '_id' {num_output}".upper()
         except Exception as error:

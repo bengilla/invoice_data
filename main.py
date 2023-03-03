@@ -1,14 +1,16 @@
 import os, fnmatch
 import codecs
 import shutil
+import secrets
 from typing import List
 from config.settings import settings
 from zipfile import ZipFile
 
-from fastapi import FastAPI, Request, File, UploadFile
+from fastapi import FastAPI, Request, File, UploadFile, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from models.bill_scan import Invoice
 from models.mongodb import MongoDB
@@ -17,15 +19,47 @@ from models.mongodb import MongoDB
 app = FastAPI(title=settings.TITLE)
 app.mount("/statis", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+security = HTTPBasic()
 
 _db = MongoDB()
 invoice = Invoice()
 errors = []
 
 
-# perform when data is empty
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    current_username_bytes = credentials.username.encode("utf8")
+    correct_username_bytes = bytes(settings.USERNAME, encoding="utf-8")
+    is_correct_username = secrets.compare_digest(
+        current_username_bytes, correct_username_bytes
+    )
+    current_password_bytes = credentials.password.encode("utf8")
+    correct_password_bytes = bytes(settings.PASSWORD, encoding="utf-8")
+    is_correct_password = secrets.compare_digest(
+        current_password_bytes, correct_password_bytes
+    )
+    if not (is_correct_username and is_correct_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username and password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+
+def delete_all_file():
+    for root, dir, files in os.walk("/"):
+        for name in files:
+            if fnmatch.fnmatch(name, "*.zip"):
+                os.remove(name)
+            if fnmatch.fnmatch(name, "*.pdf"):
+                os.remove(name)
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _=Depends(get_current_username)):
+    """When all data is empty"""
+    delete_all_file()  # delete all zip and pdf file
+
     if len(_db.list_collections()) == 0:
         return templates.TemplateResponse(
             "index.html",
@@ -33,14 +67,14 @@ async def index(request: Request):
         )
     else:
         num: list[str] = _db.list_collections()[0]
-        response_url = request.url_for("first", num=num)
-        return RedirectResponse(response_url, status_code=302)
+        return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 
 @app.post("/", response_class=RedirectResponse)
 async def send_file(
     request: Request,
     files: List[UploadFile] = File(None),
+    _=Depends(get_current_username),
 ):
     for file in files:
         with open(file.filename, "wb") as buffer:
@@ -50,13 +84,14 @@ async def send_file(
             if err_msg:
                 errors.append(err_msg)
     num: str = invoice.month
-    request_url = request.url_for("first", num=num)
-    return RedirectResponse(request_url, status_code=302)
+    return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 
-# perform when data is valid
 @app.get("/month/{num}", response_class=HTMLResponse)
-async def first(request: Request, num: str):
+async def main(*, request: Request, _=Depends(get_current_username), num: str):
+    """When data is valid"""
+    delete_all_file()  # delete all zip and pdf file
+
     invoice_data = [x for x in _db.send_data(num).find({})]
     amount: float = [float(x["amount"]) for x in invoice_data]
 
@@ -85,6 +120,7 @@ async def send_file(
     request: Request,
     files: List[UploadFile] = File(None),
     ids: List[str | None] = None,
+    _=Depends(get_current_username),
     num: str,
 ):
     try:
@@ -115,8 +151,9 @@ async def send_file(
                         if fnmatch.fnmatch(name, "*.pdf"):
                             file_zip.write(name)
                             os.remove(name)
-            request_url = request.url_for("download", file=zip_name)
-            return RedirectResponse(request_url, status_code=302)
+            return RedirectResponse(
+                request.url_for("download", file=zip_name), status_code=302
+            )
         else:
             for file in files:
                 with open(file.filename, "wb") as buffer:
@@ -127,22 +164,20 @@ async def send_file(
                         errors.append(err_msg)
             num: str = invoice.month
 
-        request_url = request.url_for("first", num=num)
-        return RedirectResponse(request_url, status_code=302)
+        return RedirectResponse(request.url_for("main", num=num), status_code=302)
     except:
         errors.append("No file upload")
-        request_url = request.url_for("first", num=num)
-        return RedirectResponse(request_url, status_code=302)
+        return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 
 @app.get("/download/{file}", response_class=FileResponse)
-async def download(file: str):
-    response = FileResponse(path=file, filename=file)
-    return response
+async def download(*, _=Depends(get_current_username), file: str):
+    """Download file section"""
+    return FileResponse(path=file, filename=file)
 
 
 @app.get("/check/")
-async def check():
+async def check(_=Depends(get_current_username)):
     """check all zip and pdf file"""
 
     def count_size(size):
@@ -170,15 +205,3 @@ async def check():
                 file_list.append(output_data)
 
     return {"message": file_list}
-
-
-@app.get("/remove")
-async def check(request: Request):
-    """delete all zip and pdf file"""
-    for root, dir, files in os.walk("/"):
-        for name in files:
-            if fnmatch.fnmatch(name, "*.zip"):
-                os.remove(name)
-            if fnmatch.fnmatch(name, "*.pdf"):
-                os.remove(name)
-    return {"message": "Remove succesful"}

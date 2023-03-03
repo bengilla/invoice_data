@@ -14,5 +14,8 @@ class Settings:
     DB_LOCAL = os.getenv("DB_LOCAL")
     DB_URL = os.getenv("DB_URL")
 
+    USERNAME = os.getenv("USERNAME")
+    PASSWORD = os.getenv("PASSWORD")
+
 
 settings = Settings()

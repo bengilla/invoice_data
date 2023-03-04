@@ -1,8 +1,9 @@
 import base64
 import pendulum
 import pdfplumber
-from models.mongodb import MongoDB
 from pymongo.errors import DuplicateKeyError
+
+from models.mongodb import MongoDB
 
 _db = MongoDB()
 
@@ -49,7 +50,7 @@ class Invoice:
                 date_output = "".join(date)
                 code_output = int("".join(code))
                 num_output = int("".join(number))
-                amount_output = float(amount[1][num + 1:])
+                amount_output = float(amount[1][num + 1 :])
 
                 # date section, year and month are from invoice data
                 dt = pendulum.from_format(date_output, "YYYYMMDD")

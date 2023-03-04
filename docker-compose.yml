@@ -7,7 +7,7 @@ services:
     ports:
       - 8000:8000
     environment:
-      DB_LOCAL: mongodb://db/empDB
+      DB_LOCAL: mongodb://db/localDB
     env_file:
       - .env
     volumes:
@@ -19,7 +19,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - empDB:/data/db
+      - localDB:/data/db
 
 volumes:
-  empDB:
+  localDB:

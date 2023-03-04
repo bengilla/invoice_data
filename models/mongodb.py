@@ -6,8 +6,8 @@ from config.settings import settings
 class MongoDB:
     def __init__(self) -> None:
         # Local Testing MongoDB-------------------------------
-        # self.client = MongoClient(settings.DB_LOCAL, serverSelectionTimeoutMS=3000)
-        self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
+        self.client = MongoClient(settings.DB_LOCAL, serverSelectionTimeoutMS=3000)
+        # self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
 
         # collection info
         self.invoice = self.client["INVOICE"]

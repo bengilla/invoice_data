@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from config.settings import settings
-from models.bill_scan import Invoice
+from models.invoice_scanning import Invoice
 from models.mongodb import MongoDB
 
 

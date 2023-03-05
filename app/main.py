@@ -4,7 +4,6 @@ import fnmatch
 import codecs
 import shutil
 import secrets
-from typing import List
 from zipfile import ZipFile
 
 from fastapi import FastAPI, Request, File, UploadFile, Depends, HTTPException
@@ -98,11 +97,11 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
 
 
 @app.post("/month/{num}", response_class=RedirectResponse)
-async def send_file(  # pylint: disable=E0102
+async def send_file(
     *,
     request: Request,
-    files: List[UploadFile] = File(None),
-    ids: List[str | None] = None,
+    files: list[UploadFile] = File(None),
+    ids: list[str | None] = None,
     _=Depends(get_current_username),
     num: str,
 ):
@@ -115,30 +114,31 @@ async def send_file(  # pylint: disable=E0102
                 # get info from db
                 pdf = _db.send_data(num).find_one({"_id": int(_id)})
 
-                id_number = pdf["_id"]
-                date = pdf["date"]
-                amount = pdf["amount"]
-                code = pdf["pdf"]
+                data = {
+                    "id_number": pdf["_id"],
+                    "date": pdf["date"],
+                    "amount": pdf["amount"],
+                    "code": pdf["code"],
+                    "pdf": pdf["pdf"],
+                }
+                # print(data)
 
-                get_amount.append(float(amount))
+                get_amount.append(float(data["amount"]))
 
                 # save file to the server
-                name = f"{date}({id_number}-¥{amount}).pdf"
+                name = f"{data['date']}({data['id_number']}-¥{data['amount']}).pdf"
                 with open(name, "wb") as file:
-                    file.write(codecs.decode(code, "base64"))
-
-            # total all the price
-            output_total_amount = sum(get_amount)
+                    file.write(codecs.decode(data["pdf"], "base64"))
 
             # zip
-            zip_name = f"{num}月-¥{output_total_amount:0.2f}.zip"
+            zip_name = f"{num}月-¥{sum(get_amount):0.2f}.zip"
 
             # search pdf on server and zip all the file
-            with ZipFile(zip_name, "w") as file_zip:
-                for _root, _dir, _files in os.walk("/"):
-                    for name in _files:
+            with ZipFile(zip_name, "w") as zip_file:
+                for _, _, pdf_file in os.walk("/"):
+                    for name in pdf_file:
                         if fnmatch.fnmatch(name, "*.pdf"):
-                            file_zip.write(name)
+                            zip_file.write(name)
                             os.remove(name)
 
             # jump to download page and download zip file
@@ -146,7 +146,7 @@ async def send_file(  # pylint: disable=E0102
                 request.url_for("download", file=zip_name), status_code=302
             )
 
-        # upload pdf file section
+        # id not ids select to download and upload pdf file
         for file in files:
             with open(file.filename, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
@@ -154,7 +154,7 @@ async def send_file(  # pylint: disable=E0102
                 os.remove(file.filename)
                 if err_msg:
                     errors.append(err_msg)
-            num: str = invoice.month
+            num: str = invoice.date.month
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
     except FileNotFoundError:

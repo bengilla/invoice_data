@@ -1,0 +1,86 @@
+"""invoice work section"""
+from typing import Any
+import base64
+import pendulum
+import pdfplumber
+from pymongo.errors import DuplicateKeyError
+
+from .mongodb import MongoDB
+
+_db = MongoDB()
+
+
+class Invoice:
+    """All function about invoice calculate"""
+
+    def __init__(self) -> None:
+        self.date = None
+
+    def get_data(self, content: list[str]) -> dict[str, Any]:
+        """take piece by piece convert to final data (dict)"""
+        store_data = {"date": [], "code": [], "number": [], "amount": []}
+        title_data = {"date": "开票日期", "code": "发票代码", "number": "发票号码"}
+
+        for key, value in title_data.items():
+            for item in content[0]:
+                if value in item:
+                    for i in item:
+                        if i.isdigit():
+                            store_data[key].append(i)
+                if "¥" in item or "￥" in item:
+                    store_data["amount"].append(item)
+        # print(store_data)
+
+        for i in store_data["amount"][1]:
+            if i in ("¥", "￥"):
+                num = store_data["amount"][1].index(i)
+
+        result_data = {
+            "date_output": "".join(store_data["date"]),
+            "code_output": int("".join(store_data["code"])),
+            "num_output": int("".join(store_data["number"])),
+            "amount_output": float(store_data["amount"][1][num + 1 :]),
+        }
+
+        return result_data
+
+    def pdf_file(self, file: Any):
+        """final output all data to db"""
+        try:
+            with pdfplumber.open(file) as pdf:
+                content = []
+                for item, _ in enumerate(pdf.pages):
+                    page = pdf.pages[item]
+                    page_content = page.extract_text().split("\n")[:-1]
+                    content.append(page_content)
+                # print(content)
+
+            result_data = self.get_data(content)
+
+            # date section, year and month are from invoice data
+            self.date = pendulum.from_format(result_data["date_output"], "YYYYMMDD")
+
+            # encode pdf file and store to db
+            with open(file, "rb") as pdf:
+                encoded = base64.b64encode(pdf.read())
+
+            db_data = {
+                "_id": result_data["num_output"],
+                "date": self.date.to_date_string(),
+                "code": result_data["code_output"],
+                "amount": f"{result_data['amount_output']:0.2f}",
+                "pdf": encoded,
+            }
+            # print(data)
+
+            # store to db
+            db_upload = _db.send_data(str(self.date.month)).insert_one(db_data)
+            if db_upload:
+                return f"{result_data['num_output']} 上传成功"
+            return f"{result_data['num_output']} 上传失败"
+        except DuplicateKeyError:
+            # when duplicate file
+            return f"重复文件, 发票代码: {result_data['num_output']}"
+        except Exception:
+            # other error
+            return "文件异常, 请重新上传发票(PDF)"

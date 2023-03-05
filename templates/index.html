@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-    <title>Invoice Calculate</title>
+    <title>发票计算系统</title>
 </head>
 
 <body>
@@ -16,7 +16,7 @@
 
             <!-- header -->
             <div class="w-full my-4 grid place-content-center">
-                <span class="text-4xl font-bold">Invoice Calculate</span>
+                <span class="text-4xl font-bold">发票计算系统</span>
             </div>
             <!-- end header -->
 
@@ -102,16 +102,15 @@
             {% endfor %}
             <!-- end error message -->
 
-            <!-- form -->
             <div class="w-full mt-8 grid place-content-center">
                 <!-- File -->
-                <div class="pl-1 text-xs text-slate-500">UPLOAD INVOICE FILE (PDF)</div>
+                <div class="pl-1 text-xs text-slate-500">选择上传发票(PDF)</div>
                 <div>
                     <input type="file" name="files" class="b-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
                 </div>
                 <!-- Submit -->
                 <div>
-                    <input type="submit" value="upload & download file" class="w-full mt-8 py-3 px-6 text-sm text-slate-500 rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
+                    <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm text-slate-500 rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
                 </div>
             </div>
             <!-- end form -->
@@ -148,7 +147,7 @@
 
         // if empty hide title box (jquery)
         const title = $("#title-box");
-        if (url === "/") {
+        if (url === "/month/0" || url === "/month/None") {
             title.css("display", "none");
         } else {
             title.css("display", "");

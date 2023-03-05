@@ -8,7 +8,7 @@ from typing import List
 from zipfile import ZipFile
 
 from fastapi import FastAPI, Request, File, UploadFile, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -16,6 +16,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from config.settings import settings
 from models.invoice_scanning import Invoice
 from models.mongodb import MongoDB
+from routes.download import download_routes
+from routes.check import check_routes
 
 
 app = FastAPI(title=settings.TITLE)
@@ -51,44 +53,20 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 
 def delete_all_file():
     """Delete pdf and zip function"""
-    for _root, _dir, files in os.walk("/"):
-        for name in files:
-            if fnmatch.fnmatch(name, "*.zip"):
-                os.remove(name)
-            if fnmatch.fnmatch(name, "*.pdf"):
-                os.remove(name)
+    for file in os.listdir("."):
+        if fnmatch.fnmatch(file, "*.zip") or fnmatch.fnmatch(file, "*.pdf"):
+            os.remove(file)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=RedirectResponse)
 async def index(request: Request, _=Depends(get_current_username)):
     """Upload pdf file when db is empty"""
     delete_all_file()  # delete all zip and pdf file
-
-    if len(_db.list_collections()) == 0:
-        return templates.TemplateResponse(
-            "index.html",
-            {"request": request, "list_col": _db.list_collections()},
-        )
+    count = list(_db.list_collections())
+    if len(count) == 0:
+        num = "0"
     else:
-        num: list[str] = _db.list_collections()[0]
-        return RedirectResponse(request.url_for("main", num=num), status_code=302)
-
-
-@app.post("/", response_class=RedirectResponse)
-async def send_file(
-    request: Request,
-    files: List[UploadFile] = File(None),
-    _=Depends(get_current_username),
-):
-    """Upload pdf file when db is empty"""
-    for file in files:
-        with open(file.filename, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            err_msg = invoice.pdf_file(file.filename)
-            os.remove(file.filename)
-            if err_msg:
-                errors.append(err_msg)
-    num: str = invoice.month
+        num = count[0]
     return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 
@@ -98,7 +76,7 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
     delete_all_file()  # delete all zip and pdf file
 
     # receive all invoice amount information
-    invoice_data = [x for x in _db.send_data(num).find({})]
+    invoice_data = list(_db.send_data(num).find({}))
     amount = [float(x["amount"]) for x in invoice_data]
 
     # sort by date
@@ -120,7 +98,7 @@ async def main(*, request: Request, _=Depends(get_current_username), num: str):
 
 
 @app.post("/month/{num}", response_class=RedirectResponse)
-async def send_file(
+async def send_file(  # pylint: disable=E0102
     *,
     request: Request,
     files: List[UploadFile] = File(None),
@@ -157,8 +135,8 @@ async def send_file(
 
             # search pdf on server and zip all the file
             with ZipFile(zip_name, "w") as file_zip:
-                for _root, _dir, files in os.walk("/"):
-                    for name in files:
+                for _root, _dir, _files in os.walk("/"):
+                    for name in _files:
                         if fnmatch.fnmatch(name, "*.pdf"):
                             file_zip.write(name)
                             os.remove(name)
@@ -167,55 +145,22 @@ async def send_file(
             return RedirectResponse(
                 request.url_for("download", file=zip_name), status_code=302
             )
-        else:
-            # upload pdf file section
-            for file in files:
-                with open(file.filename, "wb") as buffer:
-                    shutil.copyfileobj(file.file, buffer)
-                    err_msg = invoice.pdf_file(file.filename)
-                    os.remove(file.filename)
-                    if err_msg:
-                        errors.append(err_msg)
+
+        # upload pdf file section
+        for file in files:
+            with open(file.filename, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+                err_msg = invoice.pdf_file(file.filename)
+                os.remove(file.filename)
+                if err_msg:
+                    errors.append(err_msg)
             num: str = invoice.month
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
     except FileNotFoundError:
-        errors.append("No file upload")
+        errors.append("没有文件上传")
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 
-@app.get("/download/{file}", response_class=FileResponse)
-async def download(*, _=Depends(get_current_username), file: str):
-    """Download file section"""
-    return FileResponse(path=file, filename=file)
-
-
-@app.get("/check/")
-async def check(_=Depends(get_current_username)):
-    """Check all zip and pdf file"""
-
-    def count_size(size):
-        if size < 1000:
-            return f"{size} bytes"
-        elif 100000 > size >= 1000:
-            return f"{round(size / 1000, 2)} KB"
-        else:
-            return f"{round(size / 1000000, 2)} MB"
-
-    def file_info(file, size):
-        data = {"file_name": file, "file_size": size}
-        return data
-
-    file_list = []
-    for _root, _dir, files in os.walk("/"):
-        for name in files:
-            if fnmatch.fnmatch(name, "*.zip"):
-                get_size = os.path.getsize(name)
-                output_data = file_info(name, count_size(get_size))
-                file_list.append(output_data)
-            if fnmatch.fnmatch(name, "*.pdf"):
-                get_size = os.path.getsize(name)
-                output_data = file_info(name, count_size(get_size))
-                file_list.append(output_data)
-
-    return {"message": file_list}
+app.include_router(download_routes)
+app.include_router(check_routes)

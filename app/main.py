@@ -109,29 +109,23 @@ async def send_file(
     try:
         # ids are return from html checkbox
         if ids:
-            get_amount = []
+            # get all pdf amount to total
+            get_total_amount = []
+
+            # convert to single pdf file and save to server
             for _id in ids:
                 # get info from db
                 pdf = _db.send_data(num).find_one({"_id": int(_id)})
 
-                data = {
-                    "id_number": pdf["_id"],
-                    "date": pdf["date"],
-                    "amount": pdf["amount"],
-                    "code": pdf["code"],
-                    "pdf": pdf["pdf"],
-                }
-                # print(data)
-
-                get_amount.append(float(data["amount"]))
+                get_total_amount.append(float(pdf["amount"]))
 
                 # save file to the server
-                name = f"{data['date']}({data['id_number']}-¥{data['amount']}).pdf"
+                name = f"{pdf['date']}({pdf['id_number']}-¥{pdf['amount']}).pdf"
                 with open(name, "wb") as file:
-                    file.write(codecs.decode(data["pdf"], "base64"))
+                    file.write(codecs.decode(pdf["pdf"], "base64"))
 
-            # zip
-            zip_name = f"{num}月-¥{sum(get_amount):0.2f}.zip"
+            # download pdf and save to zip
+            zip_name = f"{num}月-¥{sum(get_total_amount):0.2f}.zip"
 
             # search pdf on server and zip all the file
             with ZipFile(zip_name, "w") as zip_file:
@@ -146,7 +140,7 @@ async def send_file(
                 request.url_for("download", file=zip_name), status_code=302
             )
 
-        # id not ids select to download and upload pdf file
+        # id not ids select to download, this function is upload pdf file
         for file in files:
             with open(file.filename, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)

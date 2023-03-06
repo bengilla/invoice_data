@@ -25,7 +25,7 @@ class MongoDB:
         """to collection"""
         return self.invoice[str(month)]
 
-    def list_collections(self) -> list:
+    def list_collections(self) -> list[str]:
         """return sort list collection"""
         list_collection = list(self.invoice.list_collection_names())
         return sorted(list_collection)

@@ -120,7 +120,7 @@ async def send_file(
                 get_total_amount.append(float(pdf["amount"]))
 
                 # save file to the server
-                name = f"{pdf['date']}({pdf['id_number']}-¥{pdf['amount']}).pdf"
+                name = f"{pdf['date']}({pdf['_id']}-¥{pdf['amount']}).pdf"
                 with open(name, "wb") as file:
                     file.write(codecs.decode(pdf["pdf"], "base64"))
 

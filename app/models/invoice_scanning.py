@@ -16,7 +16,7 @@ class Invoice:
     def __init__(self) -> None:
         self.date = None
 
-    def get_data(self, content: list[str]):
+    def get_data(self, content):
         """take piece by piece convert to final data (dict)"""
         store_data = {"date": [], "code": [], "number": [], "amount": []}
         title_data = {"date": "开票日期", "code": "发票代码", "number": "发票号码"}

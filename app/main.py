@@ -60,13 +60,13 @@ def delete_all_file():
 @app.get("/", response_class=RedirectResponse)
 async def index(request: Request, _=Depends(get_current_username)):
     """Upload pdf file when db is empty"""
-    delete_all_file()  # delete all zip and pdf file
     count = list(_db.list_collections())
     if len(count) == 0:
         num = "0"
     else:
         num = count[0]
-    return RedirectResponse(request.url_for("main", num=num), status_code=302)
+    response = RedirectResponse(request.url_for("main", num=num), status_code=302)
+    return response
 
 
 @app.get("/month/{num}", response_class=HTMLResponse)
@@ -148,7 +148,10 @@ async def send_file(
                 os.remove(file.filename)
                 if err_msg:
                     errors.append(err_msg)
-            num: str = invoice.date.month
+            try:
+                num: str = invoice.date.month
+            except Exception:
+                num = "0"
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
     except FileNotFoundError:

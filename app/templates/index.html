@@ -98,7 +98,7 @@
 
             <!-- error message -->
             {% for err in msg%}
-            <div class="w-full p-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center error">{{ err }}</div>
+            <div id="error" class="w-full p-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center">{{ err }}</div>
             {% endfor %}
             <!-- end error message -->
 
@@ -160,10 +160,11 @@
         btn.style.color = "#fff";
 
         // fadeout (jquery)
-        const errordiv = $(".error");
-        if (errordiv) {
+        if ($("#error")) {
             setTimeout(function () {
-                $(".error").fadeOut("fast");
+                $("#error").fadeOut("slow", function() {
+                $("#error").remove()
+                });
             }, 5000);
         }
     </script>

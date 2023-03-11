@@ -1,8 +1,8 @@
 """invoice work section"""
-from typing import Any
 import base64
 import pendulum
 import pdfplumber
+from typing import Any
 from pymongo.errors import DuplicateKeyError
 
 from .mongodb import MongoDB
@@ -71,7 +71,7 @@ class Invoice:
                 "amount": f"{result_data['amount_output']:0.2f}",
                 "pdf": encoded,
             }
-            # print(data)
+            # print(db_data)
 
             # store to db
             db_upload = _db.send_data(str(self.date.month)).insert_one(db_data)

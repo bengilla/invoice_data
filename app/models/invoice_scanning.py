@@ -47,6 +47,7 @@ class Invoice:
     def pdf_file(self, file: Any):
         """final output all data to db"""
         try:
+            # take all data from PDF
             with pdfplumber.open(file) as pdf:
                 content = []
                 for item, _ in enumerate(pdf.pages):
@@ -55,7 +56,9 @@ class Invoice:
                     content.append(page_content)
                 # print(content)
 
+            # calculate all data to format
             result_data = self.get_data(content)
+            # print(result_data)
 
             # date section, year and month are from invoice data
             self.date = pendulum.from_format(result_data["date_output"], "YYYYMMDD")

@@ -7,6 +7,7 @@ venv
 .git
 .env
 .idea
+.pylintrc
 
 # tailwind
 input.css

@@ -12,7 +12,7 @@
     <title>发票计算系统</title>
 </head>
 
-<body>
+<body class="bg-slate-700 text-slate-200">
     <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
         <div class="w-full px-1 pb-12 grid place-content-center">
 
@@ -66,7 +66,7 @@
                             <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
                             <td class="p-2 text-center">
                                 {% if i.pdf %}
-                                <img src="{{ url_for('static', path='images/pdf.png') }}" alt="PDF image" width="20px">
+                                <img src="{{ url_for('static', path='images/invoice_pdf.png') }}" alt="PDF image" width="20px">
                                 {% endif %}
                             </td>
                             <td class="p-2 text-center">{{ i.date }}</td>
@@ -106,13 +106,13 @@
 
             <div class="w-full mt-8 grid place-content-center">
                 <!-- File -->
-                <div class="pl-1 text-xs text-slate-500">选择上传发票(PDF)</div>
+                <div class="pl-1 text-xs">选择上传发票(PDF)</div>
                 <div>
-                    <input type="file" name="files" class="b-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
+                    <input type="file" name="files" class="b-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
                 </div>
                 <!-- Submit -->
                 <div>
-                    <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm text-slate-500 rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
+                    <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
                 </div>
             </div>
             <!-- end form -->

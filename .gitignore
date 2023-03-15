@@ -10,3 +10,4 @@ venv
 
 # tailwind
 input.css
+app/database

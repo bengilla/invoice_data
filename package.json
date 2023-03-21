@@ -1,0 +1,12 @@
+{
+  "name": "invoice_data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "_tailwind.config.js",
+  "scripts": {
+    "build": "npx tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.2.7"
+  }
+}

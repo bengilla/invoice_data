@@ -117,7 +117,13 @@ async def send_file(
                 # get info from db
                 pdf = _db.send_data(num).find_one({"_id": int(_id)})
 
+                # get total amount for download invoice
                 get_total_amount.append(float(pdf["amount"]))
+
+                # if download success turn downlaod icon to True
+                _db.send_data(num).update_one(
+                    {"_id": int(_id)}, {"$set": {"download": True}}
+                )
 
                 # save file to the server
                 name = f"{pdf['date']}({pdf['_id']}-¥{pdf['amount']}).pdf"

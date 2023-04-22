@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/output.css">
+    <script src="/static/js/jquery-3.6.4.min.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="/static/images/favicon.ico">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body class="bg-slate-700 text-slate-200">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    {%block content %} {% endblock %}
+</body>
+<script>
+    // checkbox function (jquery)
+    function toggle(source) {
+        checkboxs = $("[name='ids']");
+        for (var i = 0, n = checkboxs.length; i < n; i++) {
+            checkboxs[i].checked = source.checked;
+        }
+    }
+
+    // single button
+    function single(source) {
+        checkboxes = $("[name='ids']");
+        single_row = $(".single_row")
+        let count = 0;
+
+        for (var i = 0, n = checkboxes.length; i < n; i++) {
+            if (checkboxes[i].type === "checkbox" && checkboxes[i].checked === true) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            console.log(count);
+        } else {
+            document.getElementById("main-checkbox").checked = false;
+        }
+    }
+
+    function single_row(source) {
+        var checkboxes = $(source).find("input[type='checkbox']");
+        var checkbox = $("[name='ids']");
+        var count = 0;
+
+        // click tr too select checkbox
+        var isChecked = checkboxes.prop("checked");
+        checkboxes.prop('checked', !isChecked);
+
+        // check how many checkbox are select
+        for (var i = 0; i < checkbox.length; i++) {
+            if ($(checkbox[i]).prop("checked")) {
+                count++;
+            }
+        }
+        if (count === 0) {
+            $("#main-checkbox").prop("checked", false)
+        }
+    }
+
+    // url pathname
+    let url = location.pathname;
+
+    // if empty hide title box (jquery)
+    const title = $("#title-box");
+    if (url === "/month/0" || url === "/month/None") {
+        title.css("display", "none");
+    } else {
+        title.css("display", "");
+    }
+
+    // button color
+    var selector = "#" + $.escapeSelector(url);
+    var btn = $(selector);
+    btn.css({
+        "background-color": "#f97316",
+        "border-color": "#f97316",
+        "color": "#fff"
+    });
+
+    // fadeout (jquery) test
+    var errorElements = $(".error");
+    if (errorElements.length) { // check if any elements were found
+        setTimeout(function () {
+            errorElements.each(function () {
+                $(this).fadeOut("fast", function () {
+                    $(this).remove();
+                });
+            });
+        }, 5000);
+    }
+
+</script>
+
+</html>

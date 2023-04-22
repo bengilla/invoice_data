@@ -1,212 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% block title %}Login Page{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="../static/js/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" href="../static/css/output.css">
-    <link rel="shortcut icon" type="image/x-icon" href="/statis/images/favicon.ico">
-    <title>发票计算系统</title>
-</head>
+{% block header %}
+<div class="p-4 text-center border-b-2 border-slate-400">
+    <div class="p-4">
+        <span class="text-4xl">发票整理系统</span>
+    </div>
+    <div>
+        <a href="/register" class="hover:text-orange-400 hover:underline">注册</a>
+    </div>
+</div>
+{% endblock %}
 
-<body class="bg-slate-700 text-slate-200">
-    <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
-        <div class="w-full px-1 pb-12 grid place-content-center">
-
-            <!-- header -->
-            <div class="w-full my-4 grid place-content-center">
-                <span class="text-4xl font-bold">发票整理系统</span>
+{% block content %}
+<form action="/" method="post" enctype="multipart/form-data">
+    <div class="w-full grid place-content-center">
+        <div class="mt-12">
+            <div class="pb-2">
+                <input type="email" name="email" class="w-80 p-2 px-2 rounded-lg text-center bg-slate-700 border-2 focus:outline-red-400" placeholder="邮箱"><br>
             </div>
-            <!-- end header -->
 
-            <!-- month list -->
-            <div class="flex my-4">
-                {% for i in list_col%}
-                <div class="px-1">
-                    <a href="{{ i }}">
-                        <div id="/month/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 transition ease-in-out">
-                            {{ i }}
-                        </div>
-                    </a>
-                </div>
-                {% endfor%}
+            <div>
+                <input type="password" name="password" class="w-full p-2 px-2 rounded-lg text-center bg-slate-700 border-2 focus:outline-red-400" placeholder="密码">
             </div>
-            <!-- end month list -->
-
-            <!-- body -->
-            <div class="border-2 border-orange-500 rounded-lg">
-                <table class="table-fixed">
-                    <!-- thead -->
-                    <thead id="title-box">
-                        <tr class="bg-orange-500 text-slate-50">
-                            <th class="p-4 bg-orange-500">
-                                <input type="checkbox" id="main-checkbox" class="w-4 h-4 rounded-xl" onclick="toggle(this)" />
-                            </th>
-                            <th class=" px-2">号
-                            </th>
-                            <th class="px-2">文件</th>
-                            <th class="px-2">日期</th>
-                            <th class="px-2">公司</th>
-                            <th class="px-2">发票号码</th>
-                            <th class="px-2">发票代码</th>
-                            <th class="px-2">价格</th>
-                            <th class="px-2">下载</th>
-                        </tr>
-                    </thead>
-                    <!-- end thead -->
-
-                    <!-- tbody -->
-                    <tbody>
-                        <!-- INVOICE -->
-                        {% for i in data %}
-                        <tr class="border-b-[1px] border-dotted border-orange-500 text-sm single_row" onclick="single_row(this)">
-                            <td class="text-center">
-                                <input type="checkbox" name="ids" class="w-4 h-4 rounded-xl" value="{{ i._id }}">
-                            </td>
-                            <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
-                            <td class="p-2 text-center">
-                                {% if i.pdf %}
-                                <img src="{{ url_for('static', path='images/invoice_pdf.png') }}" alt="PDF image" width="20px">
-                                {% endif %}
-                            </td>
-                            <td class="p-2 text-center">{{ i.date }}</td>
-                            <td class="p-2 text-center">{{ i.company }}</td>
-                            <td class="p-2 text-center">{{ i._id }}</td>
-                            <td class="p-2 text-center">{{ i.code }}</td>
-                            <td class="p-2 text-center">{{ i.amount }}</td>
-                            <td class="p-2 text-center">
-                                {% if i.download == True %}
-                                <span class="text-xs text-green-300">已下载</span>
-                                {% else %}
-                                <span class="text-xs text-red-300">未下载</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor%}
-                        <!-- END INVOICE -->
-
-                        <!-- TOTAL -->
-                        <tr class="bg-orange-500 text-slate-50 font-bold">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-right">总数: </td>
-                            <td class="p-4 text-center underline">¥ {{ total }}</td>
-                            <td></td>
-                        </tr>
-                        <!-- END TOTAL -->
-                    </tbody>
-                    <!-- end tbody -->
-                </table>
+            <div>
+                <input type="submit" value="确认" class="w-80 p-2 px-2 mt-6 text-slate-900 rounded-full bg-blue-300 hover:bg-blue-500">
             </div>
-            <!-- end body -->
-
-            <hr class="my-4 h-1 border-1 bg-slate-300">
-
-            <!-- error message -->
-            {% for err in msg%}
-            <div class="w-full p-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center error">{{ err }}</div>
-            {% endfor %}
-            <!-- end error message -->
-
-            <div class="w-full mt-8 grid place-content-center">
-                <!-- File -->
-                <div class="pl-1 pb-1 text-xs">选择上传发票(PDF)</div>
-                <div>
-                    <input type="file" name="files" class="b-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
-                </div>
-                <!-- Submit -->
-                <div>
-                    <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
-                </div>
-            </div>
-            <!-- end form -->
         </div>
-    </form>
-</body>
-<script>
-    // checkbox function (jquery)
-    function toggle(source) {
-        checkboxs = $("[name='ids']");
-        for (var i = 0, n = checkboxs.length; i < n; i++) {
-            checkboxs[i].checked = source.checked;
-        }
-    }
-
-    // single button
-    function single(source) {
-        checkboxes = $("[name='ids']");
-        single_row = $(".single_row")
-        let count = 0;
-
-        for (var i = 0, n = checkboxes.length; i < n; i++) {
-            if (checkboxes[i].type === "checkbox" && checkboxes[i].checked === true) {
-                count++;
-            }
-        }
-        if (count > 0) {
-            console.log(count);
-        } else {
-            document.getElementById("main-checkbox").checked = false;
-        }
-    }
-
-    function single_row(source) {
-        var checkboxes = $(source).find("input[type='checkbox']");
-        var checkbox = $("[name='ids']");
-        var count = 0;
-
-        // click tr too select checkbox
-        var isChecked = checkboxes.prop("checked");
-        checkboxes.prop('checked', !isChecked);
-
-        // check how many checkbox are select
-        for (var i = 0; i < checkbox.length; i++) {
-            if ($(checkbox[i]).prop("checked")) {
-                count++;
-            }
-        }
-        if (count === 0) {
-            $("#main-checkbox").prop("checked", false)
-        }
-    }
-
-    // url pathname
-    let url = location.pathname;
-
-    // if empty hide title box (jquery)
-    const title = $("#title-box");
-    if (url === "/month/0" || url === "/month/None") {
-        title.css("display", "none");
-    } else {
-        title.css("display", "");
-    }
-
-    // button color
-    var selector = "#" + $.escapeSelector(url);
-    var btn = $(selector);
-    btn.css({
-        "background-color": "#f97316",
-        "border-color": "#f97316",
-        "color": "#fff"
-    });
-
-    // fadeout (jquery) test
-    var error = $(".error")
-    if (error) {
-        setTimeout(function () {
-            for (i = 0, n = error.length; i < n; i++) {
-                jQuery(error[i]).fadeOut("fast", () => {
-                    error.remove()
-                });
-            }
-        }, 5000);
-    }
-</script>
-
-</html>
+    </div>
+</form>
+{% endblock %}

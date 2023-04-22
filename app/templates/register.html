@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Register Page{% endblock %}
+
+{% block header %}
+<div class="p-4 text-center border-b-2 border-slate-400">
+    <div class="p-4">
+        <span class="text-4xl">注册系统</span>
+    </div>
+    <div>
+        <a href="/" class="hover:text-orange-400 hover:underline">回主页</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="/register" method="post" enctype="multipart/form-data">
+    <div class="w-full grid place-content-center">
+        <div class="mt-12">
+            <div class="pb-2">
+                <input type="email" name="email" class="w-80 p-2 px-2 rounded-full text-center bg-slate-700 border-2 focus:outline-red-400" placeholder="邮箱" required><br>
+            </div>
+
+            <div class="pb-2">
+                <input type="password" name="password" class="w-full p-2 px-2 rounded-full text-center bg-slate-700 border-2 focus:outline-red-400" placeholder="密码" required>
+            </div>
+
+            <div class="pb-2">
+                <input type="text" name="code" class="w-full p-2 px-2 rounded-full text-center bg-slate-700 border-2 focus:outline-red-400" placeholder="确认号码" required>
+            </div>
+
+            <div>
+                <input type="submit" value="确认" class="w-80 p-2 px-2 mt-6 text-slate-900 rounded-full bg-blue-300 hover:bg-blue-500">
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
+    <div class="w-full px-1 pb-12 grid place-content-center">
+
+        <!-- header -->
+        <div class="w-full my-4 grid place-content-center">
+            <span class="text-4xl font-bold">发票整理系统</span>
+        </div>
+        <!-- end header -->
+
+        <!-- company -->
+        <div class="p-2">
+            <div class="p-2 flex">
+                {% for i in company %}
+                <div class="px-1">
+                    <span class="p-2 rounded-full text-xs border-2 hover:border-red-400 cursor-pointer">{{ i }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- end company -->
+
+        <!-- month list -->
+        <div class="flex my-4">
+            {% for i in list_col%}
+            <div class="px-1">
+                <a href="{{ i }}">
+                    <div id="/month/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 transition ease-in-out">
+                        {{ i }}
+                    </div>
+                </a>
+            </div>
+            {% endfor%}
+        </div>
+        <!-- end month list -->
+
+        <!-- body -->
+        <div class="border-2 border-orange-500 rounded-lg">
+            <table class="table-fixed">
+                <!-- thead -->
+                <thead id="title-box">
+                    <tr class="bg-orange-500 text-slate-50">
+                        <th class="p-4 bg-orange-500">
+                            <input type="checkbox" id="main-checkbox" class="w-4 h-4 rounded-xl" onclick="toggle(this)" />
+                        </th>
+                        <th class=" px-2">号
+                        </th>
+                        <th class="px-2">文件</th>
+                        <th class="px-2">日期</th>
+                        <th class="px-2">公司</th>
+                        <th class="px-2">发票号码</th>
+                        <th class="px-2">发票代码</th>
+                        <th class="px-2">价格</th>
+                        <th class="px-2">下载</th>
+                    </tr>
+                </thead>
+                <!-- end thead -->
+
+                <!-- tbody -->
+                <tbody>
+                    <!-- INVOICE -->
+                    {% for i in data %}
+                    <tr class="border-b-[1px] border-dotted border-orange-500 text-sm single_row" onclick="single_row(this)">
+                        <td class="text-center">
+                            <input type="checkbox" name="ids" class="w-4 h-4 rounded-xl" value="{{ i._id }}">
+                        </td>
+                        <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
+                        <td class="p-2 text-center">
+                            {% if i.pdf %}
+                            <img src="{{ url_for('static', path='images/invoice_pdf.png') }}" alt="PDF image" width="20px">
+                            {% endif %}
+                        </td>
+                        <td class="p-2 text-center">{{ i.date }}</td>
+                        <td class="p-2 text-center">{{ i.company }}</td>
+                        <td class="p-2 text-center">{{ i._id }}</td>
+                        <td class="p-2 text-center">{{ i.code }}</td>
+                        <td class="p-2 text-center">{{ i.amount }}</td>
+                        <td class="p-2 text-center">
+                            {% if i.download == True %}
+                            <span class="text-xs text-green-300">已下载</span>
+                            {% else %}
+                            <span class="text-xs text-red-300">未下载</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor%}
+                    <!-- END INVOICE -->
+
+                    <!-- TOTAL -->
+                    <tr class="bg-orange-500 text-slate-50 font-bold">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-right">总数: </td>
+                        <td class="p-4 text-center underline">¥ {{ total }}</td>
+                        <td></td>
+                    </tr>
+                    <!-- END TOTAL -->
+                </tbody>
+                <!-- end tbody -->
+            </table>
+        </div>
+        <!-- end body -->
+
+        <hr class="my-4 h-1 border-1 bg-slate-300">
+
+        <!-- error message -->
+        {% for err in msg%}
+        <div class="w-full p-2 mt-4 text-slate-50 font-bold bg-red-400 rounded-full grid place-content-center error">{{ err }}</div>
+        {% endfor %}
+        <!-- end error message -->
+
+        <div class="w-full mt-8 grid place-content-center">
+            <!-- File -->
+            <div class="pl-1 pb-1 text-xs">选择上传发票(PDF)</div>
+            <div>
+                <input type="file" name="files" class="b-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" multiple>
+            </div>
+            <!-- Submit -->
+            <div>
+                <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
+            </div>
+        </div>
+        <!-- end form -->
+    </div>
+</form>
+{% endblock %}

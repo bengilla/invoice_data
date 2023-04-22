@@ -19,7 +19,13 @@ class Invoice:
     def get_data(self, content) -> dict[str, str | int | float]:
         """take piece by piece convert to final data (dict)"""
         # this data when register and save to database as company name
-        company_data = ["北京忠合天歌文化产业有限公司", "个人"]
+        company_data = [
+            "北京忠合天歌文化产业有限公司",
+            "北京安和嘉音光电技术有限公司",
+            "北京画文文化有限公司",
+            "南京画文文化有限公司",
+            "个人",
+        ]
 
         # final store data
         store_data = {
@@ -79,7 +85,7 @@ class Invoice:
                     page = pdf.pages[item]
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
-                # print(content)
+                print(content)
 
             # calculate all data to format
             result_data = self.get_data(content)
@@ -87,6 +93,7 @@ class Invoice:
 
             # date section, year and month are from invoice data
             self.date = pendulum.from_format(result_data["date_output"], "YYYYMMDD")
+            print(self.date.year)
 
             # encode pdf file and store to db
             with open(file, "rb") as pdf:

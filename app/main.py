@@ -3,14 +3,14 @@ import os
 import fnmatch
 import codecs
 import shutil
-import secrets
+from passlib.context import CryptContext
+
 from zipfile import ZipFile
 
-from fastapi import FastAPI, Request, File, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, Request, File, Form, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from config.settings import settings
 from models.invoice_scanning import Invoice
@@ -20,34 +20,13 @@ from routes.check import check_routes
 
 
 app = FastAPI(title=settings.TITLE)
-app.mount("/statis", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-security = HTTPBasic()
 
+_pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 _db = MongoDB()
-invoice = Invoice()
-errors = []
-
-
-def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    """Basic HTTPAuth"""
-    current_username_bytes = credentials.username.encode("utf8")
-    correct_username_bytes = bytes(settings.USERNAME, encoding="utf8")
-    is_correct_username = secrets.compare_digest(
-        current_username_bytes, correct_username_bytes
-    )
-    current_password_bytes = credentials.password.encode("utf8")
-    correct_password_bytes = bytes(settings.PASSWORD, encoding="utf8")
-    is_correct_password = secrets.compare_digest(
-        current_password_bytes, correct_password_bytes
-    )
-    if not (is_correct_username and is_correct_password):
-        raise HTTPException(
-            status_code=401,
-            detail="Incorrect username and password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
+_invoice = Invoice()
+_errors = []
 
 
 def delete_all_file():
@@ -57,42 +36,112 @@ def delete_all_file():
             os.remove(file)
 
 
-@app.get("/", response_class=RedirectResponse)
-async def index(request: Request, _=Depends(get_current_username)):
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
     """Upload pdf file when db is empty"""
-    count = list(_db.list_collections())
-    if len(count) == 0:
-        num = "0"
-    else:
-        num = count[0]
-    response = RedirectResponse(request.url_for("main", num=num), status_code=302)
+
+    response = templates.TemplateResponse("index.html", {"request": request})
     return response
 
 
+@app.post("/", response_class=RedirectResponse)
+async def index_post(
+    request: Request, email: str = Form(...), password: str = Form(...)
+):
+    # if user exists login and jump to month page and if user not exists create user
+    if email in _db.list_user_collections():
+        return "User is exists"
+    else:
+        _db.user(email).insert_one(
+            {"name": email, "password": password, "company": []},
+            {"$currentDate": {"loginDate": True}},
+        )
+        count = list(_db.list_collections())
+        if len(count) == 0:
+            num = "0"
+        else:
+            num = count[0]
+        return RedirectResponse(request.url_for("main", num=num), status_code=302)
+
+
+@app.get("/register", response_class=HTMLResponse)
+async def index(request: Request):
+    """Upload pdf file when db is empty"""
+    response = templates.TemplateResponse("register.html", {"request": request})
+    return response
+
+
+@app.post("/register")
+async def index_post(
+    email: str = Form(...),
+    password: str = Form(...),
+    code: str = Form(...),
+):
+    def get_code() -> list:
+        code_list = []
+        for i in _db.verify_code().find({}):
+            code_list.append(i["code"])
+        return code_list
+
+    verify_code = get_code()
+
+    users_exist = _db.list_user_collections()
+    encode_password = _pwd_context.hash(password)
+
+    if code in verify_code:
+        if email not in users_exist:
+            new_user = {"email": email, "password": encode_password, "company": []}
+            result = _db.user(email).insert_one(new_user)
+            return {
+                "message": "User created successfully",
+                "user_id": str(result.inserted_id),
+            }
+        else:
+            return {"message": "User already exists"}
+    else:
+        return {"message": "Invalid code"}
+
+
 @app.get("/month/{num}", response_class=HTMLResponse)
-async def main(*, request: Request, _=Depends(get_current_username), num: str):
+async def main(*, request: Request, num: str):
     """When previous pdf file is in db"""
+    # --------------------------------------------------
+    # username = ""
+    # password = ""
+    # Get the user data directly in the find_one_and_update query
+    # user_data = _db.user(username).find_one_and_update(
+    #     {"name": username},
+    #     {
+    #         "$push": {"company": "南京画文文化有限公司"},
+    #         "$currentDate": {"lastModified": True},
+    #     },
+    # )
+    # --------------------------------------------------
     delete_all_file()  # delete all zip and pdf file
 
-    # receive all invoice amount information
+    # all invoice information
     invoice_data = list(_db.send_data(num).find({}))
+    # all amount
     amount = [float(x["amount"]) for x in invoice_data]
+    # all company name
+    company = set([x["company"] for x in invoice_data])
 
     # sort by date
     invoice_data.sort(key=lambda x: x["date"])
 
     response = templates.TemplateResponse(
-        "index.html",
+        "user.html",
         {
             "request": request,
             "list_col": _db.list_collections(),
             "data": invoice_data,
             "total": f"{sum(amount):0.2f}",
-            "msg": errors,
+            "company": company,
+            "msg": _errors,
         },
     )
     # clear the error message list
-    errors.clear()
+    _errors.clear()
     return response
 
 
@@ -102,7 +151,6 @@ async def send_file(
     request: Request,
     files: list[UploadFile] = File(None),
     ids: list[str | None] = None,
-    _=Depends(get_current_username),
     num: str,
 ):
     """Upload pdf file when db has previous file"""
@@ -150,18 +198,18 @@ async def send_file(
         for file in files:
             with open(file.filename, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
-                err_msg = invoice.pdf_file(file.filename)
+                err_msg = _invoice.pdf_file(file.filename)
                 os.remove(file.filename)
                 if err_msg:
-                    errors.append(err_msg)
+                    _errors.append(err_msg)
             try:
-                num: str = invoice.date.month
+                num: str = _invoice.date.month
             except Exception:
                 num = "0"
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
     except FileNotFoundError:
-        errors.append("没有文件上传")
+        _errors.append("没有文件上传")
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
 
 

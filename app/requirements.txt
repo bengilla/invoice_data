@@ -20,4 +20,7 @@ python-dotenv
 # pdf
 pdfplumber
 
+# password
+passlib[bcrypt]
+
 opencv-python-headless

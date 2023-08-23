@@ -15,13 +15,13 @@ class CodeDB:
 class MongoDB:
     """MongoDB"""
 
-    def __init__(self) -> None:
+    def __init__(self, username) -> None:
         # MongoDB connect to Local or Online Server-------------------------------
         self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
 
         # Collection info
         self.invoice_user = self.client["INVOICE_USER_INFO"]
-        self.invoice = self.client["INVOICE-DATA"]
+        self.invoice = self.client[username.lower()]
 
     def status(self) -> bool:
         """DB status"""

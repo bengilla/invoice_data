@@ -85,7 +85,9 @@ class Invoice:
                     page = pdf.pages[item]
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
-                print(content)
+
+                final_content = [i.replace(" ", "") for i in content[0]]
+                print(final_content)
 
             # calculate all data to format
             result_data = self.get_data(content)

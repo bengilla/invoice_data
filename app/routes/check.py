@@ -34,4 +34,4 @@ async def check():
                 output_data = file_info(name, count_size(get_size))
                 file_list.append(output_data)
 
-    return {"message": file_list}
+    return {"讯息": file_list}

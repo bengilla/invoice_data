@@ -11,12 +11,19 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 
-<body class="bg-slate-700 text-slate-200">
+
+<body class="h-screen bg-slate-700 text-slate-200 grid place-items-center">
     <header>
         {% block header %}{% endblock %}
     </header>
-    {%block content %} {% endblock %}
+    <section>
+        {%block section %}{% endblock %}
+    </section>
+    <footer>
+        {% block footer %}{% endblock %}
+    </footer>
 </body>
+
 <script>
     // checkbox function (jquery)
     function toggle(source) {
@@ -37,30 +44,10 @@
                 count++;
             }
         }
-        if (count > 0) {
-            console.log(count);
-        } else {
+        if (checkboxes.length > count) {
             document.getElementById("main-checkbox").checked = false;
-        }
-    }
-
-    function single_row(source) {
-        var checkboxes = $(source).find("input[type='checkbox']");
-        var checkbox = $("[name='ids']");
-        var count = 0;
-
-        // click tr too select checkbox
-        var isChecked = checkboxes.prop("checked");
-        checkboxes.prop('checked', !isChecked);
-
-        // check how many checkbox are select
-        for (var i = 0; i < checkbox.length; i++) {
-            if ($(checkbox[i]).prop("checked")) {
-                count++;
-            }
-        }
-        if (count === 0) {
-            $("#main-checkbox").prop("checked", false)
+        } else {
+            document.getElementById("main-checkbox").checked = true;
         }
     }
 
@@ -95,7 +82,6 @@
             });
         }, 5000);
     }
-
 </script>
 
 </html>

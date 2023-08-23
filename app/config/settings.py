@@ -10,13 +10,15 @@ class Settings:
 
     TITLE = "Invoice Calculate"
     VERSION = "0.1"
-    DESCRIPTION = ""
+    DESCRIPTION = "China invoice calculation system"
+
+    USERNAME = os.getenv("USERNAME")
+    PASSWORD = os.getenv("PASSWORD")
 
     DB_LOCAL = os.getenv("DB_LOCAL")
     DB_URL = os.getenv("DB_URL")
 
-    USERNAME = os.getenv("USERNAME")
-    PASSWORD = os.getenv("PASSWORD")
+    CODE_URL = os.getenv("CODE_URL")
 
 
 settings = Settings()

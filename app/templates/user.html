@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block section %}
 <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
     <div class="w-full px-1 pb-12 grid place-content-center">
 
@@ -62,28 +62,28 @@
                 <tbody>
                     <!-- INVOICE -->
                     {% for i in data %}
-                    <tr class="border-b-[1px] border-dotted border-orange-500 text-sm single_row" onclick="single_row(this)">
-                        <td class="text-center">
-                            <input type="checkbox" name="ids" class="w-4 h-4 rounded-xl" value="{{ i._id }}">
-                        </td>
-                        <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
-                        <td class="p-2 text-center">
-                            {% if i.pdf %}
-                            <img src="{{ url_for('static', path='images/invoice_pdf.png') }}" alt="PDF image" width="20px">
-                            {% endif %}
-                        </td>
-                        <td class="p-2 text-center">{{ i.date }}</td>
-                        <td class="p-2 text-center">{{ i.company }}</td>
-                        <td class="p-2 text-center">{{ i._id }}</td>
-                        <td class="p-2 text-center">{{ i.code }}</td>
-                        <td class="p-2 text-center">{{ i.amount }}</td>
-                        <td class="p-2 text-center">
-                            {% if i.download == True %}
-                            <span class="text-xs text-green-300">已下载</span>
-                            {% else %}
-                            <span class="text-xs text-red-300">未下载</span>
-                            {% endif %}
-                        </td>
+                    <tr class="border-b-[1px] border-dotted border-orange-500 text-sm single_row" onclick="single(this)" />
+                    <td class="text-center">
+                        <input type="checkbox" name="ids" class="w-4 h-4 rounded-xl" value="{{ i._id }}">
+                    </td>
+                    <td class="p-2 text-center text-xs text-slate-400">{{ loop.index }}</td>
+                    <td class="p-2 text-center">
+                        {% if i.pdf %}
+                        <img src="{{ url_for('static', path='images/invoice_pdf.png') }}" alt="PDF image" width="20px">
+                        {% endif %}
+                    </td>
+                    <td class="p-2 text-center">{{ i.date }}</td>
+                    <td class="p-2 text-center">{{ i.company }}</td>
+                    <td class="p-2 text-center">{{ i._id }}</td>
+                    <td class="p-2 text-center">{{ i.code }}</td>
+                    <td class="p-2 text-center">{{ i.amount }}</td>
+                    <td class="p-2 text-center">
+                        {% if i.download == True %}
+                        <span class="text-xs text-green-300">已下载</span>
+                        {% else %}
+                        <span class="text-xs text-red-300">未下载</span>
+                        {% endif %}
+                    </td>
                     </tr>
                     {% endfor%}
                     <!-- END INVOICE -->
@@ -123,7 +123,7 @@
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm rounded-full border border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
+                <input type="submit" value="上传与下载" class="w-full mt-8 py-3 px-6 text-sm rounded-full border-2 border-slate-400 hover:bg-orange-500 hover:text-slate-50 hover:border-orange-500 transition ease-in-out">
             </div>
         </div>
         <!-- end form -->

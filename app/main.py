@@ -3,6 +3,7 @@ import os
 import fnmatch
 import codecs
 import shutil
+from datetime import datetime
 from passlib.context import CryptContext
 
 from zipfile import ZipFile
@@ -14,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config.settings import settings
 from models.invoice_scanning import Invoice
-from models.mongodb import MongoDB
+from models.mongodb import MongoDB, CodeDB
 from routes.download import download_routes
 from routes.check import check_routes
 
@@ -25,6 +26,7 @@ templates = Jinja2Templates(directory="templates")
 
 _pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 _db = MongoDB()
+_code_db = CodeDB()
 _invoice = Invoice()
 _errors = []
 
@@ -39,29 +41,29 @@ def delete_all_file():
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Upload pdf file when db is empty"""
-
     response = templates.TemplateResponse("index.html", {"request": request})
     return response
 
 
-@app.post("/", response_class=RedirectResponse)
+@app.post("/")
 async def index_post(
     request: Request, email: str = Form(...), password: str = Form(...)
 ):
     # if user exists login and jump to month page and if user not exists create user
-    if email in _db.list_user_collections():
-        return "User is exists"
-    else:
-        _db.user(email).insert_one(
-            {"name": email, "password": password, "company": []},
-            {"$currentDate": {"loginDate": True}},
-        )
-        count = list(_db.list_collections())
-        if len(count) == 0:
-            num = "0"
-        else:
-            num = count[0]
-        return RedirectResponse(request.url_for("main", num=num), status_code=302)
+    user_data = _db.user().find({})
+
+    for user in user_data:
+        if email == user["email"]:
+            if _pwd_context.verify(password, user["password"]):
+                count = list(_db.list_collections())
+                if len(count) == 0:
+                    num = "0"
+                else:
+                    num = count[0]
+                return RedirectResponse(
+                    request.url_for("main", num=num), status_code=302
+                )
+    return {"讯息": "邮箱和密码错误，请返回再次尝试"}
 
 
 @app.get("/register", response_class=HTMLResponse)
@@ -79,27 +81,41 @@ async def index_post(
 ):
     def get_code() -> list:
         code_list = []
-        for i in _db.verify_code().find({}):
+        for i in _code_db.verify_code().find({}):
             code_list.append(i["code"])
         return code_list
 
     verify_code = get_code()
 
-    users_exist = _db.list_user_collections()
+    user_data = _db.user().find({})
+    user_list = [i["email"] for i in user_data]
+
     encode_password = _pwd_context.hash(password)
 
+    # if code match with verify code at database
     if code in verify_code:
-        if email not in users_exist:
-            new_user = {"email": email, "password": encode_password, "company": []}
-            result = _db.user(email).insert_one(new_user)
+        if email not in user_list:
+            # create new user
+            new_user = {
+                "email": email,
+                "password": encode_password,
+                "register_date": datetime.now(),
+                "company": [],
+            }
+            result = _db.user().insert_one(new_user)
+
+            # after add user and delete verify code from database
+            get_code = _code_db.verify_code().find_one({"code": code})
+            _code_db.verify_code().delete_one({"_id": get_code["_id"]})
+
             return {
-                "message": "User created successfully",
-                "user_id": str(result.inserted_id),
+                "讯息": "用户已成功建立",
+                "用户ID": str(result.inserted_id),
             }
         else:
-            return {"message": "User already exists"}
+            return {"讯息": "邮箱已存在，请使用另一个邮箱"}
     else:
-        return {"message": "Invalid code"}
+        return {"讯息": "确认码错误，请向管理员质询"}
 
 
 @app.get("/month/{num}", response_class=HTMLResponse)

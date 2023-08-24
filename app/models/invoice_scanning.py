@@ -45,9 +45,10 @@ class Invoice:
         # work below (get company name)
         title_data = {
             "date": "开票日期",
-            "code": "发票代码",
+            # "code": "发票代码",
             "number": "发票号码",
         }
+
         # get date, code and number
         for key, value in title_data.items():
             for item in content[0]:
@@ -63,15 +64,15 @@ class Invoice:
             if i in ("¥", "￥"):
                 num = store_data["amount"][1].index(i)
 
-        # print(store_data)
-
         result_data = {
             "date_output": "".join(store_data["date"]),
-            "code_output": int("".join(store_data["code"])),
-            "num_output": int("".join(store_data["number"])),
+            # "code_output": int("".join(store_data["code"])),
+            "num_output": int("".join(store_data["number"][-8:])),
             "amount_output": float(store_data["amount"][1][num + 1 :]),
             "company": "".join(store_data["company"]),
         }
+
+        # print(result_data)
 
         return result_data
 
@@ -104,7 +105,7 @@ class Invoice:
             db_data = {
                 "_id": result_data["num_output"],
                 "date": self.date.to_date_string(),
-                "code": result_data["code_output"],
+                # "code": result_data["code_output"],
                 "amount": f"{result_data['amount_output']:0.2f}",
                 "pdf": encoded,
                 "company": result_data["company"],

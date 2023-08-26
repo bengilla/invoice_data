@@ -3,15 +3,6 @@ from pymongo import MongoClient
 from config.settings import settings
 
 
-class CodeDB:
-    def __init__(self) -> None:
-        self.code_client = MongoClient(settings.CODE_URL)
-        self.code = self.code_client["CODE"]
-
-    def verify_code(self) -> list[str]:
-        return self.code["temp_code"]
-
-
 class MongoDB:
     """MongoDB"""
 
@@ -20,23 +11,11 @@ class MongoDB:
         self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
 
         # Collection info
-        self.invoice_user = self.client["INVOICE_USER_INFO"]
         self.invoice = self.client["INVOICE-DATA"]
 
     def status(self) -> bool:
         """DB status"""
-        try:
-            self.client.server_info()
-            return True
-        except:
-            return False
-
-    def user(self):
-        return self.invoice_user["USER-data"]
-
-    # def list_user(self) -> list[str]:
-    #     """return sort list collection"""
-    #     return self.invoice_user.list_collection_names()
+        return self.client.server_info()
 
     def send_data(self, month: str):
         """to collection"""

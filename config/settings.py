@@ -12,7 +12,6 @@ class Settings:
     VERSION = "0.1"
     DESCRIPTION = "China invoice calculation system"
 
-    DB_LOCAL = os.getenv("DB_LOCAL")
     DB_URL = os.getenv("DB_URL")
 
 

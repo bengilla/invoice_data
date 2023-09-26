@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config.settings import settings
 from models.invoice_scanning import Invoice
-from app.config.mongodb import MongoDB
+from config.mongodb import MongoDB
 from routes.download import download_routes
 from routes.check import check_routes
 
@@ -28,7 +28,7 @@ _errors = []
 
 def delete_all_file():
     """Delete pdf and zip function"""
-    for file in os.listdir("."):
+    for file in os.listdir("/"):
         if fnmatch.fnmatch(file, "*.zip") or fnmatch.fnmatch(file, "*.pdf"):
             os.remove(file)
 

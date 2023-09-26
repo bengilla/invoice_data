@@ -1,6 +1,6 @@
 """MongoDB function"""
 from pymongo import MongoClient
-from settings import settings
+from config.settings import settings
 from typing import Any
 
 

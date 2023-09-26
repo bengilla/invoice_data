@@ -23,4 +23,6 @@ class MongoDB:
         return self.invoice[str(month)]
 
     def list_collections(self) -> list[str]:
+        if not self.invoice.list_collection_names():
+            return []
         return sorted(self.invoice.list_collection_names())

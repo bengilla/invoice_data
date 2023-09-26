@@ -87,8 +87,8 @@ class Invoice:
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
 
-                final_content = [i.replace(" ", "") for i in content[0]]
-                print(final_content)
+                # final_content = [i.replace(" ", "") for i in content[0]]
+                # print(final_content)
 
             # calculate all data to format
             result_data = self.get_data(content)
@@ -96,7 +96,7 @@ class Invoice:
 
             # date section, year and month are from invoice data
             self.date = pendulum.from_format(result_data["date_output"], "YYYYMMDD")
-            print(self.date.year)
+            # print(self.date.year)
 
             # encode pdf file and store to db
             with open(file, "rb") as pdf:

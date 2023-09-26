@@ -1,6 +1,7 @@
 """MongoDB function"""
 from pymongo import MongoClient
-from config.settings import settings
+from settings import settings
+from typing import Any
 
 
 class MongoDB:
@@ -13,7 +14,7 @@ class MongoDB:
         # Collection info
         self.invoice = self.client["INVOICE-DATA"]
 
-    def status(self) -> bool:
+    def status(self) -> dict[str, Any]:
         """DB status"""
         return self.client.server_info()
 
@@ -21,5 +22,5 @@ class MongoDB:
         """to collection"""
         return self.invoice[str(month)]
 
-    def list_collections(self) -> list[str]:
+    def list_collections(self) -> list[int]:
         return sorted(map(int, self.invoice.list_collection_names()))

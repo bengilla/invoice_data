@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config.settings import settings
 from models.invoice_scanning import Invoice
-from models.mongodb import MongoDB
+from app.config.mongodb import MongoDB
 from routes.download import download_routes
 from routes.check import check_routes
 
@@ -42,7 +42,9 @@ async def index(request: Request):
     # get last month in list and get the number
     last_month_in_list = _db.list_collections()[-1]
 
-    return RedirectResponse(request.url_for("main", num=last_month_in_list), status_code=302)
+    return RedirectResponse(
+        request.url_for("main", num=last_month_in_list), status_code=302
+    )
 
 
 @app.get("/month/{num}", response_class=HTMLResponse)
@@ -72,7 +74,7 @@ async def main(*, request: Request, num: str):
             "msg": _errors,
         },
     )
-   
+
     # clear the error message list
     _errors.clear()
     return response
@@ -80,11 +82,11 @@ async def main(*, request: Request, num: str):
 
 @app.post("/month/{num}", response_class=RedirectResponse)
 async def send_file(
-        *,
-        request: Request,
-        files: list[UploadFile] = File(None),
-        ids: list[str | None] = None,
-        num: str,
+    *,
+    request: Request,
+    files: list[UploadFile] = File(None),
+    ids: list[str | None] = None,
+    num: str,
 ):
     """Upload pdf file when db has previous file"""
     try:

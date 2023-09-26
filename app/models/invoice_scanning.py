@@ -5,7 +5,7 @@ import pdfplumber
 from typing import Any
 from pymongo.errors import DuplicateKeyError
 
-from .mongodb import MongoDB
+from app.config.mongodb import MongoDB
 
 _db = MongoDB()
 
@@ -71,7 +71,7 @@ class Invoice:
             "amount_output": float(store_data["amount"][1][num + 1 :]),
             "company": "".join(store_data["company"]),
         }
-
+        # testing print out result_data
         # print(result_data)
 
         return result_data
@@ -111,6 +111,7 @@ class Invoice:
                 "company": result_data["company"],
                 "download": False,
             }
+            # testing print out the db_data
             # print(db_data)
 
             # store to db
@@ -121,7 +122,6 @@ class Invoice:
         except DuplicateKeyError:
             # when duplicate file
             return f"重复文件, 发票代码: {result_data['num_output']}"
-        except Exception as error:
+        except Exception:
             # other error
-            print(error)
-            # return "文件异常, 请重新上传发票(PDF)"
+            return "文件异常, 请重新上传发票(PDF)"

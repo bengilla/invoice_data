@@ -22,5 +22,5 @@ class MongoDB:
         """to collection"""
         return self.invoice[str(month)]
 
-    def list_collections(self) -> list[int]:
-        return sorted(map(int, self.invoice.list_collection_names()))
+    def list_collections(self) -> list[str]:
+        return sorted(self.invoice.list_collection_names())

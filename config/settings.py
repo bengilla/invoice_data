@@ -13,6 +13,7 @@ class Settings:
     DESCRIPTION = "China invoice calculation system"
 
     DB_URL = os.getenv("DB_URL")
+    PORT = os.getenv("PORT")
 
 
 settings = Settings()

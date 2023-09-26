@@ -3,6 +3,7 @@ import os
 import fnmatch
 import codecs
 import shutil
+import uvicorn
 
 from zipfile import ZipFile
 
@@ -139,7 +140,8 @@ async def send_file(
                     _errors.append(err_msg)
             try:
                 num: str = _invoice.date.month
-            except Exception:
+            except Exception as e:
+                print(e)
                 num = "0"
 
         return RedirectResponse(request.url_for("main", num=num), status_code=302)
@@ -150,3 +152,6 @@ async def send_file(
 
 app.include_router(download_routes)
 app.include_router(check_routes)
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", port=int(settings.PORT), reload=True)

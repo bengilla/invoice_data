@@ -5,7 +5,7 @@ import pdfplumber
 from typing import Any
 from pymongo.errors import DuplicateKeyError
 
-from .mongodb import MongoDB
+from config.mongodb import MongoDB
 
 _db = MongoDB()
 
@@ -27,27 +27,27 @@ class Invoice:
             "个人",
         ]
 
-        # final store data
-        store_data = {
+        # store data models
+        store_data_model = {
             "date": [],
-            "code": [],
             "number": [],
             "amount": [],
             "company": "",
         }
+        print(f"This is store_data {store_data_model}")
 
         # get company name
         for i in company_data:
             for company_name in content[0]:
                 if i in company_name:
-                    store_data["company"] = i
+                    store_data_model["company"] = i
 
         # work below (get company name)
         title_data = {
             "date": "开票日期",
-            # "code": "发票代码",
             "number": "发票号码",
         }
+        print(f"This is title_data {title_data}")
 
         # get date, code and number
         for key, value in title_data.items():
@@ -55,24 +55,22 @@ class Invoice:
                 if value in item:
                     for i in item:
                         if i.isdigit():
-                            store_data[key].append(i)
+                            store_data_model[key].append(i)
                 if "¥" in item or "￥" in item:
-                    store_data["amount"].append(item)
+                    store_data_model["amount"].append(item)
 
         # get amount
-        for i in store_data["amount"][1]:
+        for i in store_data_model["amount"][1]:
             if i in ("¥", "￥"):
-                num = store_data["amount"][1].index(i)
+                num = store_data_model["amount"][1].index(i)
 
         result_data = {
-            "date_output": "".join(store_data["date"]),
-            # "code_output": int("".join(store_data["code"])),
-            "num_output": int("".join(store_data["number"][-8:])),
-            "amount_output": float(store_data["amount"][1][num + 1 :]),
-            "company": "".join(store_data["company"]),
+            "date_output": "".join(store_data_model["date"]),
+            "num_output": int("".join(store_data_model["number"][-8:])),
+            "amount_output": float(store_data_model["amount"][1][num + 1 :]),
+            "company": "".join(store_data_model["company"]),
         }
-
-        # print(result_data)
+        print(f"This is result_data{result_data}")
 
         return result_data
 
@@ -87,41 +85,40 @@ class Invoice:
                     page_content = page.extract_text().split("\n")[:-1]
                     content.append(page_content)
 
-                final_content = [i.replace(" ", "") for i in content[0]]
-                print(final_content)
-
             # calculate all data to format
-            result_data = self.get_data(content)
-            # print(result_data)
+            result_final_data = self.get_data(content)
+            print(f"This is result_final_data {result_final_data}")
 
             # date section, year and month are from invoice data
-            self.date = pendulum.from_format(result_data["date_output"], "YYYYMMDD")
-            print(self.date.year)
+            self.date = pendulum.from_format(
+                result_final_data["date_output"], "YYYYMMDD"
+            )
+            print(f"This is self.date {self.date.year}")
 
             # encode pdf file and store to db
             with open(file, "rb") as pdf:
                 encoded = base64.b64encode(pdf.read())
 
             db_data = {
-                "_id": result_data["num_output"],
+                "_id": result_final_data["num_output"],
                 "date": self.date.to_date_string(),
-                # "code": result_data["code_output"],
-                "amount": f"{result_data['amount_output']:0.2f}",
+                "amount": f"{result_final_data['amount_output']:0.2f}",
                 "pdf": encoded,
-                "company": result_data["company"],
+                "company": result_final_data["company"],
                 "download": False,
             }
-            # print(db_data)
+            # testing print out the db_data
+            print(f"This is db_data {db_data}")
 
             # store to db
             db_upload = _db.send_data(str(self.date.month)).insert_one(db_data)
             if db_upload:
-                return f"{result_data['num_output']} 上传成功"
-            return f"{result_data['num_output']} 上传失败"
+                return f"{result_final_data['num_output']} 上传成功"
+            return f"{result_final_data['num_output']} 上传失败"
         except DuplicateKeyError:
             # when duplicate file
-            return f"重复文件, 发票代码: {result_data['num_output']}"
-        except Exception as error:
+            return f"重复文件, 发票代码: {result_final_data['num_output']}"
+        except Exception as e:
             # other error
-            print(error)
-            # return "文件异常, 请重新上传发票(PDF)"
+            print(e)
+            return "文件异常, 请重新上传发票(PDF)"

@@ -41,7 +41,10 @@ async def index(request: Request):
     delete_all_file()
 
     # get last month in list and get the number
-    last_month_in_list = _db.list_collections()[-1]
+    try:
+        last_month_in_list = _db.list_collections()[-1]
+    except Exception:
+        last_month_in_list = "0"
 
     return RedirectResponse(
         request.url_for("main", num=last_month_in_list), status_code=302
@@ -95,6 +98,7 @@ async def send_file(
         if ids:
             # get all pdf amount to total
             get_total_amount = []
+            # print(f"This is get_total_number {get_total_amount}")
 
             # convert to single pdf file and save to server
             for _id in ids:

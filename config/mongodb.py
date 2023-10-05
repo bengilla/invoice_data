@@ -9,7 +9,7 @@ class MongoDB:
 
     def __init__(self) -> None:
         # MongoDB connect to Local or Online Server-------------------------------
-        self.client = MongoClient(settings.DB_URL, serverSelectionTimeoutMS=3000)
+        self.client = MongoClient(settings.DB_URL)
 
         # Collection info
         self.invoice = self.client["INVOICE-DATA"]
@@ -23,6 +23,7 @@ class MongoDB:
         return self.invoice[str(month)]
 
     def list_collections(self) -> list[str]:
+        """get collection list"""
         if not self.invoice.list_collection_names():
             return []
         return sorted(self.invoice.list_collection_names())

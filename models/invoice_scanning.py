@@ -1,11 +1,13 @@
 """invoice work section"""
+from typing import Any
+
 import base64
 import pendulum
 import pdfplumber
-from typing import Any
 from pymongo.errors import DuplicateKeyError
 
 from config.mongodb import MongoDB
+from config.company_data import company_data
 
 _db = MongoDB()
 
@@ -16,16 +18,11 @@ class Invoice:
     def __init__(self) -> None:
         self.date = None
 
-    def get_data(self, content) -> dict[str, str | int | float]:
+    @staticmethod
+    def get_data(content) -> dict[str, str | int | float]:
         """take piece by piece convert to final data (dict)"""
         # this data when register and save to database as company name
-        company_data = [
-            "北京忠合天歌文化产业有限公司",
-            "北京安和嘉音光电技术有限公司",
-            "北京画文文化有限公司",
-            "南京画文文化有限公司",
-            "个人",
-        ]
+        # print(content)
 
         # store data models
         store_data_model = {
@@ -34,43 +31,42 @@ class Invoice:
             "amount": [],
             "company": "",
         }
-        print(f"This is store_data {store_data_model}")
 
-        # get company name
-        for i in company_data:
-            for company_name in content[0]:
-                if i in company_name:
-                    store_data_model["company"] = i
+        # check company name from the company_data and the invoice company title
+        for company_name in company_data:
+            for invoice_company_name in content[0]:
+                if company_name in invoice_company_name:
+                    store_data_model["company"] = company_name
 
-        # work below (get company name)
-        title_data = {
-            "date": "开票日期",
-            "number": "发票号码",
-        }
-        print(f"This is title_data {title_data}")
+        # get date, number and amount from invoice
+        for info in content[0]:
+            if "开票日期" in info:
+                for date_invoice in info:
+                    if date_invoice.isdigit():
+                        store_data_model["date"].append(date_invoice)
+            if "发票号码" in info:
+                for number_invoice in info:
+                    if number_invoice.isdigit():
+                        store_data_model["number"].append(number_invoice)
+            if "¥" in info or "￥" in info:
+                store_data_model["amount"].append(info)
 
-        # get date, code and number
-        for key, value in title_data.items():
-            for item in content[0]:
-                if value in item:
-                    for i in item:
-                        if i.isdigit():
-                            store_data_model[key].append(i)
-                if "¥" in item or "￥" in item:
-                    store_data_model["amount"].append(item)
+        # get amount need to get float after currency symbol + 1 empty space
+        currency_symbol = store_data_model["amount"][1]
+        currency_symbol_index = currency_symbol.find("¥") or currency_symbol.find("￥")
 
-        # get amount
-        for i in store_data_model["amount"][1]:
-            if i in ("¥", "￥"):
-                num = store_data_model["amount"][1].index(i)
+        # print(f"This is Store Data Model{store_data_model}")
 
         result_data = {
             "date_output": "".join(store_data_model["date"]),
             "num_output": int("".join(store_data_model["number"][-8:])),
-            "amount_output": float(store_data_model["amount"][1][num + 1 :]),
+            "amount_output": float(
+                store_data_model["amount"][1][currency_symbol_index + 1 :]
+            ),
             "company": "".join(store_data_model["company"]),
+            "download": False,
         }
-        print(f"This is result_data{result_data}")
+        # print(f"This is result_data{result_data}")
 
         return result_data
 
@@ -87,13 +83,11 @@ class Invoice:
 
             # calculate all data to format
             result_final_data = self.get_data(content)
-            print(f"This is result_final_data {result_final_data}")
 
             # date section, year and month are from invoice data
             self.date = pendulum.from_format(
                 result_final_data["date_output"], "YYYYMMDD"
             )
-            print(f"This is self.date {self.date.year}")
 
             # encode pdf file and store to db
             with open(file, "rb") as pdf:
@@ -105,10 +99,8 @@ class Invoice:
                 "amount": f"{result_final_data['amount_output']:0.2f}",
                 "pdf": encoded,
                 "company": result_final_data["company"],
-                "download": False,
+                "download": result_final_data["download"],
             }
-            # testing print out the db_data
-            print(f"This is db_data {db_data}")
 
             # store to db
             db_upload = _db.send_data(str(self.date.month)).insert_one(db_data)
@@ -118,7 +110,7 @@ class Invoice:
         except DuplicateKeyError:
             # when duplicate file
             return f"重复文件, 发票代码: {result_final_data['num_output']}"
-        except Exception as e:
+        except Exception as err:
             # other error
-            print(e)
+            print(err)
             return "文件异常, 请重新上传发票(PDF)"

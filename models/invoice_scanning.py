@@ -1,13 +1,13 @@
 """invoice work section"""
 from typing import Any
 
+import re
 import base64
 import pendulum
 import pdfplumber
 from pymongo.errors import DuplicateKeyError
 
 from config.mongodb import MongoDB
-from config.company_data import company_data
 
 _db = MongoDB()
 
@@ -19,7 +19,7 @@ class Invoice:
         self.date = None
 
     @staticmethod
-    def get_data(content) -> dict[str, str | int | float]:
+    def get_data(content) -> dict[str, str, float, str, bool]:
         """take piece by piece convert to final data (dict)"""
         # this data when register and save to database as company name
         # print(content)
@@ -29,41 +29,36 @@ class Invoice:
             "date": [],
             "number": [],
             "amount": [],
-            "company": "",
+            "company": [],
         }
 
-        # check company name from the company_data and the invoice company title
-        for company_name in company_data:
-            for invoice_company_name in content[0]:
-                if company_name in invoice_company_name:
-                    store_data_model["company"] = company_name
-
         # get date, number and amount from invoice
-        for info in content[0]:
+        for info in content:
+            if "个人" in info:
+                store_data_model["company"].append("个人")
+            else:
+                if "公司" in info:
+                    get_company_name: str = re.split(" |：|:", info)
+                    for c_n in get_company_name:
+                        if "公司" in c_n:
+                            store_data_model["company"].append(c_n)
             if "开票日期" in info:
-                for date_invoice in info:
-                    if date_invoice.isdigit():
-                        store_data_model["date"].append(date_invoice)
+                get_date: str = re.findall(r"\d*", info)
+                store_data_model["date"].append("".join(get_date))
             if "发票号码" in info:
-                for number_invoice in info:
-                    if number_invoice.isdigit():
-                        store_data_model["number"].append(number_invoice)
-            if "¥" in info or "￥" in info:
-                store_data_model["amount"].append(info)
-
-        # get amount need to get float after currency symbol + 1 empty space
-        currency_symbol = store_data_model["amount"][1]
-        currency_symbol_index = currency_symbol.find("¥") or currency_symbol.find("￥")
+                get_number: str = re.findall(r"\d*", info)
+                store_data_model["number"].append("".join(get_number))
+            if "小写" in info:
+                get_amount: str = re.findall(r"\d+\.?\d*", info)
+                store_data_model["amount"].append(get_amount[0])
 
         # print(f"This is Store Data Model{store_data_model}")
 
         result_data = {
-            "date_output": "".join(store_data_model["date"]),
-            "num_output": int("".join(store_data_model["number"][-8:])),
-            "amount_output": float(
-                store_data_model["amount"][1][currency_symbol_index + 1 :]
-            ),
-            "company": "".join(store_data_model["company"]),
+            "date_output": store_data_model["date"][0],
+            "num_output": store_data_model["number"][0],
+            "amount_output": float(store_data_model["amount"][0]),
+            "company": store_data_model["company"][0],
             "download": False,
         }
         # print(f"This is result_data{result_data}")
@@ -82,7 +77,7 @@ class Invoice:
                     content.append(page_content)
 
             # calculate all data to format
-            result_final_data = self.get_data(content)
+            result_final_data = self.get_data(content[0])
 
             # date section, year and month are from invoice data
             self.date = pendulum.from_format(

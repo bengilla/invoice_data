@@ -1,7 +1,8 @@
 """MongoDB function"""
+from typing import Any
+
 from pymongo import MongoClient
 from config.settings import settings
-from typing import Any
 
 
 class MongoDB:

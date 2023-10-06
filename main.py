@@ -27,7 +27,7 @@ _invoice = Invoice()
 _errors = []
 
 
-def delete_all_file():
+def delete_all_file() -> None:
     """Delete pdf and zip function"""
     for file in os.listdir("/"):
         if fnmatch.fnmatch(file, "*.zip") or fnmatch.fnmatch(file, "*.pdf"):
@@ -41,10 +41,10 @@ async def index(request: Request):
     delete_all_file()
 
     # get last month in list and get the number
-    try:
-        last_month_in_list = _db.list_collections()[-1]
-    except Exception:
-        last_month_in_list = "0"
+    if _db.list_collections() != []:
+        last_month_in_list: str = _db.list_collections()[-1]
+    else:
+        last_month_in_list: str = "0"
 
     return RedirectResponse(
         request.url_for("main", num=last_month_in_list), status_code=302

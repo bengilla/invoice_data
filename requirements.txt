@@ -1,6 +1,6 @@
 # fastapi
-fastapi
-uvicorn
+fastapi==0.103.2
+uvicorn==0.23.2
 
 # jinja2
 jinja2
@@ -9,16 +9,16 @@ jinja2
 python-multipart
 
 # mongodb
-pymongo
+pymongo~=4.5
 
 # date
-pendulum
+pendulum~=2.1.2
 
 # env
-python-dotenv
+python-dotenv~=1.0.0
 
 # pdf
-pdfplumber
+pdfplumber~=0.10.2
 
 
-opencv-python-headless
+opencv-python-headless==4.8.1.78

@@ -27,7 +27,7 @@
             {% for i in list_col%}
             <div class="px-1">
                 <a href="{{ i }}">
-                    <div id="/month/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 transition ease-in-out">
+                    <div id="/month/{{ i }}" class="w-[2rem] p-2 grid place-content-center border border-1 border-slate-800 rounded hover:bg-slate-300 hover:text-slate-500 transition ease-in-out">
                         {{ i }}
                     </div>
                 </a>
@@ -37,7 +37,7 @@
         <!-- end month list -->
 
         <!-- body -->
-        <div class="border-2 border-orange-500 rounded-lg">
+        <div>
             <table class="table-fixed">
                 <!-- thead -->
                 <thead id="title-box">
@@ -45,8 +45,7 @@
                         <th class="p-4 bg-orange-500">
                             <input type="checkbox" id="main-checkbox" class="w-4 h-4 rounded-xl" onclick="toggle(this)" />
                         </th>
-                        <th class=" px-2">号
-                        </th>
+                        <th class="px-2">号</th>
                         <th class="px-2">日期</th>
                         <th class="px-2">公司</th>
                         <th class="px-2">发票号码</th>

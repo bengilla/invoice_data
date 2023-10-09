@@ -12,19 +12,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-from config.settings import settings
+from config.settings import Settings
 from models.invoice_scanning import Invoice
 from config.mongodb import MongoDB
+
 from routes.download import download_routes
 from routes.check import check_routes
 
-app = FastAPI(title=settings.TITLE)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
 _db = MongoDB()
 _invoice = Invoice()
+_settings = Settings()
 _errors = []
+
+app = FastAPI(title=_settings.TITLE)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
 def delete_all_file() -> None:
@@ -98,7 +100,6 @@ async def send_file(
         if ids:
             # get all pdf amount to total
             get_total_amount = []
-            # print(f"This is get_total_number {get_total_amount}")
 
             # convert to single pdf file and save to server
             for _id in ids:
@@ -158,4 +159,4 @@ app.include_router(download_routes)
 app.include_router(check_routes)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=int(settings.PORT), reload=True)
+    uvicorn.run("main:app", port=int(_settings.PORT), reload=True)

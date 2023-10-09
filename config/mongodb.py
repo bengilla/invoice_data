@@ -3,7 +3,9 @@ from typing import Any
 
 from pymongo import MongoClient
 
-from config.settings import settings
+from config.settings import Settings
+
+_settings = Settings()
 
 
 class MongoDB:
@@ -12,7 +14,7 @@ class MongoDB:
     def __init__(self) -> None:
         # MongoDB connect to Local or Online Server-------------------------------
         # self.client = MongoClient(
-        #     f"mongodb+srv://bengilla:{settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
         # )
         self.client = MongoClient("mongodb://localhost:27017")
 

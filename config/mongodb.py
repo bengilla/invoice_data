@@ -2,6 +2,7 @@
 from typing import Any
 
 from pymongo import MongoClient
+
 from config.settings import settings
 
 
@@ -10,7 +11,10 @@ class MongoDB:
 
     def __init__(self) -> None:
         # MongoDB connect to Local or Online Server-------------------------------
-        self.client = MongoClient(settings.DB_URL)
+        # self.client = MongoClient(
+        #     f"mongodb+srv://bengilla:{settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        # )
+        self.client = MongoClient("mongodb://localhost:27017")
 
         # Collection info
         self.invoice = self.client["INVOICE-DATA"]
@@ -27,4 +31,5 @@ class MongoDB:
         """get collection list"""
         if not self.invoice.list_collection_names():
             return []
-        return sorted(self.invoice.list_collection_names())
+        re_arrange_number = self.invoice.list_collection_names()
+        return sorted(re_arrange_number, key=int)

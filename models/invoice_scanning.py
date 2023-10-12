@@ -30,6 +30,8 @@ class Invoice:
                     page_content: list = page.extract_text().split("\n")[:-1]
                     invoice_content.append(page_content)
 
+            # print(invoice_content[0])
+
             # store data models (date, number, amount, company, download)
             db_data = {}
 
@@ -37,13 +39,15 @@ class Invoice:
             store_company = []
             for info in invoice_content[0]:
                 if "个人" in info:
-                    db_data["company"] = "个人"
+                    store_company.append("个人")
                 else:
                     if "公司" in info:
                         get_company_name: str = re.split(" |：|:", info)
                         for c_n in get_company_name:
                             if "公司" in c_n:
                                 store_company.append(c_n)
+                        if "个人" in store_company:
+                            db_data["company"] = "个人"
                         db_data["company"] = store_company[0]
                 if "开票日期" in info:
                     get_date: str = re.findall(r"\d*", info)
@@ -57,7 +61,8 @@ class Invoice:
                     db_data["_id"] = "".join(get_number)
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
-                    db_data["amount"] = get_amount[0]
+                    print(get_amount)
+                    db_data["amount"] = get_amount[-1]
 
             # encode pdf file and store to db
             with open(file, "rb") as pdf:

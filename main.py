@@ -36,21 +36,19 @@ def delete_all_file() -> None:
             os.remove(file)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=RedirectResponse)
 async def index(request: Request):
     """Upload pdf file when db is empty"""
     # delete zip file if zip in the server
     delete_all_file()
 
     # get last month in list and get the number
-    if _db.list_collections() != []:
-        last_month_in_list: str = _db.list_collections()[-1]
+    if _db.collections() == []:
+        month_in_list: str = "0"
     else:
-        last_month_in_list: str = "0"
+        month_in_list: str = _db.collections()[-1]
 
-    return RedirectResponse(
-        request.url_for("main", num=last_month_in_list), status_code=302
-    )
+    return RedirectResponse(request.url_for("main", num=month_in_list), status_code=302)
 
 
 @app.get("/month/{num}", response_class=HTMLResponse)
@@ -60,20 +58,23 @@ async def main(*, request: Request, num: str):
     delete_all_file()
 
     # all invoice information
-    invoice_data = list(_db.send_data(num).find({}))
+    invoice_data: list[dict] = list(_db.send_data(num).find({}))
+    # print(f"Invoice_data: {invoice_data}")
     # all amount
-    amount = [float(x["amount"]) for x in invoice_data]
+    amount: list[float] = [float(x["amount"]) for x in invoice_data]
+    # print(f"Amount: {amount}")
     # all company name
-    company = set([x["company"] for x in invoice_data])
+    company: list[str] = [x["company"] for x in invoice_data]
+    # print(f"Company: {company}")
 
-    # sort by date
+    # all invoice sort by date
     invoice_data.sort(key=lambda x: x["date"])
 
     response = templates.TemplateResponse(
         "user.html",
         {
             "request": request,
-            "list_col": _db.list_collections(),
+            "list_col": _db.collections(),
             "data": invoice_data,
             "total": f"{sum(amount):0.2f}",
             "company": company,
@@ -96,6 +97,7 @@ async def send_file(
 ):
     """Upload pdf file when db has previous file"""
     try:
+        # DOWNLOAD SECTION
         # ids are return from html checkbox
         if ids:
             # get all pdf amount to total
@@ -135,6 +137,7 @@ async def send_file(
                 request.url_for("download", file=zip_name), status_code=302
             )
 
+        # UPLOAD SECTION
         # id not ids select to download, this function is upload pdf file
         for file in files:
             with open(file.filename, "wb") as buffer:

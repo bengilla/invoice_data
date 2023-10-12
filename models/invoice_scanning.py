@@ -61,7 +61,6 @@ class Invoice:
                     db_data["_id"] = "".join(get_number)
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
-                    print(get_amount)
                     db_data["amount"] = get_amount[-1]
 
             # encode pdf file and store to db

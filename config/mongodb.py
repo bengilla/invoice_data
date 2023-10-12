@@ -21,17 +21,11 @@ class MongoDB:
         # Collection info
         self.invoice = self.client["INVOICE-DATA"]
 
-    def status(self) -> dict[str, Any]:
-        """DB status"""
-        return self.client.server_info()
-
     def send_data(self, month: str):
         """to collection"""
         return self.invoice[str(month)]
 
-    def list_collections(self) -> list[str]:
+    def collections(self) -> list[str]:
         """get collection list"""
-        if not self.invoice.list_collection_names():
-            return []
-        re_arrange_number = self.invoice.list_collection_names()
-        return sorted(re_arrange_number, key=int)
+        month_list = self.invoice.list_collection_names()
+        return sorted(month_list, key=int)

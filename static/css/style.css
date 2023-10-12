@@ -25,6 +25,7 @@ a:link {
 }
 
 hr {
+    margin-bottom: 20px;
     width: 100%;
 }
 
@@ -49,8 +50,10 @@ footer {
 }
 
 .company {
+    width: 100%;
     padding: 20px;
     display: flex;
+    flex-wrap: wrap;
 }
 
 .company>div {
@@ -90,6 +93,10 @@ footer {
 .month>div>a>div:hover {
     cursor: pointer;
     border-color: var(--orange_color);
+}
+
+table {
+    width: 100%;
 }
 
 table,

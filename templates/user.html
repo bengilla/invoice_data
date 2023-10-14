@@ -15,9 +15,7 @@ Invoice System
         <!-- company -->
         <div class="company">
             {% for i in company %}
-            <div>
-                <span>{{ i }}</span>
-            </div>
+            <span onclick="invoice(this)" data-target="{{ i }}">{{ i }}</span>
             {% endfor %}
         </div>
         <!-- end company -->
@@ -59,7 +57,7 @@ Invoice System
                 <tbody>
                     <!-- INVOICE -->
                     {% for i in data %}
-                    <tr class="table_inside" onclick="single(this)" />
+                    <tr class="table_inside {{ i.company }}" onclick="single(this)" />
                     <td>
                         <input type="checkbox" name="ids" value="{{ i._id }}">
                     </td>

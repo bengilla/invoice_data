@@ -25,15 +25,13 @@
 </body>
 
 <script>
-    // checkbox function (jquery)
+    // checkbox function
     function toggle(source) {
-        checkboxs = $("[name='ids']");
-        for (var i = 0, n = checkboxs.length; i < n; i++) {
-            checkboxs[i].checked = source.checked;
-        }
+        $('input[name="ids"]').prop('checked', source.checked);
     }
 
-    // single button
+
+    // if un-uncheck single checkbox, select all checkbox with disable
     function single(source) {
         checkboxes = $("[name='ids']");
         single_row = $(".single_row")
@@ -80,8 +78,9 @@
                     $(this).remove();
                 });
             });
-        }, 5000);
+        }, 8000);
     }
+
 </script>
 
 </html>

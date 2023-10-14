@@ -51,25 +51,20 @@ footer {
 
 .company {
     width: 100%;
-    padding: 20px;
+    padding: 2px 0 20px 0;
     display: flex;
     flex-wrap: wrap;
 }
 
-.company>div {
-    padding: 5px 10px 5px 10px;
-    margin: 0px 5px 0px 5px;
+.company>span {
+    padding: 0.4rem 0.6rem;
+    margin: 0 5px;
+    color: var(--grey_color);
+    background-color: var(--background_color);
     border: 1px;
     border-style: solid;
-    border-radius: 9999px;
-    border-color: var(--grey_color);
-    font-size: 0.9rem;
-    transition: var(--transition_timing);
-}
+    border-radius: 20px;
 
-.company>div:hover {
-    cursor: pointer;
-    border-color: var(--orange_color);
 }
 
 .month {
@@ -182,4 +177,19 @@ thead>tr>th,
 .button:hover {
     border-color: var(--orange_color);
     color: var(--orange_color);
+}
+
+.login {
+    width: 100%;
+    display: grid;
+    place-content: center;
+}
+
+.login>input {
+    padding: 10px;
+    margin: 3px 0px;
+    border: 2px;
+    border-color: var(--grey_color);
+    border-style: solid;
+    border-radius: 0.5rem;
 }

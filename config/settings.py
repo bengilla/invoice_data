@@ -14,3 +14,5 @@ class Settings:
 
     DB_PASSWORD: str = os.getenv("DB_PASSWORD")
     PORT: int = os.getenv("PORT")
+
+    SECRET_KEY: str = os.getenv("SECRET_KEY")

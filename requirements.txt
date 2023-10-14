@@ -1,6 +1,7 @@
 # fastapi
 fastapi==0.103.2
 uvicorn==0.23.2
+fastapi-login
 
 # jinja2
 jinja2

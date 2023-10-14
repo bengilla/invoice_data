@@ -58,7 +58,7 @@ class Invoice:
                     db_data["date"] = self.date.to_date_string()
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
-                    db_data["_id"] = "".join(get_number)
+                    db_data["_id"] = int("".join(get_number))
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
                     db_data["amount"] = get_amount[-1]

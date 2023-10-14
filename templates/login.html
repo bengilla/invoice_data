@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Invoice System - Login
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block section %}
+<form action="{{ login_data }}" method="POST" enctype="multipart/form-data">
+    <div class="login">
+        <input type="email" name="email" placeholder="email">
+        <input type="password" name="password" placeholder="password"><br />
+        <input type="submit" class="submit_button">
+    </div>
+</form>
+{% endblock %}
+
+{% block footer %}
+Invoice System
+{% endblock %}

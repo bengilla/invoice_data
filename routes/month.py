@@ -35,7 +35,7 @@ async def month(*, request: Request, num: str):
 
     if check_cookie:
         # all invoice information
-        invoice_data: list[dict] = list(_db.send_data(num).find({}))
+        invoice_data: list[dict] = list(_db.invoice_data(num).find({}))
         # print(f"Invoice_data: {invoice_data}")
         # all amount
         amount: list[float] = [float(x["amount"]) for x in invoice_data]
@@ -53,7 +53,7 @@ async def month(*, request: Request, num: str):
             "user.html",
             {
                 "request": request,
-                "list_col": _db.collections(),
+                "list_col": _db.invoice_collections(),
                 "data": invoice_data,
                 "total": f"{sum(amount):0.2f}",
                 "company": company,
@@ -87,13 +87,13 @@ async def send_file(
             # convert to single pdf file and save to server
             for _id in ids:
                 # get info from db
-                pdf = _db.send_data(num).find_one({"_id": int(_id)})
+                pdf = _db.invoice_data(num).find_one({"_id": int(_id)})
 
                 # get total amount for download invoice
                 get_total_amount.append(float(pdf["amount"]))
 
                 # if download success turn download icon to True
-                _db.send_data(num).update_one(
+                _db.invoice_data(num).update_one(
                     {"_id": int(_id)}, {"$set": {"download": True}}
                 )
 

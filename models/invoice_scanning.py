@@ -9,8 +9,6 @@ from pymongo.errors import DuplicateKeyError
 
 from config.mongodb import MongoDB
 
-_db = MongoDB()
-
 
 class Invoice:
     """All function about invoice calculate"""
@@ -74,7 +72,8 @@ class Invoice:
             # print(db_data)
 
             # store to db
-            db_upload = _db.send_data(str(self.date.month)).insert_one(db_data)
+            _db = MongoDB()
+            db_upload = _db.invoice_data(str(self.date.month)).insert_one(db_data)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"

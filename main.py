@@ -34,10 +34,10 @@ async def index(request: Request):
     if check_cookie:
         _db = MongoDB()
         # get last month in list and get the number
-        if _db.collections() == []:
+        if _db.invoice_collections() == []:
             month_in_list: str = "0"
         else:
-            month_in_list: str = _db.collections()[-1]
+            month_in_list: str = _db.invoice_collections()[-1]
         return RedirectResponse(request.url_for("month", num=month_in_list))
     return RedirectResponse(request.url_for("login"))
 

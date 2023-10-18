@@ -1,57 +1,47 @@
 from typing import Annotated
-from datetime import timedelta
-from fastapi import APIRouter, Request, Form
-from fastapi.templating import Jinja2Templates
-from fastapi_login import LoginManager
-from config.settings import Settings
 
-_settings = Settings()
+from fastapi import APIRouter, Request, Form
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from config.mongodb import MongoDB
+
+from models.manager import load_user, manager
+from models.password import Password
+from models.error import _error
+
 
 login_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
-
-DB = {"users": {"beng@mail.com": {"name": "Bengilla", "password": "1234"}}}
-
-SECRET = _settings.SECRET_KEY
-manager = LoginManager(
-    SECRET,
-    "/login",
-    use_cookie=True,
-    use_header=False,
-    default_expiry=timedelta(hours=12),
-)
-
-
-@manager.user_loader()
-def query_user(user_id: str):
-    """
-    Get a user from the db
-    :param user_id: E-Mail of the user
-    :return: None or the user object
-    """
-    # test_user = DB["users"].get(user_id)
-    # print(test_user)
-    return DB["users"].get(user_id)
 
 
 @login_routes.get("/login")
 async def login(request: Request):
     """Login Section"""
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request, "msg": _error})
 
 
-@login_routes.post("/login")
-async def login_data(email: Annotated[str, Form()], password: Annotated[str, Form()]):
-    # email = data.username
-    # password = data.password
+@login_routes.post("/login", response_class=HTMLResponse)
+async def login_data(
+    request: Request,
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+):
+    _db = MongoDB()
+    user_list = _db.user_collection()
 
-    # user = query_user(email)
-    # if not user:
-    #     raise InvalidCredentialsException
-    # elif password != user["password"]:
-    #     raise InvalidCredentialsException
+    if username in user_list:
+        _password = Password()
+        user = load_user(username)
+        verify_password = _password.verify_password(password, user.password)
 
-    # access_token = manager.create_access_token(data={"sub": email})
-    # manager.set_cookie(response, access_token)
-    # return {"access_token": access_token}
-    return {"email": email, "password": password}
+        if user and verify_password:
+            token = manager.create_access_token(data={"sub": user.username})
+
+            redirect_url = "/"
+            response = RedirectResponse(redirect_url)
+            response.set_cookie("access-token", token)
+            return response
+    _error.clear()
+    _error.append("用户名或密码错误")
+    return RedirectResponse(request.url_for("login"), status_code=302)

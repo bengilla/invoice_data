@@ -5,15 +5,15 @@ Invoice System - Login
 {% endblock %}
 
 {% block header %}
-登入
+注册
 {% endblock %}
 
 {% block section %}
-<form action="{{ login_data }}" method="POST">
+<form action="{{ register_data }}" method="POST" enctype="multipart/form-data">
     <div class="login">
         <input type="text" class="loginInput" name="username" placeholder="用户名" required>
         <input type="password" class="loginInput" name="password" placeholder="密码" required>
-        <span class="small-font">如果还没注册，请转至"<a href="/register">注册</a>"</span><br />
+        <span class="small-font">已注册，请转至"<a href="/login">登入</a>"</span><br />
         <input type="submit" class="submitButton" value="确认">
     </div>
     {% if msg != [] %}

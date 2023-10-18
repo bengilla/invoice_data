@@ -21,6 +21,17 @@ class MongoDB:
         # Collection info
         self.invoice = self.client["INVOICE-DATA"]
 
+    def user_data(self, username: str):
+        """to user collection"""
+        user = self.client["INVOICE-USER"]
+        return user[username]
+
+    def user_collection(self) -> list[str]:
+        """get user collections name"""
+        user_collection = self.client["INVOICE-USER"]
+        user_list = user_collection.list_collection_names()
+        return user_list
+
     def send_data(self, month: str):
         """to collection"""
         return self.invoice[str(month)]

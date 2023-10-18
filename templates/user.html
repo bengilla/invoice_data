@@ -15,7 +15,7 @@ Invoice System
         <!-- company -->
         <div class="company">
             {% for i in company %}
-            <span onclick="invoice(this)" data-target="{{ i }}">{{ i }}</span>
+            <span class="btn" onclick="invoice(this)">{{ i }}</span>
             {% endfor %}
         </div>
         <!-- end company -->
@@ -110,7 +110,7 @@ Invoice System
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="button">
+                <input type="submit" value="上传与下载" class="btn btn-big">
             </div>
         </div>
         <!-- end form -->
@@ -119,5 +119,5 @@ Invoice System
 {% endblock %}
 
 {% block footer %}
-Invoice System
+发票系统
 {% endblock %}

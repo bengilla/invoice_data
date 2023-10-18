@@ -1,7 +1,6 @@
 # fastapi
 fastapi==0.103.2
 uvicorn==0.23.2
-fastapi-login
 
 # jinja2
 jinja2
@@ -21,5 +20,9 @@ python-dotenv~=1.0.0
 # pdf
 pdfplumber~=0.10.2
 
+pyjwt
 
 opencv-python-headless==4.8.1.78
+
+# password
+passlib[bcrypt]

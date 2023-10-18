@@ -16,3 +16,5 @@ class Settings:
     PORT: int = os.getenv("PORT")
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
+
+    LOCATION: str = os.getenv("LOCATION")

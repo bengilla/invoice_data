@@ -17,6 +17,8 @@ templates = Jinja2Templates(directory="templates")
 @register_routes.get("/register")
 async def register(request: Request):
     """Login Section"""
+    _db = MongoDB()
+    _db.verify_code()
     return templates.TemplateResponse(
         "register.html", {"request": request, "msg": _error}
     )
@@ -24,17 +26,25 @@ async def register(request: Request):
 
 @register_routes.post("/register")
 async def register_data(
-    request: Request, username: Annotated[str, Form()], password: Annotated[str, Form()]
+    request: Request,
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    code: Annotated[str, Form()],
 ):
     _db = MongoDB()
     user_list = _db.user_collection()
+    code_list = _db.verify_code()
 
-    if username not in user_list:
-        _password = Password()
+    if code in code_list:
+        if username not in user_list:
+            _password = Password()
 
-        user_info = {"password": _password.get_password_hash(password)}
-        _db.user_data(str(username)).insert_one(user_info)
-        return RedirectResponse(request.url_for("index"), status_code=302)
+            user_info = {"password": _password.get_password_hash(password)}
+            _db.user_data(str(username)).insert_one(user_info)
+            return RedirectResponse(request.url_for("index"), status_code=302)
+        _error.clear()
+        _error.append("用户已存在")
+        return RedirectResponse(request.url_for("register"), status_code=302)
     _error.clear()
-    _error.append("用户已存在")
+    _error.append("确认码错误")
     return RedirectResponse(request.url_for("register"), status_code=302)

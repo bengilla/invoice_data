@@ -210,6 +210,10 @@ thead>tr>th,
     border-radius: 0.5rem;
 }
 
+.loginInput::placeholder {
+    text-align: center;
+}
+
 .submitButton {
     width: 100%;
     padding: 10px;

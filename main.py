@@ -17,6 +17,7 @@ from models.delete_file import delete_all_file
 from models.error import _error
 
 _settings = Settings()
+print("working branch")
 
 app = FastAPI(title=_settings.TITLE, docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")

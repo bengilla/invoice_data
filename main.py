@@ -10,11 +10,14 @@ from config.mongodb import MongoDB
 from routes.download import download_routes
 from routes.check import check_routes
 from routes.login import login_routes
-from routes.month import month_routes
+from routes.month import user_routes
 from routes.register import register_routes
 
 from models.delete_file import delete_all_file
 from models.error import _error
+from models.jwt import decoded_jwt
+import jwt
+
 
 _settings = Settings()
 print("working branch")
@@ -33,13 +36,18 @@ async def index(request: Request):
 
     check_cookie = request.cookies.get("access-token")
     if check_cookie:
-        _db = MongoDB()
+        username = jwt.decode(
+            check_cookie, _settings.JWT_SECRET_KEY, algorithms=["HS256"]
+        )
+        print(decoded_jwt(check_cookie))
+
+        # _db = MongoDB()
         # get last month in list and get the number
-        if _db.invoice_collections() == []:
-            month_in_list: str = "0"
-        else:
-            month_in_list: str = _db.invoice_collections()[-1]
-        return RedirectResponse(request.url_for("month", num=month_in_list))
+        # if _db.invoice_collections() == []:
+        #     month_in_list: str = "0"
+        # else:
+        #     month_in_list: str = _db.invoice_collections()[-1]
+        return RedirectResponse(request.url_for("user", username=username["name"]))
     return RedirectResponse(request.url_for("login"))
 
 
@@ -52,7 +60,7 @@ app.include_router(login_routes)
 app.include_router(register_routes)
 app.include_router(download_routes)
 app.include_router(check_routes)
-app.include_router(month_routes)
+app.include_router(user_routes)
 
 if __name__ == "__main__":
     import uvicorn

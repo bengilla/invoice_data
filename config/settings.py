@@ -16,5 +16,6 @@ class Settings:
     PORT: int = os.getenv("PORT")
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET")
 
     LOCATION: str = os.getenv("LOCATION")

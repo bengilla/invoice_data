@@ -16,7 +16,7 @@ class Invoice:
     def __init__(self) -> None:
         self.date = None
 
-    def pdf_file(self, file: Any):
+    def pdf_file(self, username: str, file: Any):
         """final output all data to db"""
         # file show up is xxxx.pdf
         try:
@@ -73,7 +73,7 @@ class Invoice:
 
             # store to db
             _db = MongoDB()
-            db_upload = _db.invoice_data(str(self.date.month)).insert_one(db_data)
+            db_upload = _db.invoice_data(username).insert_one(db_data)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"

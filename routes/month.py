@@ -21,12 +21,12 @@ _db = MongoDB()
 _settings = Settings()
 _errors = []
 
-month_routes = APIRouter()
+user_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@month_routes.get("/month/{num}", response_class=HTMLResponse)
-async def month(*, request: Request, num: str):
+@user_routes.get("/{username}/month", response_class=HTMLResponse)
+async def user(request: Request, username: str):
     """When previous pdf file is in db"""
     check_cookie = request.cookies.get("access-token")
 
@@ -35,7 +35,7 @@ async def month(*, request: Request, num: str):
 
     if check_cookie:
         # all invoice information
-        invoice_data: list[dict] = list(_db.invoice_data(num).find({}))
+        invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
         # print(f"Invoice_data: {invoice_data}")
         # all amount
         amount: list[float] = [float(x["amount"]) for x in invoice_data]
@@ -47,13 +47,13 @@ async def month(*, request: Request, num: str):
                 company.append(c["company"])
 
         # all invoice sort by date
-        invoice_data.sort(key=lambda x: x["date"])
+        # invoice_data.sort(key=lambda x: x["date"])
 
         response = templates.TemplateResponse(
             "user.html",
             {
                 "request": request,
-                "list_col": _db.invoice_collections(),
+                # "list_col": _db.invoice_collections(),
                 "data": invoice_data,
                 "total": f"{sum(amount):0.2f}",
                 "company": company,
@@ -68,13 +68,13 @@ async def month(*, request: Request, num: str):
     return RedirectResponse(request.url_for("login"))
 
 
-@month_routes.post("/month/{num}", response_class=RedirectResponse)
+@user_routes.post("/{username}/month", response_class=RedirectResponse)
 async def send_file(
     *,
     request: Request,
     files: list[UploadFile] = File(None),
     ids: list[str | None] = None,
-    num: str,
+    username: str,
 ):
     """Upload pdf file when db has previous file"""
     try:
@@ -87,13 +87,13 @@ async def send_file(
             # convert to single pdf file and save to server
             for _id in ids:
                 # get info from db
-                pdf = _db.invoice_data(num).find_one({"_id": int(_id)})
+                pdf = _db.invoice_data(username).find_one({"_id": int(_id)})
 
                 # get total amount for download invoice
                 get_total_amount.append(float(pdf["amount"]))
 
                 # if download success turn download icon to True
-                _db.invoice_data(num).update_one(
+                _db.invoice_data(username).update_one(
                     {"_id": int(_id)}, {"$set": {"download": True}}
                 )
 
@@ -122,17 +122,21 @@ async def send_file(
         for file in files:
             with open(file.filename, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
-                err_msg = _invoice.pdf_file(file.filename)
+                err_msg = _invoice.pdf_file(username=username, file=file.filename)
                 os.remove(file.filename)
                 if err_msg:
                     _errors.append(err_msg)
-            try:
-                num: str = _invoice.date.month
-            except Exception as e:
-                print(e)
-                num = "0"
+            # try:
+            #     num: str = _invoice.date.month
+            # except Exception as e:
+            #     print(e)
+            #     num = "0"
 
-        return RedirectResponse(request.url_for("month", num=num), status_code=302)
+        return RedirectResponse(
+            request.url_for("user", username=username), status_code=302
+        )
     except FileNotFoundError:
         _errors.append("没有文件上传")
-        return RedirectResponse(request.url_for("month", num=num), status_code=302)
+        return RedirectResponse(
+            request.url_for("user", username=username), status_code=302
+        )

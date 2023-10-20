@@ -9,6 +9,7 @@ from config.mongodb import MongoDB
 from models.manager import load_user, manager
 from models.password import Password
 from models.error import _error
+from models.jwt import encoded_jwt
 
 
 login_routes = APIRouter()
@@ -36,7 +37,8 @@ async def login_data(
         verify_password = _password.verify_password(password, user.password)
 
         if user and verify_password:
-            token = manager.create_access_token(data={"sub": user.username})
+            token = encoded_jwt(username)
+            print(token)
 
             redirect_url = "/"
             response = RedirectResponse(redirect_url)

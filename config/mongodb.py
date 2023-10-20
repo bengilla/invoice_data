@@ -32,10 +32,10 @@ class MongoDB:
         user_list = user_collection.list_collection_names()
         return user_list
 
-    def invoice_data(self, month: str):
+    def invoice_data(self, username: str):
         """to collection"""
         invoice = self.client["INVOICE-DATA"]
-        return invoice[str(month)]
+        return invoice[username]
 
     def invoice_collections(self) -> list[str]:
         """get collection list"""

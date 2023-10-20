@@ -1,4 +1,4 @@
-"""Invoice Calculate"""
+"""发票系统"""
 import pendulum
 
 from fastapi import FastAPI, Request
@@ -30,32 +30,24 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=RedirectResponse)
 async def index(request: Request):
     """Upload pdf file when db is empty"""
-    # delete zip file if zip in the server
+
+    # 删除左右zip和pdf文件
     delete_all_file()
+    # 删除全部错误
     _error.clear()
 
     check_cookie = request.cookies.get("access-token")
     if check_cookie:
+        _db = MongoDB()
         username = decoded_jwt(check_cookie)
 
-        _db = MongoDB()
-
-        # get data from user date
-        invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
-
-        # get last month in list and get the number
-        date_list: list[str] = []
-        for d in invoice_data:
-            get_month = pendulum.from_format(d["date"], "YYYY-MM-DD")
-            if get_month.month not in date_list:
-                date_list.append(get_month.month)
-        if date_list == []:
-            month_in_list: str = "0"
+        if _db.get_month_list(username) == []:
+            month_in_list: str = 0
         else:
-            month_in_list: str = max(date_list)
+            month_in_list: str = max(_db.get_month_list(username))
 
         return RedirectResponse(
-            request.url_for("user", username=username, num=month_in_list)
+            request.url_for("user", username=username, month=month_in_list)
         )
     return RedirectResponse(request.url_for("login"))
 

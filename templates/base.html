@@ -51,11 +51,12 @@
 
     // url pathname
     let url = location.pathname;
+    console.log(url)
 
     // if empty hide title box (jquery)
     const title = $("#title-box");
     if (url === "/month/0" || url === "/month/None") {
-        title.css("display", "none");
+        title.css("display", "");
     } else {
         title.css("display", "");
     }

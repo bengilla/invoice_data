@@ -7,11 +7,8 @@ from config.mongodb import MongoDB
 
 _settings = Settings()
 
-SECRET_KEY = _settings.SECRET_KEY
-
-
 manager = LoginManager(
-    SECRET_KEY,
+    _settings.SECRET_KEY,
     "/login",
     use_cookie=True,
     use_header=False,

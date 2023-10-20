@@ -1,4 +1,6 @@
 """Invoice Calculate"""
+import pendulum
+
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -16,11 +18,9 @@ from routes.register import register_routes
 from models.delete_file import delete_all_file
 from models.error import _error
 from models.jwt import decoded_jwt
-import jwt
 
 
 _settings = Settings()
-print("working branch")
 
 app = FastAPI(title=_settings.TITLE, docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -36,18 +36,27 @@ async def index(request: Request):
 
     check_cookie = request.cookies.get("access-token")
     if check_cookie:
-        username = jwt.decode(
-            check_cookie, _settings.JWT_SECRET_KEY, algorithms=["HS256"]
-        )
-        print(decoded_jwt(check_cookie))
+        username = decoded_jwt(check_cookie)
 
-        # _db = MongoDB()
+        _db = MongoDB()
+
+        # get data from user date
+        invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
+
         # get last month in list and get the number
-        # if _db.invoice_collections() == []:
-        #     month_in_list: str = "0"
-        # else:
-        #     month_in_list: str = _db.invoice_collections()[-1]
-        return RedirectResponse(request.url_for("user", username=username["name"]))
+        date_list: list[str] = []
+        for d in invoice_data:
+            get_month = pendulum.from_format(d["date"], "YYYY-MM-DD")
+            if get_month.month not in date_list:
+                date_list.append(get_month.month)
+        if date_list == []:
+            month_in_list: str = "0"
+        else:
+            month_in_list: str = max(date_list)
+
+        return RedirectResponse(
+            request.url_for("user", username=username, num=month_in_list)
+        )
     return RedirectResponse(request.url_for("login"))
 
 

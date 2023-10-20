@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 
 from config.mongodb import MongoDB
 
-from models.manager import load_user, manager
+from models.manager import load_user
 from models.password import Password
 from models.error import _error
 from models.jwt import encoded_jwt
@@ -38,11 +38,10 @@ async def login_data(
 
         if user and verify_password:
             token = encoded_jwt(username)
-            print(token)
 
             redirect_url = "/"
             response = RedirectResponse(redirect_url)
-            response.set_cookie("access-token", token)
+            response.set_cookie(key="access-token", value=token, httponly=True)
             return response
     _error.clear()
     _error.append("用户名或密码错误")

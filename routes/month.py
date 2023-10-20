@@ -3,6 +3,7 @@ import os
 import fnmatch
 import codecs
 import shutil
+import pendulum
 
 from zipfile import ZipFile
 
@@ -15,6 +16,7 @@ from config.settings import Settings
 
 from models.invoice_scanning import Invoice
 from models.delete_file import delete_all_file
+from models.jwt import decoded_jwt
 
 
 _db = MongoDB()
@@ -25,56 +27,75 @@ user_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@user_routes.get("/{username}/month", response_class=HTMLResponse)
-async def user(request: Request, username: str):
+@user_routes.get("/{username}/{num}", response_class=HTMLResponse)
+async def user(request: Request, username: str, num: str):
     """When previous pdf file is in db"""
-    check_cookie = request.cookies.get("access-token")
-
     # delete zip file if zip in the server
     delete_all_file()
 
-    if check_cookie:
-        # all invoice information
-        invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
-        # print(f"Invoice_data: {invoice_data}")
-        # all amount
-        amount: list[float] = [float(x["amount"]) for x in invoice_data]
-        # print(f"Amount: {amount}")
-        # all company name
-        company: list(str) = []
-        for c in invoice_data:
-            if c["company"] not in company:
-                company.append(c["company"])
+    get_cookie = request.cookies.get("access-token")
 
-        # all invoice sort by date
-        # invoice_data.sort(key=lambda x: x["date"])
+    if get_cookie:
+        check_user = decoded_jwt(get_cookie)
+        if username == check_user:
+            # all invoice information
+            invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
+            # print(f"Invoice_data: {invoice_data}")
 
-        response = templates.TemplateResponse(
-            "user.html",
-            {
-                "request": request,
-                # "list_col": _db.invoice_collections(),
-                "data": invoice_data,
-                "total": f"{sum(amount):0.2f}",
-                "company": company,
-                "msg": _errors,
-            },
-        )
+            store_invoice: list[dict] = []
+            store_month: list[str] = []
 
-        # clear the error message list
-        _errors.clear()
-        return response
+            for each_invoice in invoice_data:
+                each_date = pendulum.from_format(each_invoice["date"], "YYYY-MM-DD")
+                if num == str(each_date.month):
+                    store_invoice.append(each_invoice)
 
+                # get all date list
+                if str(each_date.month) not in store_month:
+                    store_month.append(str(each_date.month))
+
+            # second part
+            amount_list: list[float] = []
+            company_list: list[str] = []
+
+            for invoice in store_invoice:
+                # get all amount
+                amount_list.append(float(invoice["amount"]))
+
+                # get all company name
+                if invoice["company"] not in company_list:
+                    company_list.append(invoice["company"])
+
+            response = templates.TemplateResponse(
+                "user.html",
+                {
+                    "request": request,
+                    "username": username,
+                    "list_col": sorted(store_month, key=int),
+                    "data": sorted(store_invoice, key=lambda x: x["date"]),
+                    "total": f"{sum(amount_list):0.2f}",
+                    "company": company_list,
+                    "msg": _errors,
+                },
+            )
+
+            # clear the error message list
+            _errors.clear()
+            return response
+            # print(f"Amount: {amount_list}")
+            # print(f"Company: {company_list}")
+            # print(f"Date: {month_list}")
     return RedirectResponse(request.url_for("login"))
 
 
-@user_routes.post("/{username}/month", response_class=RedirectResponse)
+@user_routes.post("/{username}/{num}", response_class=RedirectResponse)
 async def send_file(
     *,
     request: Request,
     files: list[UploadFile] = File(None),
     ids: list[str | None] = None,
     username: str,
+    num: str,
 ):
     """Upload pdf file when db has previous file"""
     try:
@@ -126,17 +147,16 @@ async def send_file(
                 os.remove(file.filename)
                 if err_msg:
                     _errors.append(err_msg)
-            # try:
-            #     num: str = _invoice.date.month
-            # except Exception as e:
-            #     print(e)
-            #     num = "0"
+            try:
+                num: str = _invoice.date.month
+            except:
+                num = "0"
 
         return RedirectResponse(
-            request.url_for("user", username=username), status_code=302
+            request.url_for("user", username=username, num=num), status_code=302
         )
     except FileNotFoundError:
         _errors.append("没有文件上传")
         return RedirectResponse(
-            request.url_for("user", username=username), status_code=302
+            request.url_for("user", username=username, num=num), status_code=302
         )

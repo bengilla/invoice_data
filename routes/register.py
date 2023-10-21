@@ -17,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 @register_routes.get("/register")
 async def register(request: Request):
     """Login Section"""
+    _error.clear()
     return templates.TemplateResponse(
         "register.html", {"request": request, "msg": _error}
     )

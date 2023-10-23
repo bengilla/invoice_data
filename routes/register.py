@@ -19,6 +19,7 @@ templates = Jinja2Templates(directory="templates")
 async def register(request: Request):
     """Login Section"""
     _error.clear()
+
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         c = verify_cookie(get_cookie)

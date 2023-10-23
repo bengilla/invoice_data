@@ -18,6 +18,7 @@ from routes.register import register_routes
 from models.delete_file import delete_all_file
 from models.error import _error
 from models.jwt import decoded_jwt
+from models.cookie import verify_cookie
 
 
 _settings = Settings()
@@ -36,19 +37,10 @@ async def index(request: Request):
     # 删除全部错误
     _error.clear()
 
-    check_cookie = request.cookies.get("access-token")
-    if check_cookie:
-        _db = MongoDB()
-        username = decoded_jwt(check_cookie)
-
-        if _db.get_month_list(username) == []:
-            month_in_list: str = 0
-        else:
-            month_in_list: str = max(_db.get_month_list(username))
-
-        return RedirectResponse(
-            request.url_for("user", username=username, month=month_in_list)
-        )
+    get_cookie = request.cookies.get("access-token")
+    if get_cookie:
+        c = verify_cookie(get_cookie)
+        return RedirectResponse(request.url_for("user", username=c[0], month=c[1]))
     return RedirectResponse(request.url_for("login"))
 
 

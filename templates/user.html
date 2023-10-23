@@ -14,6 +14,7 @@ Invoice System
 
         <!-- company -->
         <div class="company">
+            <span class="btn" onclick="all_invoice()">全显</span>
             {% for i in company %}
             <span class="btn" onclick="invoice(this)">{{ i }}</span>
             {% endfor %}
@@ -38,10 +39,10 @@ Invoice System
         <div>
             <table>
                 <!-- thead -->
-                <thead id="title-box">
+                <thead id="title_box">
                     <tr class="table_top_bottom">
                         <th>
-                            <input type="checkbox" id="main-checkbox" onclick="toggle(this)" />
+                            <input type="checkbox" id="main_checkbox" onclick="toggle()" />
                         </th>
                         <th>号</th>
                         <th>日期</th>
@@ -57,9 +58,9 @@ Invoice System
                 <tbody>
                     <!-- INVOICE -->
                     {% for i in data %}
-                    <tr class="table_inside {{ i.company }}" onclick="single(this)" />
-                    <td>
-                        <input type="checkbox" name="ids" value="{{ i._id }}">
+                    <tr class="table_inside company_list {{ i.company }}" onclick="single()" />
+                    <td class="thisBtn">
+                        <input type="checkbox" name="ids" class="single_checkbox" value="{{ i._id }}">
                     </td>
                     <td>{{ loop.index }}</td>
                     <td>{{ i.date }}</td>
@@ -110,7 +111,7 @@ Invoice System
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="btn btn-big">
+                <input type="submit" value="上传与下载" class="btn btn_big">
             </div>
         </div>
         <!-- end form -->

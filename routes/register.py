@@ -8,6 +8,7 @@ from config.mongodb import MongoDB
 
 from models.password import Password
 from models.error import _error
+from models.cookie import verify_cookie
 
 
 register_routes = APIRouter()
@@ -18,6 +19,10 @@ templates = Jinja2Templates(directory="templates")
 async def register(request: Request):
     """Login Section"""
     _error.clear()
+    get_cookie = request.cookies.get("access-token")
+    if get_cookie:
+        c = verify_cookie(get_cookie)
+        return RedirectResponse(request.url_for("user", username=c[0], month=c[1]))
     return templates.TemplateResponse(
         "register.html", {"request": request, "msg": _error}
     )

@@ -60,7 +60,7 @@ footer {
     transition: var(--transition_timing);
 }
 
-.btn-big {
+.btn_big {
     width: 100%;
     padding: 0.8rem 1.2rem;
 }
@@ -200,7 +200,7 @@ thead>tr>th,
     place-content: center;
 }
 
-.loginInput {
+.login_input {
     width: 15rem;
     padding: 10px;
     margin: 3px 0px;
@@ -211,11 +211,11 @@ thead>tr>th,
     text-align: center;
 }
 
-.loginInput::placeholder {
+.login_input::placeholder {
     text-align: center;
 }
 
-.submitButton {
+.submit_button {
     width: 100%;
     padding: 10px;
     margin: 3px 0px;
@@ -227,7 +227,16 @@ thead>tr>th,
     background-color: var(--background_color);
 }
 
-.small-font {
+.small_font {
     color: var(--grey_color);
     font-size: small;
+}
+
+.year {
+    padding: 0.6rem;
+    width: 100%;
+    border: 2px;
+    border-style: solid;
+    border-radius: 9999px;
+    background-color: var(--grey_color);
 }

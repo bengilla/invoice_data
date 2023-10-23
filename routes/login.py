@@ -10,6 +10,7 @@ from models.manager import load_user
 from models.password import Password
 from models.error import _error
 from models.jwt import encoded_jwt
+from models.cookie import verify_cookie
 
 
 login_routes = APIRouter()
@@ -19,6 +20,11 @@ templates = Jinja2Templates(directory="templates")
 @login_routes.get("/login")
 async def login(request: Request):
     """Login Section"""
+
+    get_cookie = request.cookies.get("access-token")
+    if get_cookie:
+        c = verify_cookie(get_cookie)
+        return RedirectResponse(request.url_for("user", username=c[0], month=c[1]))
     return templates.TemplateResponse("login.html", {"request": request, "msg": _error})
 
 

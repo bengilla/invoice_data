@@ -1,13 +1,10 @@
 """发票系统"""
-import pendulum
-
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from config.settings import Settings
-from config.mongodb import MongoDB
 
 from routes.download import download_routes
 from routes.check import check_routes
@@ -17,7 +14,6 @@ from routes.register import register_routes
 
 from models.delete_file import delete_all_file
 from models.error import _error
-from models.jwt import decoded_jwt
 from models.cookie import verify_cookie
 
 
@@ -40,7 +36,9 @@ async def index(request: Request):
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         c = verify_cookie(get_cookie)
-        return RedirectResponse(request.url_for("user", username=c[0], month=c[1]))
+        return RedirectResponse(
+            request.url_for("user", username=c.username, month=c.month)
+        )
     return RedirectResponse(request.url_for("login"))
 
 

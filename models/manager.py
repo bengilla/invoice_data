@@ -1,4 +1,5 @@
 from datetime import timedelta
+from dataclasses import dataclass
 
 from fastapi_login import LoginManager
 
@@ -16,10 +17,10 @@ manager = LoginManager(
 )
 
 
+@dataclass
 class User:
-    def __init__(self, username: str, password: str) -> None:
-        self.username = username
-        self.password = password
+    username: str
+    password: str
 
 
 @manager.user_loader()
@@ -29,4 +30,4 @@ def load_user(username: str):
     user_data: list[dict] = list(_db.user_data(username).find({}))
     password = [p["password"] for p in user_data]
 
-    return User(username, password[0])
+    return User(username=username, password=password[0])

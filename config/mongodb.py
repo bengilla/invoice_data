@@ -61,6 +61,15 @@ class MongoDB:
                 month_list.append(date.month)
         return month_list
 
+    def get_year_list(self, username: str) -> list[int]:
+        year_list: list[int] = []
+        invoice_data = self.invoice_data(username).find({})
+        for each_invoice in invoice_data:
+            date: pendulum = pendulum.from_format(each_invoice["date"], "YYYY-MM-DD")
+            if date.year not in year_list:
+                year_list.append(date.month)
+        return year_list
+
     """确认码"""
 
     def verify_code(self) -> list:

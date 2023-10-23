@@ -24,7 +24,9 @@ async def login(request: Request):
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         c = verify_cookie(get_cookie)
-        return RedirectResponse(request.url_for("user", username=c[0], month=c[1]))
+        return RedirectResponse(
+            request.url_for("user", username=c.username, month=c.month)
+        )
     return templates.TemplateResponse("login.html", {"request": request, "msg": _error})
 
 

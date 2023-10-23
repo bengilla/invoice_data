@@ -13,10 +13,10 @@ class MongoDB:
 
     def __init__(self) -> None:
         # MongoDB connect to Local or Online Server
-        self.client = MongoClient("mongodb://localhost:27017")
-        # self.client = MongoClient(
-        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
-        # )
+        # self.client = MongoClient("mongodb://localhost:27017")
+        self.client = MongoClient(
+            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        )
         self.code_client = MongoClient(
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
         )

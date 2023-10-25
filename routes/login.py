@@ -33,29 +33,17 @@ async def login_data(
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
 ):
-    # start = time.time()
     user = load_user(username)
-    # end1 = time.time()
-    # print(end1 - start)
 
-    if username in user.user_collections:
+    if user:
         verify_password = _password.verify_password(password, user.password)
 
-        # end2 = time.time()
-        # print(end2 - end1)
-
-        if user and verify_password:
+        if verify_password:
             token = encoded_jwt(username)
-
-            # end3 = time.time()
-            # print(end3 - end2)
 
             redirect_url = "/"
             response = RedirectResponse(redirect_url)
             response.set_cookie(key="access-token", value=token, httponly=True)
-
-            # end4 = time.time()
-            # print(end4 - end3)
 
             return response
         _error.clear()

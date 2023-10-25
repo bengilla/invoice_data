@@ -1,0 +1,41 @@
+import sqlite3
+
+
+class User:
+    def __init__(self) -> None:
+        self.conn_DB = sqlite3.connect("db/user.db")
+        self.cur = self.conn_DB.cursor()
+
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS users (username TEXT, password BINARY)"
+        )
+
+    def user_register(self, username: str, password: str):
+        user_input = "INSERT INTO users (username, password) VALUES (?, ?)"
+
+        self.cur.execute(user_input, (username, password))
+
+        self.conn_DB.commit()
+        self.conn_DB.close()
+
+    def user_info(self, username: str, list_users=False):
+        info = None
+
+        try:
+            if list_users:
+                self.cur.execute("SELECT username FROM users")
+                rows = self.cur.fetchall()
+                all_users = [row[0] for row in rows]
+                info = all_users
+            else:
+                self.cur.execute(
+                    "SELECT password FROM users WHERE username = ?", (username,)
+                )
+                row = self.cur.fetchone()
+
+                if row:
+                    info = row[0]
+        except Exception as e:
+            print(f"Error while fetching user info: {e}")
+
+        return info

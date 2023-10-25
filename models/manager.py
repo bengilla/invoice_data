@@ -1,11 +1,11 @@
-import time
 from datetime import timedelta
 from dataclasses import dataclass
 
 from fastapi_login import LoginManager
 
 from config.settings import Settings
-from config.mongodb import MongoDB
+
+from config.db import User
 
 _settings = Settings()
 
@@ -19,22 +19,13 @@ manager = LoginManager(
 
 
 @dataclass
-class User:
-    user_collections: list
+class UserData:
     username: str
     password: str
 
 
 @manager.user_loader()
 def load_user(username: str):
-    start = time.time()
-    _db = MongoDB()
-    end = time.time()
-    print(end - start)
-
-    user_data: list[dict] = list(_db.user_data(username).find({}))
-    password = [p["password"] for p in user_data]
-
-    return User(
-        user_collections=_db.user_collection(), username=username, password=password[0]
-    )
+    _db = User()
+    get_password = _db.user_info(username)
+    return UserData(username=username, password=get_password)

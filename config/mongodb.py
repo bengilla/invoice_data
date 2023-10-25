@@ -22,19 +22,6 @@ class MongoDB:
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
         )
 
-    """ User Section"""
-
-    def user_data(self, username: str):
-        """to user collection"""
-        user = self.client["INVOICE-USER"]
-        return user[username]
-
-    def user_collection(self) -> list[str]:
-        """get user collections name"""
-        user_collection = self.client["INVOICE-USER"]
-        user_list = user_collection.list_collection_names()
-        return user_list
-
     """Invoice Section"""
 
     def invoice_data(self, username: str):

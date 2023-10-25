@@ -1,9 +1,9 @@
 """invoice work section"""
 from typing import Any
+from datetime import date
 
 import re
 import base64
-import pendulum
 import pdfplumber
 from pymongo.errors import DuplicateKeyError
 
@@ -50,10 +50,8 @@ class Invoice:
                 if "开票日期" in info:
                     get_date: str = re.findall(r"\d*", info)
                     date_convert = "".join(get_date)
-                    self.date = pendulum.from_format(
-                        date_convert, "YYYYMMDD"
-                    )  # convert string to date
-                    db_data["date"] = self.date.to_date_string()
+                    self.date = date.fromisoformat(date_convert)
+                    db_data["date"] = self.date.strftime("%Y-%m-%d")
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
                     db_data["_id"] = int("".join(get_number))

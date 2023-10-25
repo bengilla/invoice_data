@@ -1,3 +1,4 @@
+import time
 from datetime import timedelta
 from dataclasses import dataclass
 
@@ -19,15 +20,21 @@ manager = LoginManager(
 
 @dataclass
 class User:
+    user_collections: list
     username: str
     password: str
 
 
 @manager.user_loader()
 def load_user(username: str):
+    start = time.time()
     _db = MongoDB()
+    end = time.time()
+    print(end - start)
 
     user_data: list[dict] = list(_db.user_data(username).find({}))
     password = [p["password"] for p in user_data]
 
-    return User(username=username, password=password[0])
+    return User(
+        user_collections=_db.user_collection(), username=username, password=password[0]
+    )

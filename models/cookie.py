@@ -1,10 +1,10 @@
-import pendulum
+from datetime import datetime
 from dataclasses import dataclass
 
 from config.mongodb import MongoDB
 from models.jwt import decoded_jwt
 
-dt = pendulum.now()
+dt = datetime.now()
 
 
 @dataclass
@@ -18,12 +18,13 @@ def verify_cookie(cookie) -> Cookie:
     """return username and month_in_list"""
     _db = MongoDB()
     username: str = decoded_jwt(cookie)
+    result = _db.year_n_month(username)
 
-    if _db.get_month_list(username) == []:
+    if result["month"] == []:
         year = dt.year
         month: int = 0
     else:
-        year: int = max(_db.get_year_list(username))
-        month: int = max(_db.get_month_list(username))
+        year: int = max(result["year"])
+        month: int = max(result["month"])
 
     return Cookie(username=username, year=year, month=month)

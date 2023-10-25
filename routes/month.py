@@ -3,7 +3,7 @@ import os
 import fnmatch
 import codecs
 import shutil
-import pendulum
+from datetime import date
 
 from zipfile import ZipFile
 
@@ -44,10 +44,15 @@ async def user(request: Request, username: str, month: str):
             store_invoice: list[dict] = []
             amount_list: list[float] = []
             company_list: list[str] = []
+            year_list: list[str] = []
+            month_list: list[str] = []
 
             for each_invoice in invoice_data:
-                each_date = pendulum.from_format(each_invoice["date"], "YYYY-MM-DD")
-                if month == str(each_date.month):
+                year_list.append(date.fromisoformat(each_invoice["date"]).year)
+                month_list.append(date.fromisoformat(each_invoice["date"]).month)
+
+                d = date.fromisoformat(each_invoice["date"])
+                if month == str(d.month):
                     store_invoice.append(each_invoice)
                     amount_list.append(float(each_invoice["amount"]))
                     company_list.append(each_invoice["company"])
@@ -57,18 +62,13 @@ async def user(request: Request, username: str, month: str):
                 {
                     "request": request,
                     "username": username,
-                    "list_col": sorted(_db.get_month_list(username), key=int),
+                    "list_col": sorted(list(set(month_list)), key=int),
                     "data": sorted(store_invoice, key=lambda x: x["date"]),
                     "total": f"{sum(amount_list):0.2f}",
                     "company": list(set(company_list)),
                     "msg": _errors,
                 },
             )
-
-            # 打印测试
-            # print(f"Amount: {amount_list}")
-            # print(f"Company: {company_list}")
-            # print(f"Date: {month_list}")
 
             # clear the error message list
             _errors.clear()

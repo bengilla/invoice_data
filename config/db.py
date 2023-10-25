@@ -18,7 +18,7 @@ class User:
         self.conn_DB.commit()
         self.conn_DB.close()
 
-    def user_info(self, username: str, list_users=False):
+    def user_info(self, username: str):
         self.cur.execute("SELECT password FROM users WHERE username = ?", (username,))
         row = self.cur.fetchone()
         if row:
@@ -28,5 +28,14 @@ class User:
         self.cur.execute("SELECT * FROM users")
         rows = self.cur.fetchall()
         users = [row[0] for row in rows]
-        print(users)
         return users
+
+
+class Invoice:
+    def __init__(self) -> None:
+        self.conn_DB = sqlite3.connect("db/invoice.db")
+        self.cur = self.conn_DB.cursor()
+
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS invoice (id INT, date TEXT, company TEXT, amount FLOAT, pdf BINARY, download BOOLEAN)"
+        )

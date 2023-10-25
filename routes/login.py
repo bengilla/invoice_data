@@ -1,6 +1,3 @@
-import time
-from typing import Annotated
-
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -32,8 +29,8 @@ async def login(request: Request):
 @login_routes.post("/login", response_class=HTMLResponse)
 async def login_data(
     request: Request,
-    username: Annotated[str, Form()],
-    password: Annotated[str, Form()],
+    username: str = Form(),
+    password: str = Form(),
 ):
     _db = User()
     user = load_user(username)

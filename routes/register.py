@@ -1,10 +1,8 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-# from config.mongodb import MongoDB
+from config.mongodb import MongoDB
 from config.db import User
 
 from models.password import Password
@@ -30,24 +28,24 @@ async def register(request: Request):
 @register_routes.post("/register")
 async def register_data(
     request: Request,
-    username: Annotated[str, Form()],
-    password: Annotated[str, Form()],
-    # code: Annotated[str, Form()],
+    username: str = Form(),
+    password: str = Form(),
+    code: str = Form(),
 ):
-    # _db_mongo = MongoDB()
-    # code_list = _db_mongo.verify_code()
+    _db_mongo = MongoDB()
+    code_list = _db_mongo.verify_code()
 
     _db = User()
 
-    # if code in code_list:
-    if username not in _db.users_check():
-        _password = Password()
-        password_hash = _password.get_password_hash(password)
-        _db.user_register(username=username, password=password_hash)
-        return RedirectResponse(request.url_for("index"), status_code=302)
+    if code in code_list:
+        if username not in _db.users_check():
+            _password = Password()
+            password_hash = _password.get_password_hash(password)
+            _db.user_register(username=username, password=password_hash)
+            return RedirectResponse(request.url_for("index"), status_code=302)
+        _error.clear()
+        _error.append("用户已存在")
+        return RedirectResponse(request.url_for("register"), status_code=302)
     _error.clear()
-    _error.append("用户已存在")
+    _error.append("确认码错误")
     return RedirectResponse(request.url_for("register"), status_code=302)
-    # _error.clear()
-    # _error.append("确认码错误")
-    # return RedirectResponse(request.url_for("register"), status_code=302)

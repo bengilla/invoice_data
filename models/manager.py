@@ -27,5 +27,6 @@ class UserData:
 @manager.user_loader()
 def load_user(username: str):
     _db = User()
+
     get_password = _db.user_info(username)
     return UserData(username=username, password=get_password)

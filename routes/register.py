@@ -40,7 +40,7 @@ async def register_data(
     _db = User()
 
     # if code in code_list:
-    if _db.user_info(username) == None:
+    if username not in _db.users_check():
         _password = Password()
         password_hash = _password.get_password_hash(password)
         _db.user_register(username=username, password=password_hash)

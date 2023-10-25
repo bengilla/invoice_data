@@ -19,23 +19,14 @@ class User:
         self.conn_DB.close()
 
     def user_info(self, username: str, list_users=False):
-        info = None
+        self.cur.execute("SELECT password FROM users WHERE username = ?", (username,))
+        row = self.cur.fetchone()
+        if row:
+            return row[0]
 
-        try:
-            if list_users:
-                self.cur.execute("SELECT username FROM users")
-                rows = self.cur.fetchall()
-                all_users = [row[0] for row in rows]
-                info = all_users
-            else:
-                self.cur.execute(
-                    "SELECT password FROM users WHERE username = ?", (username,)
-                )
-                row = self.cur.fetchone()
-
-                if row:
-                    info = row[0]
-        except Exception as e:
-            print(f"Error while fetching user info: {e}")
-
-        return info
+    def users_check(self):
+        self.cur.execute("SELECT * FROM users")
+        rows = self.cur.fetchall()
+        users = [row[0] for row in rows]
+        print(users)
+        return users

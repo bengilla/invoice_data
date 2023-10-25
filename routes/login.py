@@ -5,6 +5,8 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from config.db import User
+
 from models.manager import load_user
 from models.password import Password
 from models.error import _error
@@ -33,9 +35,10 @@ async def login_data(
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
 ):
+    _db = User()
     user = load_user(username)
 
-    if user:
+    if username in _db.users_check():
         verify_password = _password.verify_password(password, user.password)
 
         if verify_password:

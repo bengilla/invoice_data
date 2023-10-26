@@ -133,7 +133,7 @@ async def send_file(
                 err_msg = _invoice.pdf_file(username=username, file=file.filename)
                 os.remove(file.filename)
                 if err_msg:
-                    _errors.append(err_msg)
+                    _error.append(err_msg)
             try:
                 month: str = _invoice.date.month
             except:
@@ -143,7 +143,7 @@ async def send_file(
             request.url_for("user", username=username, month=month), status_code=302
         )
     except FileNotFoundError:
-        _errors.append("没有文件上传")
+        _error.append("没有文件上传")
         return RedirectResponse(
             request.url_for("user", username=username, month=month), status_code=302
         )

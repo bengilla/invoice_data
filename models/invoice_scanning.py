@@ -41,22 +41,27 @@ class Invoice:
                 else:
                     if "公司" in info:
                         get_company_name: str = re.split(" |：|:", info)
+                        # print(get_company_name)
                         for c_n in get_company_name:
                             if "公司" in c_n:
                                 store_company.append(c_n)
                         if "个人" in store_company:
                             db_data["company"] = "个人"
                         db_data["company"] = store_company[0]
+                        # print(store_company[0])
                 if "开票日期" in info:
                     get_date: str = re.findall(r"\d*", info)
                     date_convert = "".join(get_date)
                     self.date = date.fromisoformat(date_convert)
+                    # print(self.date)
                     db_data["date"] = self.date.strftime("%Y-%m-%d")
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
-                    db_data["_id"] = int("".join(get_number))
+                    # print("".join(get_number)[-10:])
+                    db_data["_id"] = int("".join(get_number)[-10:])
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
+                    # print(get_amount[-1])
                     db_data["amount"] = get_amount[-1]
 
             # 把PDF转换成base64

@@ -20,7 +20,7 @@ from models.jwt import decoded_jwt
 from models.error import _error
 
 
-_db = MongoDB()
+_db_mongo = MongoDB()
 _settings = Settings()
 
 user_routes = APIRouter()
@@ -39,7 +39,7 @@ async def user(request: Request, username: str, month: str):
         check_user = decoded_jwt(get_cookie)
         if username == check_user:
             # 发票讯息
-            invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
+            invoice_data: list[dict] = list(_db_mongo.invoice_data(username).find({}))
 
             store_invoice: list[dict] = []
             amount_list: list[float] = []
@@ -96,13 +96,13 @@ async def send_file(
             # 解析每张发票并传送到服务器
             for _id in ids:
                 # 取所有发票讯息
-                pdf = _db.invoice_data(username).find_one({"_id": int(_id)})
+                pdf = _db_mongo.invoice_data(username).find_one({"_id": int(_id)})
 
                 # 取所有发票的价格
                 get_total_amount.append(float(pdf["amount"]))
 
                 # 如果下载成功把download改为True
-                _db.invoice_data(username).update_one(
+                _db_mongo.invoice_data(username).update_one(
                     {"_id": int(_id)}, {"$set": {"download": True}}
                 )
 

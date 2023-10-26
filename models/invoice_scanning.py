@@ -9,6 +9,8 @@ from pymongo.errors import DuplicateKeyError
 
 from config.mongodb import MongoDB
 
+_db_mongo = MongoDB()
+
 
 class Invoice:
     """计算所有发票讯息"""
@@ -53,7 +55,7 @@ class Invoice:
                     get_date: str = re.findall(r"\d*", info)
                     date_convert = "".join(get_date)
                     self.date = date.fromisoformat(date_convert)
-                    # print(self.date)
+                    # print(type(self.date))
                     db_data["date"] = self.date.strftime("%Y-%m-%d")
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
@@ -75,8 +77,7 @@ class Invoice:
             # print(db_data)
 
             # 存储在数据库
-            _db = MongoDB()
-            db_upload = _db.invoice_data(username).insert_one(db_data)
+            db_upload = _db_mongo.invoice_data(username).insert_one(db_data)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"

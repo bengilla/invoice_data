@@ -14,10 +14,10 @@ class MongoDB:
     def __init__(self) -> None:
         """主区"""
 
-        # self.client = MongoClient("mongodb://localhost:27017")
-        self.client = MongoClient(
-            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
-        )
+        self.client = MongoClient("mongodb://localhost:27017")
+        # self.client = MongoClient(
+        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        # )
         self.code_client = MongoClient(
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
         )
@@ -27,10 +27,6 @@ class MongoDB:
     def invoice_data(self, username: str):
         invoice = self.client["INVOICE-DATA"]
         return invoice[username]
-
-    def all_invoice_data(self, username: str) -> list[dict]:
-        invoice_data = self.invoice_data(username).find({})
-        return invoice_data
 
     def year_n_month(self, username: str):
         result = {"year": [], "month": []}

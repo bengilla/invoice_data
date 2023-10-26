@@ -7,8 +7,8 @@ from config.db import User
 
 from models.manager import load_user
 from models.password import Password
-from models.error import _error
 from models.jwt import encoded_jwt
+from models.error import _error
 
 
 login_routes = APIRouter()

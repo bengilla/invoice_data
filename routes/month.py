@@ -17,11 +17,11 @@ from config.settings import Settings
 from models.invoice_scanning import Invoice
 from models.delete_file import delete_all_file
 from models.jwt import decoded_jwt
+from models.error import _error
 
 
 _db = MongoDB()
 _settings = Settings()
-_errors = []
 
 user_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -66,12 +66,12 @@ async def user(request: Request, username: str, month: str):
                     "data": sorted(store_invoice, key=lambda x: x["date"]),
                     "total": f"{sum(amount_list):0.2f}",
                     "company": list(set(company_list)),
-                    "msg": _errors,
+                    "msg": _error,
                 },
             )
 
             # 清除所有错误讯息
-            _errors.clear()
+            _error.clear()
             return response
     return RedirectResponse(request.url_for("login"))
 

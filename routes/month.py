@@ -1,4 +1,4 @@
-"""Month Invoice Section"""
+"""处理发票"""
 import os
 import fnmatch
 import codecs
@@ -29,8 +29,8 @@ templates = Jinja2Templates(directory="templates")
 
 @user_routes.get("/{username}/{month}", response_class=HTMLResponse)
 async def user(request: Request, username: str, month: str):
-    """When previous pdf file is in db"""
-    # delete zip file if zip in the server
+    """显示所有这个用户的发票"""
+    # 删除所有PDF和ZIP文件
     delete_all_file()
 
     get_cookie = request.cookies.get("access-token")
@@ -38,7 +38,7 @@ async def user(request: Request, username: str, month: str):
     if get_cookie:
         check_user = decoded_jwt(get_cookie)
         if username == check_user:
-            # all invoice information
+            # 发票讯息
             invoice_data: list[dict] = list(_db.invoice_data(username).find({}))
 
             store_invoice: list[dict] = []
@@ -70,7 +70,7 @@ async def user(request: Request, username: str, month: str):
                 },
             )
 
-            # clear the error message list
+            # 清除所有错误讯息
             _errors.clear()
             return response
     return RedirectResponse(request.url_for("login"))
@@ -85,36 +85,36 @@ async def send_file(
     username: str,
     month: str,
 ):
-    """Upload pdf file when db has previous file"""
+    """上传与下载发票功能"""
     try:
-        # DOWNLOAD SECTION
-        # ids are return from html checkbox
+        # 下载区
+        # ids是checkbox如果激活会传回来为ids
         if ids:
-            # get all pdf amount to total
+            # 所有价格的综合
             get_total_amount = []
 
-            # convert to single pdf file and save to server
+            # 解析每张发票并传送到服务器
             for _id in ids:
-                # get info from db
+                # 取所有发票讯息
                 pdf = _db.invoice_data(username).find_one({"_id": int(_id)})
 
-                # get total amount for download invoice
+                # 取所有发票的价格
                 get_total_amount.append(float(pdf["amount"]))
 
-                # if download success turn download icon to True
+                # 如果下载成功把download改为True
                 _db.invoice_data(username).update_one(
                     {"_id": int(_id)}, {"$set": {"download": True}}
                 )
 
-                # save file to the server
+                # 把文件临时村在服务器
                 name = f"{pdf['date']}({pdf['_id']}-¥{pdf['amount']}).pdf"
                 with open(name, "wb") as file:
                     file.write(codecs.decode(pdf["pdf"], "base64"))
 
-            # download pdf and save to zip
+            # 建立ZIP名字
             zip_name = f"{month}月-¥{sum(get_total_amount):0.2f}.zip"
 
-            # search pdf on server and zip all the file
+            # 取所有PDF并存在ZIP里
             with ZipFile(zip_name, "w") as zip_file:
                 # for _, _, pdf_file in os.walk("/"):
                 for _, _, pdf_file in os.walk(_settings.LOCATION):
@@ -122,11 +122,10 @@ async def send_file(
                         if fnmatch.fnmatch(name, "*.pdf"):
                             zip_file.write(name)
                             os.remove(name)
-            # jump to download page and download zip file
+            # 转至download.py
             return RedirectResponse(request.url_for("download", file=zip_name))
 
-        # UPLOAD SECTION
-        # id not ids select to download, this function is upload pdf file
+        # 上传区
         _invoice = Invoice()
         for file in files:
             with open(file.filename, "wb") as buffer:

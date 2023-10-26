@@ -1,3 +1,4 @@
+"""JWT功能"""
 import jwt
 from config.settings import Settings
 

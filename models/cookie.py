@@ -1,3 +1,4 @@
+"""Cookie功能区"""
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -15,7 +16,7 @@ class Cookie:
 
 
 def verify_cookie(cookie) -> Cookie:
-    """return username and month_in_list"""
+    """发回用户讯息和月份"""
     _db = MongoDB()
     username: str = decoded_jwt(cookie)
     result = _db.year_n_month(username)

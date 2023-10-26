@@ -12,7 +12,7 @@ class MongoDB:
     """数据库"""
 
     def __init__(self) -> None:
-        """Main Section"""
+        """主区"""
 
         # self.client = MongoClient("mongodb://localhost:27017")
         self.client = MongoClient(
@@ -22,10 +22,9 @@ class MongoDB:
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
         )
 
-    """Invoice Section"""
+    """发票区"""
 
     def invoice_data(self, username: str):
-        """to collection"""
         invoice = self.client["INVOICE-DATA"]
         return invoice[username]
 

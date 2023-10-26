@@ -1,4 +1,4 @@
-"""Settings section"""
+"""设置区"""
 import os
 from dotenv import load_dotenv, find_dotenv
 
@@ -6,7 +6,7 @@ load_dotenv(find_dotenv())
 
 
 class Settings:
-    """Config all settings"""
+    """所有设置"""
 
     TITLE = "发票管理"
     VERSION = "0.1"

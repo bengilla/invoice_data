@@ -1,3 +1,4 @@
+"""用户登入系统区"""
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -18,8 +19,6 @@ _password = Password()
 
 @login_routes.get("/login")
 async def login(request: Request):
-    """Login Section"""
-
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         return RedirectResponse(request.url_for("index"))

@@ -1,3 +1,4 @@
+"""sqlite3功能区"""
 import sqlite3
 
 

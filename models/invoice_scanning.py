@@ -1,4 +1,4 @@
-"""invoice work section"""
+"""发票处理功能区"""
 from typing import Any
 from datetime import date
 
@@ -11,16 +11,16 @@ from config.mongodb import MongoDB
 
 
 class Invoice:
-    """All function about invoice calculate"""
+    """计算所有发票讯息"""
 
     def __init__(self) -> None:
         self.date = None
 
     def pdf_file(self, username: str, file: Any):
-        """final output all data to db"""
+        """计算所有发票讯息并输出db_data"""
         # file show up is xxxx.pdf
         try:
-            # turn pdf content to text
+            # 把PDF发票转换成数据
             with pdfplumber.open(file) as pdf:
                 invoice_content: list = []
                 for item, _ in enumerate(pdf.pages):
@@ -30,10 +30,10 @@ class Invoice:
 
             # print(invoice_content[0])
 
-            # store data models (date, number, amount, company, download)
+            # 数据模型 (date, number, amount, company, download)
             db_data = {}
 
-            # pick data from content
+            # 计算数据区
             store_company = []
             for info in invoice_content[0]:
                 if "个人" in info:
@@ -59,24 +59,24 @@ class Invoice:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
                     db_data["amount"] = get_amount[-1]
 
-            # encode pdf file and store to db
+            # 把PDF转换成base64
             with open(file, "rb") as pdf:
                 encoded = base64.b64encode(pdf.read())
                 db_data["pdf"] = encoded
 
-            # insert download False
+            # 下载初始化为False
             db_data["download"] = False
 
             # print(db_data)
 
-            # store to db
+            # 存储在数据库
             _db = MongoDB()
             db_upload = _db.invoice_data(username).insert_one(db_data)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"
         except DuplicateKeyError:
-            # when duplicate file
+            # 如果文件重复
             return f"重复文件, 发票代码: {db_data['_id']}"
         except:
             return "文件异常, 请重新上传发票(PDF)"

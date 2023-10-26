@@ -1,4 +1,4 @@
-"""发票系统"""
+"""发票系统主页"""
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -26,13 +26,12 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=RedirectResponse)
 async def index(request: Request):
-    """Upload pdf file when db is empty"""
-
     # 删除左右zip和pdf文件
     delete_all_file()
     # 删除全部错误
     _error.clear()
 
+    # 取cookie讯息
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         c = verify_cookie(get_cookie)

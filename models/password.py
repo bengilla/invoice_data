@@ -1,4 +1,4 @@
-"""Password Section"""
+"""密码转换系统"""
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")

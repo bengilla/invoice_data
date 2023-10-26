@@ -1,3 +1,4 @@
+"""用户注册区"""
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,8 +16,6 @@ templates = Jinja2Templates(directory="templates")
 
 @register_routes.get("/register")
 async def register(request: Request):
-    """Login Section"""
-
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         return RedirectResponse(request.url_for("index"))

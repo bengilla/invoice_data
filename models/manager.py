@@ -1,3 +1,4 @@
+"""使用LoginManager处理用户讯息并建立Cookie"""
 from datetime import timedelta
 from dataclasses import dataclass
 

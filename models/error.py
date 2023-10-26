@@ -1,2 +1,2 @@
-"""this is error storage list"""
+"""错误讯息储存"""
 _error = []

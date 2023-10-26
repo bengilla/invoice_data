@@ -1,7 +1,7 @@
 # fastapi
-fastapi==0.103.2
-uvicorn==0.23.2
+fastapi
 fastapi-login
+uvicorn
 
 # jinja2
 jinja2
@@ -10,17 +10,19 @@ jinja2
 python-multipart
 
 # mongodb
-pymongo~=4.5
+pymongo
 
 # env
-python-dotenv~=1.0.0
+python-dotenv
 
 # pdf
-pdfplumber~=0.10.2
+pdfplumber
 
+# jwt
 pyjwt
 
-opencv-python-headless==4.8.1.78
+# opencv
+opencv-python-headless
 
 # password
 passlib[bcrypt]

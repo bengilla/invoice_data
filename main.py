@@ -52,8 +52,3 @@ app.include_router(register_routes)
 app.include_router(download_routes)
 app.include_router(check_routes)
 app.include_router(user_routes)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("main:app", port=int(_settings.PORT), reload=True)

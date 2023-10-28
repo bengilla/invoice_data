@@ -1,9 +1,9 @@
 """发票处理功能区"""
 from typing import Any
-from datetime import date
 
 import re
 import base64
+import pendulum
 import pdfplumber
 from pymongo.errors import DuplicateKeyError
 
@@ -54,9 +54,8 @@ class Invoice:
                 if "开票日期" in info:
                     get_date: str = re.findall(r"\d*", info)
                     date_convert = "".join(get_date)
-                    self.date = date.fromisoformat(date_convert)
-                    # print(type(self.date))
-                    db_data["date"] = self.date.strftime("%Y-%m-%d")
+                    self.date = pendulum.from_format(date_convert, "YYYYMMDD")
+                    db_data["date"] = self.date
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
                     # print("".join(get_number)[-10:])
@@ -64,7 +63,7 @@ class Invoice:
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
                     # print(get_amount[-1])
-                    db_data["amount"] = get_amount[-1]
+                    db_data["amount"] = float(get_amount[-1])
 
             # 把PDF转换成base64
             with open(file, "rb") as pdf:

@@ -1,5 +1,6 @@
 """sqlite3功能区"""
 import sqlite3
+import pendulum
 
 
 class User:
@@ -8,13 +9,16 @@ class User:
         self.cur = self.conn_DB.cursor()
 
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS users (username TEXT, password BINARY)"
+            "CREATE TABLE IF NOT EXISTS users (username TEXT, password BINARY, register_date DATE)"
         )
 
     def user_register(self, username: str, password: str):
-        user_input = "INSERT INTO users (username, password) VALUES (?, ?)"
+        register_date = str(pendulum.now())
+        user_input = (
+            "INSERT INTO users (username, password, register_date) VALUES (?, ?, ?)"
+        )
 
-        self.cur.execute(user_input, (username, password))
+        self.cur.execute(user_input, (username, password, register_date))
 
         self.conn_DB.commit()
         self.conn_DB.close()

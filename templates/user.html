@@ -21,19 +21,19 @@ Invoice System
         </div>
         <!-- end company -->
 
-        <!-- month list -->
-        <div class="month">
-            {% for i in list_col%}
+        <!-- year list -->
+        <div class="date">
+            {% for i in year%}
             <div>
                 <a href="{{ i }}">
-                    <div id="/{{ username }}/{{ i }}">
+                    <div class="year" id="/{{ username }}/{{ i }}">
                         {{ i }}
                     </div>
                 </a>
             </div>
             {% endfor%}
         </div>
-        <!-- end month list -->
+        <!-- end year list -->
 
         <!-- body -->
         <div>
@@ -63,10 +63,10 @@ Invoice System
                         <input type="checkbox" name="ids" class="single_checkbox" value="{{ i._id }}">
                     </td>
                     <td>{{ loop.index }}</td>
-                    <td>{{ i.date }}</td>
+                    <td>{{ i.date.strftime("%Y-%m-%d") }}</td>
                     <td>{{ i.company }}</td>
                     <td>{{ i._id }}</td>
-                    <td>{{ i.amount }}</td>
+                    <td>{{ "%.2f"|format(i.amount) }}</td>
                     <td>
                         {% if i.download == True %}
                         <span class="download">已下载</span>

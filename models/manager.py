@@ -15,7 +15,7 @@ manager = LoginManager(
     "/login",
     use_cookie=True,
     use_header=False,
-    default_expiry=timedelta(hours=2),
+    default_expiry=timedelta(hours=1),
 )
 
 

@@ -30,12 +30,12 @@ function single() {
 let url = location.pathname;
 
 // if empty hide title box (jquery)
-title = $("#title_box");
-if (url === "/month/0" || url === "/month/None") {
-  title.show();
-} else {
-  title.show();
-}
+// title = $("#title_box");
+// if (url === "/month/0" || url === "/month/None") {
+//   title.show();
+// } else {
+//   title.show();
+// }
 
 // button color
 selector = "#" + $.escapeSelector(url);

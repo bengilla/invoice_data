@@ -95,15 +95,15 @@ footer {
 
 }
 
-.month {
+.date {
     padding: 20px;
     display: flex;
 }
 
-.month>div>a>div {
+.date>div>a>div {
+    width: auto;
     margin: 0px 4px;
     padding: 13px 7px 13px 7px;
-    width: 20px;
     text-align: center;
     color: var(--grey_color);
     border: 1px;
@@ -113,10 +113,11 @@ footer {
     transition: var(--transition_timing);
 }
 
-.month>div>a>div:hover {
+.date>div>a>div:hover {
     cursor: pointer;
     border-color: var(--orange_color);
 }
+
 
 table {
     width: 100%;
@@ -230,13 +231,4 @@ thead>tr>th,
 .small_font {
     color: var(--grey_color);
     font-size: small;
-}
-
-.year {
-    padding: 0.6rem;
-    width: 100%;
-    border: 2px;
-    border-style: solid;
-    border-radius: 9999px;
-    background-color: var(--grey_color);
 }

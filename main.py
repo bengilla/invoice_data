@@ -9,7 +9,7 @@ from config.settings import Settings
 from routes.download import download_routes
 from routes.check import check_routes
 from routes.login import login_routes
-from routes.month import user_routes
+from routes.user import user_routes
 from routes.register import register_routes
 
 from models.delete_file import delete_all_file
@@ -26,7 +26,6 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=RedirectResponse)
 async def index(request: Request):
-    # 删除左右zip和pdf文件
     delete_all_file()
     # 删除全部错误
     _error.clear()
@@ -36,7 +35,7 @@ async def index(request: Request):
     if get_cookie:
         c = verify_cookie(get_cookie)
         return RedirectResponse(
-            request.url_for("user", username=c.username, month=c.month)
+            request.url_for("user", username=c.username, year=c.year)
         )
     return RedirectResponse(request.url_for("login"))
 

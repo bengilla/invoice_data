@@ -3,7 +3,7 @@ import os
 import fnmatch
 import codecs
 import shutil
-from datetime import date
+import pendulum
 
 from zipfile import ZipFile
 
@@ -16,8 +16,10 @@ from config.settings import Settings
 
 from models.invoice_scanning import Invoice
 from models.delete_file import delete_all_file
-from models.jwt import decoded_jwt
+
 from models.error import _error
+from models.collections import collections
+from models.cookie import verify_cookie
 
 
 _db_mongo = MongoDB()
@@ -27,8 +29,8 @@ user_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@user_routes.get("/{username}/{month}", response_class=HTMLResponse)
-async def user(request: Request, username: str, month: str):
+@user_routes.get("/{username}/{year}", response_class=HTMLResponse)
+async def user(request: Request, username: str, year: str):
     """显示所有这个用户的发票"""
     # 删除所有PDF和ZIP文件
     delete_all_file()
@@ -36,34 +38,34 @@ async def user(request: Request, username: str, month: str):
     get_cookie = request.cookies.get("access-token")
 
     if get_cookie:
-        check_user = decoded_jwt(get_cookie)
-        if username == check_user:
+        c = verify_cookie(get_cookie)
+        year_list = _db_mongo.latest_year(username)
+        if username == c.username:
             # 发票讯息
+            collections.clear()
             invoice_data: list[dict] = list(_db_mongo.invoice_data(username).find({}))
 
-            store_invoice: list[dict] = []
-            amount_list: list[float] = []
+            for check_each_invoice in invoice_data:
+                dt = pendulum.parse(str(check_each_invoice["date"]))
+                if str(dt.year) == year:
+                    collections.append(check_each_invoice)
+
+            # ----------以下处理当年的文件----------
             company_list: list[str] = []
-            year_list: list[str] = []
-            month_list: list[str] = []
+            amount_list: list[float] = []
 
-            for each_invoice in invoice_data:
-                year_list.append(date.fromisoformat(each_invoice["date"]).year)
-                month_list.append(date.fromisoformat(each_invoice["date"]).month)
+            for each_invoice in collections:
+                dt = pendulum.parse(str(each_invoice["date"]))
 
-                d = date.fromisoformat(each_invoice["date"])
-                if month == str(d.month):
-                    store_invoice.append(each_invoice)
-                    amount_list.append(float(each_invoice["amount"]))
-                    company_list.append(each_invoice["company"])
-
+                amount_list.append(float(each_invoice["amount"]))
+                company_list.append(each_invoice["company"])
             response = templates.TemplateResponse(
                 "user.html",
                 {
                     "request": request,
                     "username": username,
-                    "list_col": sorted(list(set(month_list)), key=int),
-                    "data": sorted(store_invoice, key=lambda x: x["date"]),
+                    "year": sorted(year_list, key=int),
+                    "data": sorted(collections, key=lambda x: x["date"]),
                     "total": f"{sum(amount_list):0.2f}",
                     "company": list(set(company_list)),
                     "msg": _error,
@@ -76,14 +78,14 @@ async def user(request: Request, username: str, month: str):
     return RedirectResponse(request.url_for("login"))
 
 
-@user_routes.post("/{username}/{month}", response_class=RedirectResponse)
+@user_routes.post("/{username}/{year}", response_class=RedirectResponse)
 async def send_file(
     *,
     request: Request,
     files: list[UploadFile] = File(None),
     ids: list[str | None] = None,
     username: str,
-    month: str,
+    year: str,
 ):
     """上传与下载发票功能"""
     try:
@@ -107,12 +109,13 @@ async def send_file(
                 )
 
                 # 把文件临时村在服务器
-                name = f"{pdf['date']}({pdf['_id']}-¥{pdf['amount']}).pdf"
+                convert_date = pendulum.parse(str(pdf["date"]))
+                name = f"{convert_date.to_date_string()}({pdf['_id']}-¥{pdf['amount']}).pdf"
                 with open(name, "wb") as file:
                     file.write(codecs.decode(pdf["pdf"], "base64"))
 
             # 建立ZIP名字
-            zip_name = f"{month}月-¥{sum(get_total_amount):0.2f}.zip"
+            zip_name = f"{year}年-¥{sum(get_total_amount):0.2f}.zip"
 
             # 取所有PDF并存在ZIP里
             with ZipFile(zip_name, "w") as zip_file:
@@ -135,15 +138,15 @@ async def send_file(
                 if err_msg:
                     _error.append(err_msg)
             try:
-                month: str = _invoice.date.month
+                year: str = _invoice.date.year
             except:
-                month = 0
+                year = 0
 
         return RedirectResponse(
-            request.url_for("user", username=username, month=month), status_code=302
+            request.url_for("user", username=username, year=year), status_code=302
         )
     except FileNotFoundError:
         _error.append("没有文件上传")
         return RedirectResponse(
-            request.url_for("user", username=username, month=month), status_code=302
+            request.url_for("user", username=username, year=year), status_code=302
         )

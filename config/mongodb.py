@@ -1,5 +1,5 @@
 """所有跟数据库有关的"""
-from datetime import date
+import pendulum
 
 from pymongo import MongoClient
 
@@ -14,13 +14,13 @@ class MongoDB:
     def __init__(self) -> None:
         """主区"""
 
-        # self.client = MongoClient("mongodb://localhost:27017")
-        self.client = MongoClient(
-            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
-        )
-        self.code_client = MongoClient(
-            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
-        )
+        self.client = MongoClient("mongodb://localhost:27017")
+        # self.client = MongoClient(
+        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        # )
+        # self.code_client = MongoClient(
+        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
+        # )
 
     """发票区"""
 
@@ -28,16 +28,13 @@ class MongoDB:
         invoice = self.client["INVOICE-DATA"]
         return invoice[username]
 
-    def year_n_month(self, username: str):
-        result = {"year": [], "month": []}
+    def latest_year(self, username: str) -> dict:
+        year = []
         invoice_data = self.invoice_data(username).find({})
         for each_invoice in invoice_data:
-            d = date.fromisoformat(each_invoice["date"])
-            if d.month not in result["month"]:
-                result["month"].append(d.month)
-            if d.year not in result["year"]:
-                result["year"].append(d.year)
-        return result
+            dt = pendulum.parse(str(each_invoice["date"]))
+            year.append(dt.year)
+        return list(set(year))
 
     """确认码"""
 

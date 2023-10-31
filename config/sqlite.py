@@ -5,8 +5,8 @@ import pendulum
 
 class User:
     def __init__(self) -> None:
-        self.conn_DB = sqlite3.connect("db/user.db")
-        self.cur = self.conn_DB.cursor()
+        self.conn = sqlite3.connect("config/user.db")
+        self.cur = self.conn.cursor()
 
         self.cur.execute(
             "CREATE TABLE IF NOT EXISTS users (username TEXT, password BINARY, register_date DATE)"
@@ -20,8 +20,8 @@ class User:
 
         self.cur.execute(user_input, (username, password, register_date))
 
-        self.conn_DB.commit()
-        self.conn_DB.close()
+        self.conn.commit()
+        self.conn.close()
 
     def user_info(self, username: str):
         self.cur.execute("SELECT password FROM users WHERE username = ?", (username,))
@@ -34,13 +34,3 @@ class User:
         rows = self.cur.fetchall()
         users = [row[0] for row in rows]
         return users
-
-
-class Invoice:
-    def __init__(self) -> None:
-        self.conn_DB = sqlite3.connect("db/invoice.db")
-        self.cur = self.conn_DB.cursor()
-
-        self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS invoice (id INT, date TEXT, company TEXT, amount FLOAT, pdf BINARY, download BOOLEAN)"
-        )

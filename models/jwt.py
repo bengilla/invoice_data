@@ -6,12 +6,12 @@ _settings = Settings()
 
 
 def encoded_jwt(username):
-    encoded_jwt = jwt.encode(
+    encoded = jwt.encode(
         {"name": username}, _settings.JWT_SECRET_KEY, algorithm="HS256"
     )
-    return encoded_jwt
+    return encoded
 
 
 def decoded_jwt(jwt_code):
-    decoded_jwt = jwt.decode(jwt_code, _settings.JWT_SECRET_KEY, algorithms=["HS256"])
-    return decoded_jwt["name"]
+    decoded = jwt.decode(jwt_code, _settings.JWT_SECRET_KEY, algorithms=["HS256"])
+    return decoded["name"]

@@ -17,8 +17,7 @@ from config.settings import Settings
 from models.invoice_scanning import Invoice
 from models.delete_file import delete_all_file
 
-from models.error import _error
-from models.collections import collections
+from models.store_msg import _error, _collections
 from models.cookie import verify_cookie
 
 
@@ -42,21 +41,19 @@ async def user(request: Request, username: str, year: str):
         year_list = _db_mongo.latest_year(username)
         if username == c.username:
             # 发票讯息
-            collections.clear()
+            _collections.clear()
             invoice_data: list[dict] = list(_db_mongo.invoice_data(username).find({}))
 
             for check_each_invoice in invoice_data:
                 dt = pendulum.parse(str(check_each_invoice["date"]))
                 if str(dt.year) == year:
-                    collections.append(check_each_invoice)
+                    _collections.append(check_each_invoice)
 
             # ----------以下处理当年的文件----------
             company_list: list[str] = []
             amount_list: list[float] = []
 
-            for each_invoice in collections:
-                dt = pendulum.parse(str(each_invoice["date"]))
-
+            for each_invoice in _collections:
                 amount_list.append(float(each_invoice["amount"]))
                 company_list.append(each_invoice["company"])
             response = templates.TemplateResponse(
@@ -65,7 +62,7 @@ async def user(request: Request, username: str, year: str):
                     "request": request,
                     "username": username,
                     "year": sorted(year_list, key=int),
-                    "data": sorted(collections, key=lambda x: x["date"]),
+                    "data": sorted(_collections, key=lambda x: x["date"]),
                     "total": f"{sum(amount_list):0.2f}",
                     "company": list(set(company_list)),
                     "msg": _error,
@@ -90,8 +87,7 @@ async def send_file(
     """上传与下载发票功能"""
     try:
         # 下载区
-        # ids是checkbox如果激活会传回来为ids
-        if ids:
+        if ids:  # ids是checkbox如果激活会传回来为ids
             # 所有价格的综合
             get_total_amount = []
 

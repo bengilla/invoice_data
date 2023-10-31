@@ -14,7 +14,7 @@ from routes.register import register_routes
 
 from models.delete_file import delete_all_file
 from models.cookie import verify_cookie
-from models.error import _error
+from models.store_msg import _error
 
 
 _settings = Settings()
@@ -24,13 +24,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/", response_class=RedirectResponse)
-async def index(request: Request):
+@app.get("startup")
+async def startup():
+    # 删除全部错误与删除所有文件 (ZIP和PDF)
     delete_all_file()
-    # 删除全部错误
     _error.clear()
 
-    # 取cookie讯息
+
+@app.get("/", response_class=RedirectResponse)
+async def index(request: Request):
     get_cookie = request.cookies.get("access-token")
     if get_cookie:
         c = verify_cookie(get_cookie)

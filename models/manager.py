@@ -1,12 +1,12 @@
 """使用LoginManager处理用户讯息并建立Cookie"""
 from datetime import timedelta
-from dataclasses import dataclass
 
 from fastapi_login import LoginManager
+from pydantic import BaseModel
 
 from config.settings import Settings
 
-from config.db import User
+from config.sqlite import User
 
 _settings = Settings()
 
@@ -19,15 +19,15 @@ manager = LoginManager(
 )
 
 
-@dataclass
-class UserData:
+class UserData(BaseModel):
     username: str
     password: str
 
 
 @manager.user_loader()
-def load_user(username: str):
+def load_user(username: str) -> UserData:
     _db = User()
 
     get_password = _db.user_info(username)
+    print(get_password)
     return UserData(username=username, password=get_password)

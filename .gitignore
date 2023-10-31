@@ -8,3 +8,4 @@ user.db
 .env
 .idea
 .pylintrc
+.pytest_cache

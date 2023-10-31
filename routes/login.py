@@ -3,12 +3,12 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from config.db import User
+from config.sqlite import User
 
 from models.manager import load_user
 from models.password import Password
 from models.jwt import encoded_jwt
-from models.error import _error
+from models.store_msg import _error
 
 
 login_routes = APIRouter()
@@ -32,9 +32,9 @@ async def login_data(
     password: str = Form(),
 ):
     _db = User()
-    user = load_user(username)
 
     if username in _db.users_check():
+        user = load_user(username)
         verify_password = _password.verify_password(password, user.password)
 
         if verify_password:
@@ -48,6 +48,7 @@ async def login_data(
         _error.clear()
         _error.append("用户名或密码错误")
         return RedirectResponse(request.url_for("login"), status_code=302)
+
     _error.clear()
     _error.append("用户不存在，请注册")
     return RedirectResponse(request.url_for("login"), status_code=302)

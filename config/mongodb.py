@@ -28,7 +28,7 @@ class MongoDB:
         invoice = self.client["INVOICE-DATA"]
         return invoice[username]
 
-    def latest_year(self, username: str) -> dict:
+    def latest_year(self, username: str) -> list[int]:
         year = []
         invoice_data = self.invoice_data(username).find({})
         for each_invoice in invoice_data:

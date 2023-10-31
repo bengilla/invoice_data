@@ -2,6 +2,7 @@
 fastapi
 fastapi-login
 uvicorn
+pydantic
 
 # jinja2
 jinja2

@@ -4,10 +4,10 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from config.mongodb import MongoDB
-from config.db import User
+from config.sqlite import User
 
 from models.password import Password
-from models.error import _error
+from models.store_msg import _error
 
 
 register_routes = APIRouter()

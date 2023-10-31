@@ -3,6 +3,7 @@
     --grey_color: #e2e2e2;
     --orange_color: rgb(249, 115, 22);
     --green_color: green;
+    --red_color: red;
     --transition_timing: 0.3s
 }
 
@@ -55,7 +56,7 @@ footer {
     border: 2px;
     border-style: solid;
     border-color: var(--grey_color);
-    border-radius: 9999px;
+    border-radius: 5px;
     background-color: var(--background_color);
     transition: var(--transition_timing);
 }
@@ -79,19 +80,18 @@ footer {
 
 .company {
     width: 100%;
-    padding: 2px 0 20px 0;
+    padding: 2px 0 2px 0;
     display: flex;
     flex-wrap: wrap;
 }
 
 .company>span {
-    padding: 0.4rem 0.6rem;
-    margin: 0 5px;
+    padding: 0.3rem 0.5rem;
+    /* margin: 0 5px; */
     color: var(--grey_color);
     background-color: var(--background_color);
     border: 1px;
     border-style: solid;
-    border-radius: 20px;
 
 }
 
@@ -108,7 +108,6 @@ footer {
     color: var(--grey_color);
     border: 1px;
     border-style: solid;
-    border-radius: 10px;
     border-color: var(--grey_color);
     transition: var(--transition_timing);
 }

@@ -73,8 +73,6 @@ class Invoice:
             # 下载初始化为False
             db_data["download"] = False
 
-            # print(db_data)
-
             # 存储在数据库
             db_upload = _db_mongo.invoice_data(username).insert_one(db_data)
             if db_upload:

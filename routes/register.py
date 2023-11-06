@@ -2,9 +2,11 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.exc import IntegrityError
 
 from config.mongodb import MongoDB
-from config.sqlite import User
+
+from config.db import Users
 
 from models.password import Password
 from models.store_msg import _error
@@ -35,17 +37,18 @@ async def register_data(
 ):
     code_list = _db_mongo.verify_code()
 
-    _db = User()
+    _db = Users()
 
     if code in code_list:
-        if username not in _db.users_check():
+        try:
             _password = Password()
             password_hash = _password.get_password_hash(password)
-            _db.user_register(username=username, password=password_hash)
+            _db.register(username=username, password=password_hash)
             return RedirectResponse(request.url_for("index"), status_code=302)
-        _error.clear()
-        _error.append("用户已存在")
-        return RedirectResponse(request.url_for("register"), status_code=302)
+        except IntegrityError:
+            _error.clear()
+            _error.append("用户已存在")
+            return RedirectResponse(request.url_for("register"), status_code=302)
     _error.clear()
     _error.append("确认码错误")
     return RedirectResponse(request.url_for("register"), status_code=302)

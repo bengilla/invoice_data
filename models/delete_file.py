@@ -1,7 +1,6 @@
 """删除文件功能区"""
 import os
 import fnmatch
-
 from config.settings import Settings
 
 _settings = Settings()

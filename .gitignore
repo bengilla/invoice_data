@@ -2,6 +2,7 @@ __pycache__
 
 venv
 user.db
+users.db
 
 .DS_Store
 .git

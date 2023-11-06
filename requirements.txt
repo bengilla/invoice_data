@@ -13,6 +13,9 @@ python-multipart
 # mongodb
 pymongo
 
+# sqlalchemy
+sqlalchemy
+
 # env
 python-dotenv
 

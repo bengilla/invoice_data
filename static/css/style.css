@@ -56,7 +56,7 @@ footer {
     border: 2px;
     border-style: solid;
     border-color: var(--grey_color);
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: var(--background_color);
     transition: var(--transition_timing);
 }

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from config.settings import Settings
 
-from config.sqlite import User
+from config.db import Users
 
 _settings = Settings()
 
@@ -26,8 +26,6 @@ class UserData(BaseModel):
 
 @manager.user_loader()
 def load_user(username: str) -> UserData:
-    _db = User()
-
+    _db = Users()
     get_password = _db.user_info(username)
-    print(get_password)
     return UserData(username=username, password=get_password)

@@ -4,9 +4,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import IntegrityError
 
-from config.mongodb import MongoDB
+from db.mongodb import MongoDB
 
-from config.db import Users
+from db.db import Users
 
 from models.password import Password
 from models.store_msg import _error

@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     DateTime,
     Uuid,
+    Integer,
     Float,
     Boolean,
     BINARY,
@@ -17,7 +18,7 @@ from config.settings import Settings
 _settings = Settings()
 
 Base = declarative_base()
-engine = create_engine(_settings.DB_URL)
+engine = create_engine(_settings.DB_URL, echo=True)
 
 
 class User(Base):
@@ -31,17 +32,18 @@ class User(Base):
         return f"{self.id}, {self.username}, {self.password}, {self.register_date}"
 
 
-# class Invoice(Base):
-#     __tablename__ = "invoice"
-#     id = Column("id", primary_key=True)
-#     date = Column("date", DateTime)
-#     company = Column("company", String)
-#     amount = Column("amount", Float)
-#     pdf = Column("pdf", BINARY)
-#     download = Column("download", Boolean)
+def invoice_models(tablename):
+    class Invoice(Base):
+        __tablename__ = tablename
+        id = Column(Integer, primary_key=True, unique=True)
+        date = Column(DateTime())
+        company = Column(String())
+        amount = Column(Float())
+        pdf = Column(BINARY())
+        download = Column(Boolean, default=False)
 
-#     def __repr__(self):
-#         return f"{self.id}, {self.date}, {self.company}, {self.amount}, {self.pdf}, {self.download}"
+        def __repr__(self):
+            return f"{self.id}, {self.date}, {self.company}, {self.amount}, {self.pdf}, {self.download}"
 
 
-# Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)

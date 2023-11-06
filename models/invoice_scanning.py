@@ -7,7 +7,7 @@ import pendulum
 import pdfplumber
 from pymongo.errors import DuplicateKeyError
 
-from config.mongodb import MongoDB
+from db.mongodb import MongoDB
 
 _db_mongo = MongoDB()
 

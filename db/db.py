@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy.orm import sessionmaker
-from config.scheme import User, engine
+from db.scheme import User, engine
 
 
 class Users:

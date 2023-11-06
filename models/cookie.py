@@ -2,7 +2,7 @@
 import pendulum
 from pydantic import BaseModel
 
-from config.mongodb import MongoDB
+from db.mongodb import MongoDB
 from models.jwt import decoded_jwt
 
 dt = pendulum.now()

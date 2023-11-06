@@ -11,7 +11,7 @@ from fastapi import Request, UploadFile, APIRouter, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from config.mongodb import MongoDB
+from db.mongodb import MongoDB
 from config.settings import Settings
 
 from models.invoice_scanning import Invoice

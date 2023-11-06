@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from config.settings import Settings
 
-from config.db import Users
+from db.db import Users
 
 _settings = Settings()
 

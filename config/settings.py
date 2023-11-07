@@ -19,5 +19,4 @@ class Settings:
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
     DB_URL: str = os.getenv("DB_URL")
-    # LOCATION = os.path.realpath(os.path.realpath(__file__))
     LOCATION = "/Users/bengilla/Downloads/同步空间/bengilla/coding/invoice_data/"

@@ -18,7 +18,7 @@ from config.settings import Settings
 _settings = Settings()
 
 Base = declarative_base()
-engine = create_engine(_settings.DB_URL, echo=True)
+engine = create_engine(_settings.DB_URL)
 
 
 class User(Base):

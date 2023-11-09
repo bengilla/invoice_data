@@ -1,8 +1,7 @@
-import uuid
 from datetime import datetime
 
 from sqlalchemy.orm import sessionmaker
-from db.scheme import User, engine
+from db.scheme import User, invoice_models, engine
 
 
 class Users:
@@ -14,7 +13,6 @@ class Users:
         store_user = User(
             username=username,
             password=password,
-            # register_date=datetime.now(),
         )
 
         self.session.add(store_user)
@@ -27,18 +25,19 @@ class Users:
         return get_password[0]
 
 
-# class Invoice:
-#     def __init__(self) -> None:
-#         Session = sessionmaker(bind=engine)
-#         self.session = Session()
+class Invoice:
+    def __init__(self) -> None:
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+        _invoice = invoice_models("bengilla")
 
-#     def invoice(
-#         self,
-#         id: int,
-#         date: datetime,
-#         company: str,
-#         amount: float,
-#         pdf: bytes,
-#         download: bool,
-#     ):
-#         pass
+    def invoice(
+        self,
+        id: int,
+        date: datetime,
+        company: str,
+        amount: float,
+        pdf: bytes,
+        download: bool,
+    ):
+        pass

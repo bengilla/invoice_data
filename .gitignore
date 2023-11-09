@@ -10,3 +10,4 @@ users.db
 .idea
 .pylintrc
 .pytest_cache
+.vscode

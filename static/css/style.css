@@ -42,34 +42,42 @@ header {
 }
 
 footer {
+    font-size: 0.8rem;
     text-align: center;
     padding: 1rem;
     margin-top: auto;
 }
 
-/* main button style */
+/* button */
+
 .btn {
     cursor: pointer;
-    margin: 1rem 0.2rem;
-    padding: 0.4rem 1.2rem;
+    margin: 0.2rem;
+    padding: 0.3rem 1rem;
     color: var(--grey_color);
+    background-color: var(--background_color);
     border: 2px;
     border-style: solid;
-    border-color: var(--grey_color);
     border-radius: 10px;
-    background-color: var(--background_color);
     transition: var(--transition_timing);
 }
 
-.btn_big {
+.btn_summit {
     width: 100%;
-    padding: 0.8rem 1.2rem;
 }
+
+.show_all {
+    border-color: var(--orange_color);
+    border-radius: 0;
+}
+
 
 .btn:hover {
     border-color: var(--orange_color);
     color: var(--orange_color);
 }
+
+/* form */
 
 .form {
     width: 800px;
@@ -95,6 +103,8 @@ footer {
 
 }
 
+/* date */
+
 .date {
     padding: 20px;
     display: flex;
@@ -117,6 +127,7 @@ footer {
     border-color: var(--orange_color);
 }
 
+/* table */
 
 table {
     width: 100%;

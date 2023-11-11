@@ -21,7 +21,7 @@ Base = declarative_base()
 engine = create_engine(_settings.DB_URL)
 
 
-class User(Base):
+class UserScheme(Base):
     __tablename__ = "users"
     id = Column(Uuid, primary_key=True, default=uuid.uuid1())
     username = Column(String(25), nullable=False, unique=True)
@@ -32,18 +32,20 @@ class User(Base):
         return f"{self.id}, {self.username}, {self.password}, {self.register_date}"
 
 
-def invoice_models(tablename):
-    class Invoice(Base):
-        __tablename__ = tablename
-        id = Column(Integer, primary_key=True, unique=True)
-        date = Column(DateTime())
-        company = Column(String())
-        amount = Column(Float())
-        pdf = Column(BINARY())
-        download = Column(Boolean, default=False)
+# def invoice_models(tablename):
+#     class InvoiceScheme(Base):
+#         __tablename__ = tablename
+#         id = Column(Integer, primary_key=True, unique=True)
+#         date = Column(DateTime())
+#         company = Column(String())
+#         amount = Column(Float())
+#         pdf = Column(BINARY())
+#         download = Column(Boolean, default=False)
 
-        def __repr__(self):
-            return f"{self.id}, {self.date}, {self.company}, {self.amount}, {self.pdf}, {self.download}"
+#         def __repr__(self):
+#             return f"{self.id}, {self.date}, {self.company}, {self.amount}, {self.pdf}, {self.download}"
+
+#     return InvoiceScheme()
 
 
 Base.metadata.create_all(bind=engine)

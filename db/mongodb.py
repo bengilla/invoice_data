@@ -13,14 +13,10 @@ class MongoDB:
 
     def __init__(self) -> None:
         """主区"""
-
-        self.client = MongoClient("mongodb://localhost:27017")
-        # self.client = MongoClient(
-        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
-        # )
-        # self.code_client = MongoClient(
-        #     f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
-        # )
+        # self.client = MongoClient("mongodb://localhost:27017")
+        self.client = MongoClient(
+            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
+        )
 
     """发票区"""
 
@@ -39,6 +35,9 @@ class MongoDB:
     """确认码"""
 
     def verify_code(self) -> list:
+        self.code_client = MongoClient(
+            f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
+        )
         code = self.code_client["CODE"]
         code_find = code["temp_code"].find({})
         code_list = [c["code"] for c in code_find]

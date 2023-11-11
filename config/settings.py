@@ -19,4 +19,5 @@ class Settings:
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
     DB_URL: str = os.getenv("DB_URL")
-    LOCATION = "/Users/bengilla/Documents/coding/invoice_data/"
+    # LOCATION = "/Users/bengilla/Documents/coding/invoice_data/"
+    LOCATION = "/"

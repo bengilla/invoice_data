@@ -1,5 +1,6 @@
 """所有跟数据库有关的"""
 import pendulum
+from typing import List
 
 from pymongo import MongoClient
 
@@ -24,7 +25,7 @@ class MongoDB:
         invoice = self.client["INVOICE-DATA"]
         return invoice[username]
 
-    def latest_year(self, username: str):
+    def latest_year(self, username: str) -> List[int]:
         year = []
         invoice_data = self.invoice_data(username).find({})
         for each_invoice in invoice_data:
@@ -34,7 +35,7 @@ class MongoDB:
 
     """确认码"""
 
-    def verify_code(self) -> list:
+    def verify_code(self) -> List[str]:
         self.code_client = MongoClient(
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@bengilla.4ny2nkw.mongodb.net/?retryWrites=true&w=majority"
         )

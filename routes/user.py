@@ -6,7 +6,7 @@ import shutil
 import pendulum
 
 from zipfile import ZipFile
-from typing import List
+from typing import List, Optional
 
 from fastapi import Request, UploadFile, APIRouter, File
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -81,7 +81,7 @@ async def send_file(
     *,
     request: Request,
     files: List[UploadFile] = File(None),
-    ids: List[str | None] = None,
+    ids: List[Optional[str]] = None,
     username: str,
     year: str,
 ):

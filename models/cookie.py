@@ -7,8 +7,6 @@ from models.jwt import decoded_jwt
 
 dt = pendulum.now()
 
-_db_mongo = MongoDB()
-
 
 class Cookie(BaseModel):
     username: str
@@ -17,6 +15,7 @@ class Cookie(BaseModel):
 
 def verify_cookie(cookie) -> Cookie:
     """发回用户讯息,年份和月份"""
+    _db_mongo = MongoDB()
     username: str = decoded_jwt(cookie)
     latest_year = _db_mongo.latest_year(username)
 

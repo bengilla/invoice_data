@@ -9,14 +9,13 @@ from pymongo.errors import DuplicateKeyError
 
 from db.mongodb import MongoDB
 
-_db_mongo = MongoDB()
-
 
 class Invoice:
     """计算所有发票讯息"""
 
     def __init__(self) -> None:
         self.date = None
+        self._db_mongo = MongoDB()
 
     def pdf_file(self, username: str, file: Any):
         """计算所有发票讯息并输出db_data"""
@@ -74,7 +73,7 @@ class Invoice:
             db_data["download"] = False
 
             # 存储在数据库
-            db_upload = _db_mongo.invoice_data(username).insert_one(db_data)
+            db_upload = self._db_mongo.invoice_data(username).insert_one(db_data)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"

@@ -16,6 +16,10 @@ pymongo
 # sqlalchemy
 sqlalchemy
 
+# mysql (testing)
+# mysqlclient
+# mysql-connector-python
+
 # env
 python-dotenv
 

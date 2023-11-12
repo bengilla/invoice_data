@@ -15,8 +15,6 @@ from models.store_msg import _error
 register_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
-_db_mongo = MongoDB()
-
 
 @register_routes.get("/register")
 async def register(request: Request):
@@ -35,6 +33,7 @@ async def register_data(
     password: str = Form(),
     code: str = Form(),
 ):
+    _db_mongo = MongoDB()
     code_list = _db_mongo.verify_code()
 
     _db = Users()

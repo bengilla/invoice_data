@@ -1,6 +1,7 @@
 __pycache__
 
 venv
+invoice.db
 
 .DS_Store
 .git

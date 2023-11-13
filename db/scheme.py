@@ -24,8 +24,8 @@ engine = create_engine(_settings.DB_URL)
 class UserScheme(Base):
     __tablename__ = "users"
     id = Column("id", Uuid, primary_key=True, default=uuid.uuid1())
-    username = Column("username", String(255), nullable=False, unique=True)
-    password = Column("password", String(255), nullable=False)
+    username = Column("username", String, nullable=False, unique=True)
+    password = Column("password", String, nullable=False)
     register_date = Column("register_date", DateTime, default=datetime.now())
 
     def __repr__(self):

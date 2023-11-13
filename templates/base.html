@@ -24,63 +24,6 @@
     </footer>
 </body>
 
-<script>
-    // checkbox function
-    function toggle(source) {
-        $('input[name="ids"]').prop('checked', source.checked);
-    }
-
-
-    // if un-uncheck single checkbox, select all checkbox with disable
-    function single(source) {
-        checkboxes = $("[name='ids']");
-        single_row = $(".single_row")
-        let count = 0;
-
-        for (var i = 0, n = checkboxes.length; i < n; i++) {
-            if (checkboxes[i].type === "checkbox" && checkboxes[i].checked === true) {
-                count++;
-            }
-        }
-        if (checkboxes.length > count) {
-            document.getElementById("main-checkbox").checked = false;
-        } else {
-            document.getElementById("main-checkbox").checked = true;
-        }
-    }
-
-    // url pathname
-    let url = location.pathname;
-
-    // if empty hide title box (jquery)
-    const title = $("#title-box");
-    if (url === "/month/0" || url === "/month/None") {
-        title.css("display", "none");
-    } else {
-        title.css("display", "");
-    }
-
-    // button color
-    var selector = "#" + $.escapeSelector(url);
-    var btn = $(selector);
-    btn.css({
-        "background-color": "#f97316",
-        "border-color": "#f97316",
-        "color": "#fff"
-    });
-
-    // fadeout (jquery) test
-    var errorElements = $(".error");
-    if (errorElements.length) { // check if any elements were found
-        setTimeout(function () {
-            errorElements.each(function () {
-                $(this).fadeOut("fast", function () {
-                    $(this).remove();
-                });
-            });
-        }, 8000);
-    }
-
-</script>
+<script src="/static/js/main.js"></script>
 
 </html>

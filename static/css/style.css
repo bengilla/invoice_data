@@ -3,6 +3,7 @@
     --grey_color: #e2e2e2;
     --orange_color: rgb(249, 115, 22);
     --green_color: green;
+    --red_color: red;
     --transition_timing: 0.3s
 }
 
@@ -41,34 +42,42 @@ header {
 }
 
 footer {
+    font-size: 0.8rem;
     text-align: center;
     padding: 1rem;
     margin-top: auto;
 }
 
-/* main button style */
+/* button */
+
 .btn {
     cursor: pointer;
-    margin: 1rem 0.2rem;
-    padding: 0.4rem 1.2rem;
+    margin: 0.2rem;
+    padding: 0.3rem 1rem;
     color: var(--grey_color);
+    background-color: var(--background_color);
     border: 2px;
     border-style: solid;
-    border-color: var(--grey_color);
-    border-radius: 9999px;
-    background-color: var(--background_color);
+    border-radius: 10px;
     transition: var(--transition_timing);
 }
 
-.btn-big {
+.btn_summit {
     width: 100%;
-    padding: 0.8rem 1.2rem;
 }
+
+.show_all {
+    border-color: var(--orange_color);
+    border-radius: 0;
+}
+
 
 .btn:hover {
     border-color: var(--orange_color);
     color: var(--orange_color);
 }
+
+/* form */
 
 .form {
     width: 800px;
@@ -79,44 +88,46 @@ footer {
 
 .company {
     width: 100%;
-    padding: 2px 0 20px 0;
+    padding: 2px 0 2px 0;
     display: flex;
     flex-wrap: wrap;
 }
 
 .company>span {
-    padding: 0.4rem 0.6rem;
-    margin: 0 5px;
+    padding: 0.3rem 0.5rem;
+    /* margin: 0 5px; */
     color: var(--grey_color);
     background-color: var(--background_color);
     border: 1px;
     border-style: solid;
-    border-radius: 20px;
 
 }
 
-.month {
+/* date */
+
+.date {
     padding: 20px;
     display: flex;
 }
 
-.month>div>a>div {
+.date>div>a>div {
+    width: auto;
     margin: 0px 4px;
     padding: 13px 7px 13px 7px;
-    width: 20px;
     text-align: center;
     color: var(--grey_color);
     border: 1px;
     border-style: solid;
-    border-radius: 10px;
     border-color: var(--grey_color);
     transition: var(--transition_timing);
 }
 
-.month>div>a>div:hover {
+.date>div>a>div:hover {
     cursor: pointer;
     border-color: var(--orange_color);
 }
+
+/* table */
 
 table {
     width: 100%;
@@ -200,7 +211,7 @@ thead>tr>th,
     place-content: center;
 }
 
-.loginInput {
+.login_input {
     width: 15rem;
     padding: 10px;
     margin: 3px 0px;
@@ -211,11 +222,11 @@ thead>tr>th,
     text-align: center;
 }
 
-.loginInput::placeholder {
+.login_input::placeholder {
     text-align: center;
 }
 
-.submitButton {
+.submit_button {
     width: 100%;
     padding: 10px;
     margin: 3px 0px;
@@ -227,7 +238,7 @@ thead>tr>th,
     background-color: var(--background_color);
 }
 
-.small-font {
+.small_font {
     color: var(--grey_color);
     font-size: small;
 }

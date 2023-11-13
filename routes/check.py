@@ -1,5 +1,4 @@
-"""Check File on Server Section"""
-
+"""检查服务器里是否有文件残留"""
 import os
 import fnmatch
 
@@ -10,8 +9,6 @@ check_routes = APIRouter()
 
 @check_routes.get("/check/")
 async def check():
-    """Check all zip and pdf file"""
-
     def count_size(size):
         if size < 1000:
             return f"{size} bytes"

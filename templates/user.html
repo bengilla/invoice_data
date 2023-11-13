@@ -14,34 +14,35 @@ Invoice System
 
         <!-- company -->
         <div class="company">
+            <button class="btn show_all" onclick="all_invoice()">全显</button>
             {% for i in company %}
-            <span class="btn" onclick="invoice(this)">{{ i }}</span>
+            <button class="btn" onclick="invoice(this)">{{ i }}</button>
             {% endfor %}
         </div>
         <!-- end company -->
 
-        <!-- month list -->
-        <div class="month">
-            {% for i in list_col%}
+        <!-- year list -->
+        <div class="date">
+            {% for i in year%}
             <div>
                 <a href="{{ i }}">
-                    <div id="/month/{{ i }}">
+                    <div class="btn year" id="/{{ username }}/{{ i }}">
                         {{ i }}
                     </div>
                 </a>
             </div>
             {% endfor%}
         </div>
-        <!-- end month list -->
+        <!-- end year list -->
 
         <!-- body -->
         <div>
             <table>
                 <!-- thead -->
-                <thead id="title-box">
+                <thead id="title_box">
                     <tr class="table_top_bottom">
                         <th>
-                            <input type="checkbox" id="main-checkbox" onclick="toggle(this)" />
+                            <input type="checkbox" id="main_checkbox" onclick="toggle()" />
                         </th>
                         <th>号</th>
                         <th>日期</th>
@@ -57,22 +58,22 @@ Invoice System
                 <tbody>
                     <!-- INVOICE -->
                     {% for i in data %}
-                    <tr class="table_inside {{ i.company }}" onclick="single(this)" />
-                    <td>
-                        <input type="checkbox" name="ids" value="{{ i._id }}">
-                    </td>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ i.date }}</td>
-                    <td>{{ i.company }}</td>
-                    <td>{{ i._id }}</td>
-                    <td>{{ i.amount }}</td>
-                    <td>
-                        {% if i.download == True %}
-                        <span class="download">已下载</span>
-                        {% else %}
-                        <span class="un_download">未下载</span>
-                        {% endif %}
-                    </td>
+                    <tr class="table_inside company_list {{ i.company }}" onclick="single()">
+                        <td class="thisBtn">
+                            <input type="checkbox" name="ids" class="single_checkbox" value="{{ i._id }}">
+                        </td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ i.date.strftime("%Y-%m-%d") }}</td>
+                        <td>{{ i.company }}</td>
+                        <td>{{ i._id }}</td>
+                        <td>{{ "%.2f"|format(i.amount) }}</td>
+                        <td>
+                            {% if i.download == True %}
+                            <span class="download">已下载</span>
+                            {% else %}
+                            <span class="un_download">未下载</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor%}
                     <!-- END INVOICE -->
@@ -90,6 +91,7 @@ Invoice System
                     <!-- END TOTAL -->
                 </tbody>
                 <!-- end tbody -->
+
             </table>
         </div>
         <!-- end body -->
@@ -110,7 +112,7 @@ Invoice System
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="btn btn-big">
+                <input type="submit" value="上传与下载" class="btn btn_summit">
             </div>
         </div>
         <!-- end form -->

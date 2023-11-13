@@ -8,3 +8,5 @@ invoice.db
 .env
 .idea
 .pylintrc
+.pytest_cache
+.vscode

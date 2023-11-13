@@ -1,0 +1,60 @@
+from datetime import datetime
+
+from sqlalchemy.orm import sessionmaker
+from db.scheme import UserScheme, engine
+
+
+class Users:
+    def __init__(self) -> None:
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+
+    def register(self, username: str, password: str):
+        store_user = UserScheme(
+            username=username,
+            password=password,
+        )
+
+        self.session.add(store_user)
+        self.session.commit()
+
+    def user_info(self, username: str):
+        """return id, username, password, register_date"""
+        get_user = (
+            self.session.query(UserScheme).filter(UserScheme.username == username).all()
+        )
+        get_password = [p.password for p in get_user]
+        return get_password[0]
+
+
+# class Invoice:
+#     def __init__(self) -> None:
+#         Session = sessionmaker(bind=engine)
+#         self.session = Session()
+
+#     def invoice(
+#         self,
+#         username: str,
+#         id: int,
+#         date: datetime,
+#         company: str,
+#         amount: float,
+#         pdf: bytes,
+#         download: bool,
+#     ):
+#         store_invoice = invoice_models("bengilla")(
+#             id=id, date=date, company=company, amount=amount, pdf=None, download=False
+#         )
+#         self.session.add(store_invoice)
+#         self.session.commit()
+
+# def invoice(
+#     self,
+#     id: int,
+#     date: datetime,
+#     company: str,
+#     amount: float,
+#     pdf: bytes,
+#     download: bool,
+# ):
+#     pass

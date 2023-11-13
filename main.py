@@ -1,20 +1,21 @@
-"""Invoice Calculate"""
+"""发票系统主页"""
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from config.settings import Settings
-from config.mongodb import MongoDB
 
 from routes.download import download_routes
 from routes.check import check_routes
 from routes.login import login_routes
-from routes.month import month_routes
+from routes.user import user_routes
 from routes.register import register_routes
 
 from models.delete_file import delete_all_file
-from models.error import _error
+from models.cookie import verify_cookie
+from models.store_msg import _error
+
 
 _settings = Settings()
 
@@ -23,22 +24,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/", response_class=RedirectResponse)
-async def index(request: Request):
-    """Upload pdf file when db is empty"""
-    # delete zip file if zip in the server
+@app.get("startup")
+async def startup():
+    # 删除全部错误与删除所有文件 (ZIP和PDF)
     delete_all_file()
     _error.clear()
 
-    check_cookie = request.cookies.get("access-token")
-    if check_cookie:
-        _db = MongoDB()
-        # get last month in list and get the number
-        if _db.invoice_collections() == []:
-            month_in_list: str = "0"
-        else:
-            month_in_list: str = _db.invoice_collections()[-1]
-        return RedirectResponse(request.url_for("month", num=month_in_list))
+
+@app.get("/", response_class=RedirectResponse)
+async def index(request: Request):
+    get_cookie = request.cookies.get("access-token")
+    if get_cookie:
+        c = verify_cookie(get_cookie)
+        return RedirectResponse(
+            request.url_for("user", username=c.username, year=c.year)
+        )
     return RedirectResponse(request.url_for("login"))
 
 
@@ -51,9 +51,4 @@ app.include_router(login_routes)
 app.include_router(register_routes)
 app.include_router(download_routes)
 app.include_router(check_routes)
-app.include_router(month_routes)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("main:app", port=int(_settings.PORT), host="0.0.0.0", reload=True)
+app.include_router(user_routes)

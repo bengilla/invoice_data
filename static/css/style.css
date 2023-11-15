@@ -154,6 +154,7 @@ thead {
 
 
 .center {
+    padding: 10px 0;
     display: grid;
     place-content: center;
 }

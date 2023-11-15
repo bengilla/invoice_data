@@ -29,14 +29,6 @@ function single() {
 // url pathname
 let url = location.pathname;
 
-// if empty hide title box (jquery)
-// title = $("#title_box");
-// if (url === "/month/0" || url === "/month/None") {
-//   title.show();
-// } else {
-//   title.show();
-// }
-
 // button color
 selector = "#" + $.escapeSelector(url);
 btn = $(selector);
@@ -60,17 +52,4 @@ if (errorElements.length) {
 }
 
 // ----------------------------------------------------------------
-
-// hide and show function
-function invoice(source) {
-  each_company = $("." + source.innerHTML); // 取这个公司的 class
-  companyList = $(".company_list");
-
-  companyList.hide();
-  each_company.show();
-}
-
-function all_invoice(source) {
-  companyList = $(".company_list");
-  companyList.show();
-}
+new DataTable("#example");

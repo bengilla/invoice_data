@@ -12,21 +12,12 @@ Invoice System
 <form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
     <div class="form">
 
-        <!-- company -->
-        <div class="company">
-            <button class="btn show_all" onclick="all_invoice()">全显</button>
-            {% for i in company %}
-            <button class="btn" onclick="invoice(this)">{{ i }}</button>
-            {% endfor %}
-        </div>
-        <!-- end company -->
-
         <!-- year list -->
-        <div class="date">
+        <div class="btn_date">
             {% for i in year%}
             <div>
                 <a href="{{ i }}">
-                    <div class="btn year" id="/{{ username }}/{{ i }}">
+                    <div class="btn" id="/{{ username }}/{{ i }}">
                         {{ i }}
                     </div>
                 </a>
@@ -37,7 +28,7 @@ Invoice System
 
         <!-- body -->
         <div>
-            <table>
+            <table id="example" class="display" style="width: 100%">
                 <!-- thead -->
                 <thead id="title_box">
                     <tr class="table_top_bottom">
@@ -78,17 +69,6 @@ Invoice System
                     {% endfor%}
                     <!-- END INVOICE -->
 
-                    <!-- TOTAL -->
-                    <tr class="table_top_bottom">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>总数: </td>
-                        <td>¥ {{ total }}</td>
-                    </tr>
-                    <!-- END TOTAL -->
                 </tbody>
                 <!-- end tbody -->
 
@@ -97,6 +77,11 @@ Invoice System
         <!-- end body -->
 
         <hr>
+        <!-- TOTAL -->
+        <div class="table_top_bottom">
+            总数: ¥ {{ total }}
+        </div>
+        <!-- END TOTAL -->
 
         <!-- error message -->
         {% for err in msg%}
@@ -112,14 +97,10 @@ Invoice System
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="btn btn_summit">
+                <input type="btn_submit" value="上传与下载" class="btn btn_summit">
             </div>
         </div>
         <!-- end form -->
     </div>
 </form>
-{% endblock %}
-
-{% block footer %}
-发票系统
 {% endblock %}

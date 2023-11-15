@@ -51,12 +51,10 @@ async def user(request: Request, username: str, year: str):
                     _collections.append(check_each_invoice)
 
             # ----------以下处理当年的文件----------
-            company_list: list[str] = []
             amount_list: list[float] = []
 
             for each_invoice in _collections:
                 amount_list.append(float(each_invoice["amount"]))
-                company_list.append(each_invoice["company"])
             response = templates.TemplateResponse(
                 "user.html",
                 {
@@ -65,7 +63,6 @@ async def user(request: Request, username: str, year: str):
                     "year": sorted(year_list, key=int),
                     "data": sorted(_collections, key=lambda x: x["date"]),
                     "total": f"{sum(amount_list):0.2f}",
-                    "company": list(set(company_list)),
                     "msg": _error,
                 },
             )

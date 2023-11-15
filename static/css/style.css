@@ -35,7 +35,7 @@ hr {
 }
 
 header {
-    padding: 20px;
+    padding: 10px 0 0 0;
     text-align: center;
     font-size: 2rem;
     font-weight: bold;
@@ -65,7 +65,7 @@ footer {
 }
 
 .btn_date {
-    padding: 20px 0;
+    padding: 5px 0 20px 0;
     display: flex;
 }
 
@@ -78,7 +78,6 @@ footer {
 /* form */
 
 .form {
-    width: 800px;
     display: grid;
     place-content: center;
     width: 100%;

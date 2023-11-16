@@ -30,7 +30,7 @@ a:link {
 }
 
 hr {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     width: 100%;
 }
 
@@ -89,22 +89,16 @@ table {
     padding: 10px 0px;
     width: 100%;
     background: none;
-    color: var(--grey_color);
 }
 
-thead {
+thead,
+.sum_box {
     background-color: var(--orange_color);
 }
 
-.table_top_bottom {
+.sum_box {
     padding: 10px;
-    background-color: var(--orange_color);
     text-align: end;
-}
-
-.table_inside>td {
-    padding: 8px;
-    text-align: center;
 }
 
 .download {
@@ -139,7 +133,6 @@ thead {
 
 .file::file-selector-button {
     font-weight: bold;
-    color: var(--background_color);
     padding: 0.8em;
     border: thin solid var(--grey_color);
     border-radius: 9999px;
@@ -184,7 +177,6 @@ thead {
     width: 100%;
     padding: 10px;
     margin: 3px 0px;
-    color: var(--grey_color);
     border: 2px;
     border-color: var(--grey_color);
     border-style: solid;
@@ -193,7 +185,6 @@ thead {
 }
 
 .small_font {
-    color: var(--grey_color);
     font-size: small;
 }
 
@@ -210,12 +201,10 @@ thead {
     border: 1px solid var(--grey_color);
 }
 
-
-
 .dataTables_info,
 .dataTables_length,
 .dataTables_filter,
 .paginate_button {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     text-align: justify;
 }

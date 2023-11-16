@@ -24,6 +24,7 @@ Invoice System - Register
     <script>
         alert("{{ err }}")
     </script>
+    {% set _ = msg.remove(err) %}
     {% endfor %}
     {% endif %}
 </form>

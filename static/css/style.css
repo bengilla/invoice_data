@@ -55,7 +55,7 @@ footer {
     margin: 0.1rem;
     padding: 0.5rem 1rem;
     color: var(--grey_color);
-    border: 1px solid rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--grey_color);
     border-radius: 5px;
 }
 
@@ -147,15 +147,16 @@ thead,
 
 
 .center {
-    padding: 10px 0;
     display: grid;
     place-content: center;
 }
 
-.login {
-    width: 100%;
-    display: grid;
-    place-content: center;
+
+.center_center {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -55%);
 }
 
 .login_input {
@@ -185,7 +186,7 @@ thead,
 }
 
 .small_font {
-    font-size: small;
+    font-size: 0.8rem;
 }
 
 /* turn page btn */

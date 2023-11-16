@@ -4,14 +4,13 @@
 Invoice System - Login
 {% endblock %}
 
-{% block header %}
-登入
-{% endblock %}
-
 {% block section %}
 <form action="{{ login_data }}" method="POST">
-    <div class="login">
-        <input type="text" class="login_input" name="username" placeholder="用户名" required>
+    <div class="center_center">
+        <div class="center">
+            <span class="small_font">登入</span><br />
+        </div>
+        <input type="text" class="login_input" name="username" placeholder="用户名" required><br />
         <input type="password" class="login_input" name="password" placeholder="密码" required>
         <div class="center">
             <span class="small_font">如果还没注册，请转至"<a href="/register">注册</a>"</span><br />
@@ -27,8 +26,4 @@ Invoice System - Login
     {% endfor %}
     {% endif %}
 </form>
-{% endblock %}
-
-{% block footer %}
-发票系统
 {% endblock %}

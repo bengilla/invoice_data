@@ -4,7 +4,6 @@
     --orange_color: rgb(249, 115, 22);
     --green_color: green;
     --red_color: red;
-    --transition_timing: 0.3s
 }
 
 
@@ -136,7 +135,6 @@ thead,
     padding: 0.8em;
     border: thin solid var(--grey_color);
     border-radius: 9999px;
-    transition: var(--transition_timing);
 }
 
 .file::file-selector-button:hover {
@@ -172,6 +170,11 @@ thead,
 
 .login_input::placeholder {
     text-align: center;
+}
+
+input.single_checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
 }
 
 .submit_button {

@@ -36,4 +36,4 @@ pyjwt
 opencv-python-headless
 
 # password
-passlib[bcrypt]
+# passlib[bcrypt]

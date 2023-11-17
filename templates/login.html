@@ -7,11 +7,9 @@ Invoice System - Login
 {% block section %}
 <form action="{{ login_data }}" method="POST">
     <div class="center_center">
-        <div class="center">
-            <span class="small_font">登入</span><br />
-        </div>
-        <input type="text" class="login_input" name="username" placeholder="用户名" required><br />
-        <input type="password" class="login_input" name="password" placeholder="密码" required>
+        <span class="small_font">登入</span><br />
+        <input type="text" class="input_field" name="username" placeholder="用户名" required><br />
+        <input type="password" class="input_field" name="password" placeholder="密码" required>
         <div class="center">
             <span class="small_font">如果还没注册，请转至"<a href="/register">注册</a>"</span><br />
         </div>

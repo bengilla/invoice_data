@@ -15,13 +15,11 @@ Invoice System
         <!-- year list -->
         <div class="btn_date">
             {% for i in year%}
-            <div>
-                <a href="{{ i }}">
-                    <div class="btn" id="/{{ username }}/{{ i }}">
-                        {{ i }}
-                    </div>
-                </a>
-            </div>
+            <a href="{{ i }}">
+                <div class="btn btn_date_inside" id="/{{ username }}/{{ i }}">
+                    {{ i }}
+                </div>
+            </a>
             {% endfor%}
         </div>
         <!-- end year list -->

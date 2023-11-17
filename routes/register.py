@@ -45,9 +45,7 @@ async def register_data(
             _db.register(username=username, password=password_hash)
             return RedirectResponse(request.url_for("index"), status_code=302)
         except IntegrityError:
-            _error.clear()
             _error.append("用户已存在")
             return RedirectResponse(request.url_for("register"), status_code=302)
-    _error.clear()
     _error.append("确认码错误")
     return RedirectResponse(request.url_for("register"), status_code=302)

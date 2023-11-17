@@ -41,10 +41,8 @@ async def login_data(
             response.set_cookie(key="access-token", value=token, httponly=True)
 
             return response
-        _error.clear()
         _error.append("用户名或密码错误")
         return RedirectResponse(request.url_for("login"), status_code=302)
     except:
-        _error.clear()
         _error.append("用户不存在，请注册")
         return RedirectResponse(request.url_for("login"), status_code=302)

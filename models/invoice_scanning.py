@@ -1,5 +1,7 @@
 """发票处理功能区"""
 from typing import Any
+from datetime import date
+from dataclasses import dataclass, asdict
 
 import re
 import base64
@@ -30,6 +32,15 @@ class Invoice:
                     invoice_content.append(page_content)
 
             # print(invoice_content[0])
+
+            @dataclass
+            class InvoiceData:
+                _id: int
+                date: date
+                amount: float
+                pdf: bytes
+                company: str
+                download: bool
 
             # 数据模型 (date, number, amount, company, download)
             db_data = {}
@@ -72,8 +83,11 @@ class Invoice:
             # 下载初始化为False
             db_data["download"] = False
 
+            # print(db_data)
+            db_data_output = asdict(InvoiceData(**db_data))
+
             # 存储在数据库
-            db_upload = self._db_mongo.invoice_data(username).insert_one(db_data)
+            db_upload = self._db_mongo.invoice_data(username).insert_one(db_data_output)
             if db_upload:
                 return f"{db_data['_id']} 上传成功"
             return f"{db_data['_id']} 上传失败"

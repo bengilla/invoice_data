@@ -14,7 +14,6 @@ from routes.register import register_routes
 
 from models.delete_file import delete_all_file
 from models.cookie import verify_cookie
-from models.store_msg import _error
 
 
 _settings = Settings()
@@ -28,7 +27,6 @@ templates = Jinja2Templates(directory="templates")
 async def startup():
     # 删除全部错误与删除所有文件 (ZIP和PDF)
     delete_all_file()
-    _error.clear()
 
 
 @app.get("/", response_class=RedirectResponse)

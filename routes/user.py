@@ -7,6 +7,7 @@ import pendulum
 
 from zipfile import ZipFile
 from typing import List, Optional
+from datetime import datetime
 
 from fastapi import Request, UploadFile, APIRouter, File
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -134,7 +135,7 @@ async def send_file(
             try:
                 year: str = _invoice.date.year
             except:
-                year = 0
+                year = datetime.now().year
 
         return RedirectResponse(
             request.url_for("user", username=username, year=year), status_code=302

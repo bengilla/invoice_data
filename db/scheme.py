@@ -18,14 +18,14 @@ from config.settings import Settings
 _settings = Settings()
 
 Base = declarative_base()
-engine = create_engine(_settings.DB_URL)
+engine = create_engine(_settings.MySQL, echo=True)
 
 
 class UserScheme(Base):
     __tablename__ = "users"
     id = Column("id", Uuid, primary_key=True, default=uuid.uuid1())
-    username = Column("username", String, nullable=False, unique=True)
-    password = Column("password", String, nullable=False)
+    username = Column("username", String(255), nullable=False, unique=True)
+    password = Column("password", String(255), nullable=False)
     register_date = Column("register_date", DateTime, default=datetime.now())
 
     def __repr__(self):

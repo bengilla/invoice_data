@@ -21,7 +21,7 @@ Base = declarative_base()
 engine = create_engine(_settings.MySQL, echo=True)
 
 
-class UserScheme(Base):
+class UserSchema(Base):
     __tablename__ = "users"
     id = Column("id", Integer, primary_key=True)
     username = Column("username", String(255), nullable=False, unique=True)
@@ -30,13 +30,15 @@ class UserScheme(Base):
     invoice = relationship("InvoiceScheme", backref="users")
 
 
-class InvoiceScheme(Base):
+class InvoiceSchema(Base):
     __tablename__ = "invoices"
-    id = Column("id", Integer(), primary_key=True, unique=True)
-    date = Column("date", DateTime())
-    company = Column("company", String(255))
-    amount = Column("amount", Float())
-    pdf = Column("pdf", LONGTEXT)
+    id = Column("id", Integer, primary_key=True, unique=True)
+    date = Column("date", DateTime, nullable=False)
+    company = Column("company", String(255), nullable=False)
+    amount = Column("amount", Float, nullable=False)
+    pdf = Column("pdf", LONGTEXT, nullable=False)
+    reason = Column("reason", String(255))
+    note = Column("note", String(255))
     download = Column("download", Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
 

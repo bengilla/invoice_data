@@ -1,7 +1,6 @@
-from datetime import datetime
-
+from datetime import date
 from sqlalchemy.orm import sessionmaker
-from db.scheme import UserScheme, engine
+from db.scheme import UserSchema, InvoiceSchema, engine
 
 
 class Users:
@@ -10,7 +9,7 @@ class Users:
         self.session = Session()
 
     def register(self, username: str, password: str):
-        store_user = UserScheme(
+        store_user = UserSchema(
             username=username,
             password=password,
         )
@@ -21,40 +20,41 @@ class Users:
     def user_info(self, username: str):
         """return id, username, password, register_date"""
         get_user = (
-            self.session.query(UserScheme).filter(UserScheme.username == username).all()
+            self.session.query(UserSchema).filter(UserSchema.username == username).all()
         )
         get_password = [p.password for p in get_user]
         return get_password[0]
 
 
-# class Invoice:
-#     def __init__(self) -> None:
-#         Session = sessionmaker(bind=engine)
-#         self.session = Session()
+class Invoice:
+    def __init__(self) -> None:
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
 
-#     def invoice(
-#         self,
-#         username: str,
-#         id: int,
-#         date: datetime,
-#         company: str,
-#         amount: float,
-#         pdf: bytes,
-#         download: bool,
-#     ):
-#         store_invoice = invoice_models("bengilla")(
-#             id=id, date=date, company=company, amount=amount, pdf=None, download=False
-#         )
-#         self.session.add(store_invoice)
-#         self.session.commit()
+    def check_user_invoice(self, username: str):
+        get_data = (
+            self.session.query(UserSchema).filter(UserSchema.username == username).all()
+        )
+        return get_data[0]
 
-# def invoice(
-#     self,
-#     id: int,
-#     date: datetime,
-#     company: str,
-#     amount: float,
-#     pdf: bytes,
-#     download: bool,
-# ):
-#     pass
+    def create_db(
+        self,
+        id: int,
+        date: date,
+        company: str,
+        amount: float,
+        pdf: str,
+        download: bool,
+        user_id: int,
+    ):
+        data = InvoiceSchema(
+            id=id,
+            date=date,
+            company=company,
+            amount=amount,
+            pdf=pdf,
+            download=download,
+            user_id=user_id,
+        )
+        self.session.add(data)
+        self.session.commit()

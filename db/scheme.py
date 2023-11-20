@@ -27,7 +27,7 @@ class UserScheme(Base):
     username = Column("username", String(255), nullable=False, unique=True)
     password = Column("password", String(255), nullable=False)
     register_date = Column("register_date", DateTime, default=datetime.now())
-    invoice = relationship("InvoiceSchema", backref="user")
+    invoice = relationship("InvoiceScheme", backref="users")
 
 
 class InvoiceScheme(Base):

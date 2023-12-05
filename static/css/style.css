@@ -6,12 +6,17 @@
     --red_color: red;
 }
 
+@font-face {
+    font-family: han_sans;
+    src: url("../font/source_han_sans_cn_light.otf") format("opentype");
+}
 
 body,
 html {
     padding: 0;
     margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
+    font-family: han_sans, sans-serif;
     font-size: 0.95rem;
     background-color: var(--background_color);
     color: var(--grey_color);
@@ -23,9 +28,6 @@ a {
     color: var(--orange_color);
 }
 
-a:link {
-    text-decoration: none;
-}
 
 hr {
     margin-bottom: 10px 0;
@@ -51,6 +53,14 @@ footer {
     font-size: 0.8rem;
 }
 
+.font_vs {
+    font-size: 0.7rem;
+}
+
+.font_shadow {
+    opacity: 0.8;
+}
+
 /* DIV center center */
 .center {
     position: absolute;
@@ -60,16 +70,21 @@ footer {
 }
 
 /* button */
-.btn {
-    cursor: pointer;
+button {
     margin: 10px 0;
     padding: 0.5rem 1rem;
     color: var(--grey_color);
     border: 1px solid var(--grey_color);
+    background-color: transparent;
     border-radius: 5px;
+    cursor: pointer;
 }
 
-.btn:hover {
+button[type="submit"] {
+    width: 100%;
+}
+
+button:hover {
     border-color: var(--grey_color);
     color: var(--orange_color);
 }
@@ -79,19 +94,21 @@ footer {
     display: flex;
 }
 
-.btn_date_inside {
+.btn_date a button {
     margin: 0 4px 0 0;
 }
 
-/* input */
-input[type="submit"] {
-    width: 100%;
-    background: none;
-    text-align: center;
+.btn_year {
+    padding: 4px 10px;
+    margin: 0 4px 0 0;
+    border: var(--grey_color) 1px solid;
+    border-radius: 5px;
 }
 
 
+/* input */
 input[type="text"],
+input[type="email"],
 input[type="password"] {
     width: 12rem;
     padding: 8px;
@@ -104,12 +121,13 @@ input[type="password"] {
 }
 
 input[type="checkbox"] {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1rem;
+    height: 1rem;
 }
 
 input[type="submit"],
 input[type="text"],
+input[type="email"],
 input[type="password"] {
     text-align: center;
     font-size: 0.8rem;
@@ -124,9 +142,8 @@ input[type="password"] {
 
 /* table */
 table {
-    padding: 10px 0px;
+    padding: 5px 0;
     width: 100%;
-    background: none;
 }
 
 thead,
@@ -140,11 +157,10 @@ thead,
 }
 
 .download {
-    color: var(--green_color);
-}
-
-.un_download {
-    color: var(--orange_color);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
 }
 
 .msg {
@@ -177,7 +193,6 @@ thead,
 }
 
 .file::file-selector-button:hover {
-    cursor: pointer;
     border-color: var(--orange_color);
     background-color: var(--orange_color);
 }

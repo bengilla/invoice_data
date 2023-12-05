@@ -8,7 +8,7 @@ from config.settings import Settings
 
 from db.db import Users
 
-_settings = Settings()
+_settings = Settings
 
 manager = LoginManager(
     _settings.SECRET_KEY,
@@ -26,6 +26,6 @@ class UserData(BaseModel):
 
 @manager.user_loader()
 def load_user(username: str) -> UserData:
-    _db = Users()
-    get_password = _db.user_info(username)
-    return UserData(username=username, password=get_password)
+    _db_user = Users()
+    get_password = _db_user.user_info(username)
+    return UserData(username=username, password=get_password.password)

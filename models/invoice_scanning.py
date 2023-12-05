@@ -1,27 +1,26 @@
 """发票处理功能区"""
 from typing import Any
-from datetime import date
-from dataclasses import dataclass, asdict
 
 import re
 import base64
-import pendulum
 import pdfplumber
-from pymongo.errors import DuplicateKeyError
+from datetime import datetime
 
-from db.mongodb import MongoDB
+from sqlalchemy.exc import IntegrityError
+
+from db.db import Invoices
 
 
-class Invoice:
+class InvoiceScan:
     """计算所有发票讯息"""
 
     def __init__(self) -> None:
         self.date = None
-        self._db_mongo = MongoDB()
 
-    def pdf_file(self, username: str, file: Any):
+    def pdf_file(self, user_id: int, file: Any):
         """计算所有发票讯息并输出db_data"""
-        # file show up is xxxx.pdf
+        _db_invoice = Invoices()
+        # 文件名字为 xxxx.pdf
         try:
             # 把PDF发票转换成数据
             with pdfplumber.open(file) as pdf:
@@ -33,17 +32,11 @@ class Invoice:
 
             # print(invoice_content[0])
 
-            @dataclass
-            class InvoiceData:
-                _id: int
-                date: date
-                amount: float
-                pdf: bytes
-                company: str
-                download: bool
-
-            # 数据模型 (date, number, amount, company, download)
+            # 数据模型 (date, number, amount, company, download, user_id)
             db_data = {}
+
+            # 用户ID
+            db_data["user_id"] = user_id
 
             # 计算数据区
             store_company = []
@@ -64,12 +57,12 @@ class Invoice:
                 if "开票日期" in info:
                     get_date: str = re.findall(r"\d*", info)
                     date_convert = "".join(get_date)
-                    self.date = pendulum.from_format(date_convert, "YYYYMMDD")
+                    self.date = datetime.strptime(date_convert, "%Y%m%d")
                     db_data["date"] = self.date
                 if "发票号码" in info:
                     get_number: str = re.findall(r"\d*", info)
                     # print("".join(get_number)[-10:])
-                    db_data["_id"] = int("".join(get_number)[-10:])
+                    db_data["id"] = int("".join(get_number)[-10:])
                 if "小写" in info:
                     get_amount: str = re.findall(r"\d+\.?\d*", info)
                     # print(get_amount[-1])
@@ -80,19 +73,13 @@ class Invoice:
                 encoded = base64.b64encode(pdf.read())
                 db_data["pdf"] = encoded
 
-            # 下载初始化为False
-            db_data["download"] = False
-
             # print(db_data)
-            db_data_output = asdict(InvoiceData(**db_data))
 
+            # 上传数据至数据库
+            _db_invoice.store_invoice(**db_data)
             # 存储在数据库
-            db_upload = self._db_mongo.invoice_data(username).insert_one(db_data_output)
-            if db_upload:
-                return f"{db_data['_id']} 上传成功"
-            return f"{db_data['_id']} 上传失败"
-        except DuplicateKeyError:
-            # 如果文件重复
-            return f"重复文件, 发票代码: {db_data['_id']}"
+            return f"{db_data['id']} 上传成功"
+        except IntegrityError:
+            return f"文件重复，发票号码: {db_data['id']}"
         except:
-            return "文件异常, 请重新上传发票(PDF)"
+            return f"文件异常, 请重新上传发票(PDF)"

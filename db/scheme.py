@@ -10,15 +10,14 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.dialects.mysql import LONGTEXT
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, declarative_base
 
 from config.settings import Settings
 
-_settings = Settings()
+_settings = Settings
 
 Base = declarative_base()
-engine = create_engine(_settings.MySQL, echo=True)
+engine = create_engine(_settings.MySQL)  # echo=True
 
 
 class UserSchema(Base):
@@ -30,6 +29,7 @@ class UserSchema(Base):
     invoice = relationship("InvoiceSchema", backref="users")
 
 
+# TODO 加入发票种类，比如火车票，飞机票，餐费等等
 class InvoiceSchema(Base):
     __tablename__ = "invoices"
     id = Column("id", Integer, primary_key=True, unique=True)
@@ -37,8 +37,8 @@ class InvoiceSchema(Base):
     company = Column("company", String(255), nullable=False)
     amount = Column("amount", Float, nullable=False)
     pdf = Column("pdf", LONGTEXT, nullable=False)
-    reason = Column("reason", String(255))
-    note = Column("note", String(255))
+    reason = Column("reason", String(255), default="-")
+    note = Column("note", String(255), default="-")
     download = Column("download", Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
 

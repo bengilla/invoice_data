@@ -1,69 +1,81 @@
 """处理发票"""
 import os
-import fnmatch
-import codecs
 import shutil
-import pendulum
+import base64
 
 from zipfile import ZipFile
-from typing import List, Optional
+from typing import List
 from datetime import datetime
 
-from fastapi import Request, UploadFile, APIRouter, File
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Request, UploadFile, APIRouter, File, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
-from db.mongodb import MongoDB
-from config.settings import Settings
+from db.db import Users, Invoices
 
-from models.invoice_scanning import Invoice
-from models.delete_file import delete_all_file
+from models.invoice_scanning import InvoiceScan
+from models.delete_file import delete_file
 
 from models.store_msg import _error, _collections
 from models.cookie import verify_cookie
 
-
-_db_mongo = MongoDB()
-_settings = Settings()
+from models.excel import excel
 
 user_routes = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
+def get_user_db():
+    return Users()
+
+
+def get_invoice_db():
+    return Invoices()
+
+
 @user_routes.get("/{username}/{year}", response_class=HTMLResponse)
-async def user(request: Request, username: str, year: str):
+async def user(
+    request: Request,
+    username: str,
+    year: str,
+    user_db: Users = Depends(get_user_db),
+    invoice_db: Invoices = Depends(get_invoice_db),
+):
     """显示所有这个用户的发票"""
     # 删除所有PDF和ZIP文件
-    delete_all_file()
+    delete_file(username)
 
     get_cookie = request.cookies.get("access-token")
 
     if get_cookie:
-        c = verify_cookie(get_cookie)
-        year_list = _db_mongo.latest_year(username)
-        if username == c.username:
+        verify = verify_cookie(get_cookie)
+
+        # 获取所有用户的发票
+        current_user = user_db.user_info(username)
+        user_invoice = current_user.invoice
+
+        # 获取所有发票的年份
+        year_list = invoice_db.year_invoice(username)
+
+        if username == verify.username:
             # 发票讯息
             _collections.clear()
-            invoice_data: list[dict] = list(_db_mongo.invoice_data(username).find({}))
+            amount: list[float] = []
 
-            for check_each_invoice in invoice_data:
-                dt = pendulum.parse(str(check_each_invoice["date"]))
+            for each_invoice in user_invoice:
+                dt = each_invoice.date
                 if str(dt.year) == year:
-                    _collections.append(check_each_invoice)
+                    _collections.append(each_invoice)
+                    amount.append(each_invoice.amount)
 
-            # ----------以下处理当年的文件----------
-            amount_list: list[float] = []
-
-            for each_invoice in _collections:
-                amount_list.append(float(each_invoice["amount"]))
             response = templates.TemplateResponse(
                 "user.html",
                 {
                     "request": request,
                     "username": username,
                     "year": sorted(year_list, key=int),
-                    "data": sorted(_collections, key=lambda x: x["date"]),
-                    "total": f"{sum(amount_list):0.2f}",
+                    "data": sorted(_collections, key=lambda x: x.date),
+                    "total": f"{sum(amount):0.2f}",
                     "msg": _error,
                 },
             )
@@ -74,66 +86,83 @@ async def user(request: Request, username: str, year: str):
     return RedirectResponse(request.url_for("login"))
 
 
-@user_routes.post("/{username}/{year}", response_class=RedirectResponse)
+@user_routes.post("/{username}/{year}")
 async def send_file(
-    *,
-    request: Request,
-    files: List[UploadFile] = File(None),
-    ids: List[Optional[str]] = None,
     username: str,
     year: str,
+    request: Request,
+    files: List[UploadFile] = File(None),
+    ids: List[str] = None,
+    user_db: Users = Depends(get_user_db),
+    invoice_db: Invoices = Depends(get_invoice_db),
 ):
     """上传与下载发票功能"""
     try:
-        # 下载区
+        # ---------- 下载区 ----------
+        PATH = os.getcwd() + "/user_file/"
+        USER_PATH = PATH + username
+        if not os.path.exists(USER_PATH):
+            os.mkdir(USER_PATH)
+
         if ids:  # ids是checkbox如果激活会传回来为ids
-            # 所有价格的综合
             get_total_amount = []
+            store_data = []
+            company = ""
+            # 所有价格的综合
 
-            # 解析每张发票并传送到服务器
-            for _id in ids:
-                # 取所有发票讯息
-                pdf = _db_mongo.invoice_data(username).find_one({"_id": int(_id)})
-
+            for id in ids:
+                # 解析每张发票并传送到服务器
+                each = invoice_db.each_invoice(int(id))
                 # 取所有发票的价格
-                get_total_amount.append(float(pdf["amount"]))
-
-                # 如果下载成功把download改为True
-                _db_mongo.invoice_data(username).update_one(
-                    {"_id": int(_id)}, {"$set": {"download": True}}
-                )
+                get_total_amount.append(each.amount)
 
                 # 把文件临时村在服务器
-                convert_date = pendulum.parse(str(pdf["date"]))
-                name = f"{convert_date.to_date_string()}({pdf['_id']}-¥{pdf['amount']}).pdf"
-                with open(name, "wb") as file:
-                    file.write(codecs.decode(pdf["pdf"], "base64"))
+                # convert_date = str(each.date)
+                convert_date = datetime.strftime(each.date, "%Y-%m-%d")
+                file_name = f"{convert_date}({each.id}-¥{each.amount}).pdf"
+                file_join = os.path.join(USER_PATH, file_name)
+                with open(file_join, "wb") as file:
+                    encoded_string = base64.b64decode(each.pdf)
+                    file.write(encoded_string)
+
+                company = each.company
+                store_data.append(each)
+                # 如果下载成功把download改为True
+                invoice_db.download(invoice_id=each.id)
+
+            # excel
+            excel(username=username, company=company, data=store_data)
 
             # 建立ZIP名字
-            zip_name = f"{year}年-¥{sum(get_total_amount):0.2f}.zip"
-
+            zip_name = f"{year}年(¥{sum(get_total_amount):0.2f}).zip"
+            zip_join = os.path.join(USER_PATH, zip_name)
             # 取所有PDF并存在ZIP里
-            with ZipFile(zip_name, "w") as zip_file:
-                # for _, _, pdf_file in os.walk("/"):
-                for _, _, pdf_file in os.walk(_settings.LOCATION):
-                    for name in pdf_file:
-                        if fnmatch.fnmatch(name, "*.pdf"):
-                            zip_file.write(name)
-                            os.remove(name)
-            # 转至download.py
-            return RedirectResponse(request.url_for("download", file=zip_name))
+            with ZipFile(zip_join, "w") as zip_file:
+                for parent, dirnames, filenames in os.walk(USER_PATH):
+                    for pdf in filenames:
+                        if pdf.lower().endswith(".pdf") or pdf.lower().endswith(
+                            ".xlsx"
+                        ):
+                            pdf_path = os.path.join(parent, pdf)
+                            zip_file.write(
+                                pdf_path, arcname=os.path.relpath(pdf_path, USER_PATH)
+                            )
+            return FileResponse(path=zip_join, filename=zip_name)
 
-        # 上传区
-        _invoice = Invoice()
+        # ---------- 上传区 ----------
+        _invoice_scan = InvoiceScan()
+        current_user = user_db.user_info(username)
         for file in files:
             with open(file.filename, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
-                err_msg = _invoice.pdf_file(username=username, file=file.filename)
+                err_msg = _invoice_scan.pdf_file(
+                    user_id=current_user.id, file=file.filename
+                )
                 os.remove(file.filename)
                 if err_msg:
                     _error.append(err_msg)
             try:
-                year: str = _invoice.date.year
+                year: str = _invoice_scan.date.year
             except:
                 year = datetime.now().year
 

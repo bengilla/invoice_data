@@ -9,17 +9,13 @@ Invoice System
 {% endblock %}
 
 {% block section %}
-<form action="{{ send_file }}" method="POST" enctype="multipart/form-data">
+<form action="{{ send_file }}" id="send_file" method="POST" enctype="multipart/form-data" onsubmit="setTimeout(function(){window.location.reload();}, 2000);">
     <div class="form">
 
         <!-- year list -->
         <div class="btn_date">
             {% for i in year%}
-            <a href="{{ i }}">
-                <div class="btn btn_date_inside" id="/{{ username }}/{{ i }}">
-                    {{ i }}
-                </div>
-            </a>
+            <a href="{{ i }}" class="btn_year" id="{{ i }}">{{ i }}</a>
             {% endfor%}
         </div>
         <!-- end year list -->
@@ -38,6 +34,8 @@ Invoice System
                         <th>公司</th>
                         <th>发票号码</th>
                         <th>价格</th>
+                        <th>原由</th>
+                        <th>备注</th>
                         <th>下载</th>
                     </tr>
                 </thead>
@@ -49,19 +47,27 @@ Invoice System
                     {% for i in data %}
                     <tr onclick="single()">
                         <td>
-                            <input type="checkbox" name="ids" class="single_checkbox" value="{{ i._id }}">
+                            <input type="checkbox" name="ids" class="single_checkbox" value="{{ i.id }}">
                         </td>
-                        <td>{{ loop.index }}</td>
+                        <td class="font_vs">{{ loop.index }}</td>
                         <td>{{ i.date.strftime("%Y-%m-%d") }}</td>
                         <td>{{ i.company }}</td>
-                        <td>{{ i._id }}</td>
-                        <td>{{ "%.2f"|format(i.amount) }}</td>
                         <td>
-                            {% if i.download == True %}
-                            <span class="download">已下载</span>
-                            {% else %}
-                            <span class="un_download">未下载</span>
-                            {% endif %}
+                            <a href="/{{ username }}/modify/{{ i.id }}">
+                                {{ i.id }}
+                            </a>
+                        </td>
+                        <td>{{ "%.2f"|format(i.amount) }}</td>
+                        <td class="font_vs font_shadow" style="text-align: center;">{{ i.reason }}</td>
+                        <td class="font_vs font_shadow" style="text-align: center;">{{ i.note }}</td>
+                        <td>
+                            <div class="download">
+                                {% if i.download == True %}
+                                <img src="/static/images/download.svg" width="20px" height="20px" alt="">
+                                {% else %}
+                                <img src="/static/images/un_download.svg" width="20px" height="20px" alt="">
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor%}
@@ -95,10 +101,10 @@ Invoice System
             </div>
             <!-- Submit -->
             <div>
-                <input type="submit" value="上传与下载" class="btn">
+                <button type="submit">上传与下载</button>
             </div>
         </div>
-        <!-- end form -->
+        <!-- End Form -->
     </div>
 </form>
 {% endblock %}

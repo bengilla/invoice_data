@@ -30,12 +30,14 @@ function single() {
 let url = location.pathname;
 
 // button color
-selector = "#" + $.escapeSelector(url);
+selector = "#" + url.substring(url.length - 4);
 btn = $(selector);
 btn.css({
+  color: "#fff",
   "background-color": "#f97316",
   "border-color": "#f97316",
-  color: "#fff",
+  "pointer-events": "none",
+  "text-decoration": "none",
 });
 
 // ----------------------------------------------------------------

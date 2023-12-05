@@ -1,12 +1,11 @@
 """所有跟数据库有关的"""
-import pendulum
 from typing import List
 
 from pymongo import MongoClient
 
 from config.settings import Settings
 
-_settings = Settings()
+_settings = Settings
 
 
 class MongoDB:
@@ -18,20 +17,6 @@ class MongoDB:
         self.client = MongoClient(
             f"mongodb+srv://bengilla:{_settings.DB_PASSWORD}@invoice.8bomvyv.mongodb.net/"
         )
-
-    """发票区"""
-
-    def invoice_data(self, username: str):
-        invoice = self.client["INVOICE-DATA"]
-        return invoice[username]
-
-    def latest_year(self, username: str) -> List[int]:
-        year = []
-        invoice_data = self.invoice_data(username).find({})
-        for each_invoice in invoice_data:
-            dt = pendulum.parse(str(each_invoice["date"]))
-            year.append(dt.year)
-        return list(set(year))
 
     """确认码"""
 

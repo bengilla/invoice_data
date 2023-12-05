@@ -1,11 +1,9 @@
 """Cookie功能区"""
-import pendulum
+from datetime import datetime
 from pydantic import BaseModel
 
-from db.mongodb import MongoDB
+from db.db import Invoices
 from models.jwt import decoded_jwt
-
-dt = pendulum.now()
 
 
 class Cookie(BaseModel):
@@ -15,13 +13,15 @@ class Cookie(BaseModel):
 
 def verify_cookie(cookie) -> Cookie:
     """发回用户讯息,年份和月份"""
-    _db_mongo = MongoDB()
+    _db = Invoices()
+    _dt = datetime.now()
     username: str = decoded_jwt(cookie)
-    latest_year = _db_mongo.latest_year(username)
+    latest_year = _db.year_invoice(username)
 
     if latest_year == []:
-        year: int = dt.year
+        year: int = _dt.year
     else:
+        # year: int = max(latest_year)
         year: int = max(latest_year)
 
     return Cookie(username=username, year=year)

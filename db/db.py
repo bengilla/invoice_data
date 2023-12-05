@@ -9,52 +9,89 @@ class Users:
         self.session = Session()
 
     def register(self, username: str, password: str):
-        store_user = UserSchema(
+        """用户注册"""
+        user = UserSchema(
             username=username,
             password=password,
         )
 
-        self.session.add(store_user)
+        self.session.add(user)
         self.session.commit()
+        self.session.close_all()
 
     def user_info(self, username: str):
-        """return id, username, password, register_date"""
-        get_user = (
-            self.session.query(UserSchema).filter(UserSchema.username == username).all()
+        """return 用户数据与用户关联发票数据"""
+        user = (
+            self.session.query(UserSchema)
+            .filter(UserSchema.username == username)
+            .first()
         )
-        get_password = [p.password for p in get_user]
-        return get_password[0]
+        return user
 
 
-class Invoice:
+class Invoices:
+    """MySQL数据库"""
+
     def __init__(self) -> None:
         Session = sessionmaker(bind=engine)
         self.session = Session()
 
-    def check_user_invoice(self, username: str):
-        get_data = (
-            self.session.query(UserSchema).filter(UserSchema.username == username).all()
-        )
-        return get_data[0]
-
-    def create_db(
+    def store_invoice(
         self,
         id: int,
         date: date,
         company: str,
         amount: float,
         pdf: str,
-        download: bool,
-        user_id: int,
+        user_id: str,
     ):
-        data = InvoiceSchema(
-            id=id,
-            date=date,
-            company=company,
-            amount=amount,
-            pdf=pdf,
-            download=download,
-            user_id=user_id,
+        invoice_data = InvoiceSchema(
+            id=id, date=date, company=company, amount=amount, pdf=pdf, user_id=user_id
         )
-        self.session.add(data)
+        self.session.add(invoice_data)
         self.session.commit()
+        self.session.close_all()
+
+    def each_invoice(self, invoice_id: int):
+        invoice = (
+            self.session.query(InvoiceSchema)
+            .filter(InvoiceSchema.id == invoice_id)
+            .first()
+        )
+        return invoice
+
+    def year_invoice(self, username: str):
+        year_list = []
+        user = (
+            self.session.query(UserSchema)
+            .filter(UserSchema.username == username)
+            .first()
+        )
+        user_invoice = user.invoice
+        for i in user_invoice:
+            year_list.append(i.date.year)
+        return list(set(year_list))
+
+    def modify(self, invoice_id: int, reason: str, note: str):
+        data = (
+            self.session.query(InvoiceSchema)
+            .filter(InvoiceSchema.id == invoice_id)
+            .first()
+        )
+        data.reason = reason
+        data.note = note
+        self.session.commit()
+        # self.session.close_all()
+        self.session.refresh(data)
+
+    def download(self, invoice_id: int):
+        downloaded = (
+            self.session.query(InvoiceSchema)
+            .filter(InvoiceSchema.id == invoice_id)
+            .first()
+        )
+        if downloaded.download == False:
+            downloaded.download = True
+            self.session.commit()
+            # self.session.close_all()
+            self.session.refresh(downloaded)

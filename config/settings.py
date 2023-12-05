@@ -18,7 +18,4 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
-    DB_URL: str = os.getenv("DB_URL")
     MySQL: str = f"mysql+mysqlconnector://root:{DB_PASSWORD}@localhost:3306/invoice_db"
-    # LOCATION = "/Users/bengilla/Documents/coding/invoice_data/"
-    LOCATION = "/"

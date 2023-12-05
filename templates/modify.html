@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Modify {{ data.id }}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block section %}
+<form action="{{ modify }}" method="post" enctype="multipart/form-data">
+    <div class="center" style="text-align: center;">
+        <table>
+            <tr>
+                <td style="text-align: start;">发票号码: </td>
+                <td>{{ data.id }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: start;">发票价格: </td>
+                <td>{{ data.amount }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: start;">原由: </td>
+                <td><input type="text" name="reason" value="{{ data.reason }}"></td>
+            </tr>
+            <tr>
+                <td style="text-align: start;">备注: </td>
+                <td><input type="text" name="note" value="{{ data.note }}"></td>
+            </tr>
+        </table>
+        <button type="submit">确认</button>
+        <div>
+            <a href="/">回首页</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

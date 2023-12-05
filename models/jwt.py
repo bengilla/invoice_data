@@ -2,7 +2,7 @@
 import jwt
 from config.settings import Settings
 
-_settings = Settings()
+_settings = Settings
 
 
 def encoded_jwt(username):

@@ -17,7 +17,9 @@ from config.settings import Settings
 _settings = Settings
 
 Base = declarative_base()
-engine = create_engine(_settings.MySQL)  # echo=True
+engine = create_engine(
+    f"mysql+mysqlconnector://root:{_settings.DB_PASSWORD}@localhost:3306/invoice_db"
+)  # echo=True
 
 
 class UserSchema(Base):

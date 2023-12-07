@@ -19,7 +19,8 @@ _settings = Settings
 
 Base = declarative_base()
 engine = create_engine(
-    f"mysql+mysqlconnector://root:{_settings.DB_PASSWORD}@localhost:3306/invoice_db"
+    f"mysql+mysqlconnector://root:{_settings.DB_PASSWORD}@localhost:3306/invoice_db",
+    echo=True,
 )  # echo=True
 
 
@@ -35,15 +36,15 @@ class UserSchema(Base):
 # TODO 加入发票种类，比如火车票，飞机票，餐费等等
 class InvoiceSchema(Base):
     __tablename__ = "invoices"
-    id = Column("id", Integer, primary_key=True, unique=True)
-    date = Column("date", DateTime, nullable=False)
+    id = Column("id", Integer(), primary_key=True, unique=True)
+    date = Column("date", DateTime(), nullable=False)
     company = Column("company", String(255), nullable=False)
-    amount = Column("amount", Float, nullable=False)
+    amount = Column("amount", Float(), nullable=False)
     pdf = Column("pdf", LONGTEXT, nullable=False)
     reason = Column("reason", String(255), default="-")
     note = Column("note", String(255), default="-")
-    download = Column("download", Boolean, default=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    download = Column("download", Boolean(), default=False)
+    user_id = Column(Integer(), ForeignKey("users.id"))
 
 
 Base.metadata.create_all(bind=engine)

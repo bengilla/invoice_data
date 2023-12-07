@@ -73,7 +73,7 @@ class InvoiceScan:
                 encoded = base64.b64encode(pdf.read())
                 db_data["pdf"] = encoded
 
-            # print(db_data)
+            print(db_data)
 
             # 上传数据至数据库
             _db_invoice.store_invoice(**db_data)

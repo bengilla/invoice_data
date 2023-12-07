@@ -18,4 +18,5 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
 
+    # TODO 用了阿里云装MySQL是否这个地址可以？
     MySQL: str = f"mysql+mysqlconnector://root:{DB_PASSWORD}@localhost:3306/invoice_db"

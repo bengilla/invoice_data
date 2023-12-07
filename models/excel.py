@@ -4,6 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 
+# TODO 如果选择了两个公司，应该在Excel显示两个公司
 def excel(username: str, company: str, data):
     now = datetime.now()
     date_output = now.strftime("%Y年%m月")
@@ -25,6 +26,7 @@ def excel(username: str, company: str, data):
     ws.merge_cells("A1:G1")
     ws.row_dimensions[1].height = 40
     ws["A1"].font = Font(size=14)
+    # TODO Excel是否需要名字显示，而不是登入用户名
     ws["A1"] = username + "报销明细表 - " + datetime.now().strftime("%Y年%m月%d日")
 
     ws.merge_cells("A2:G2")

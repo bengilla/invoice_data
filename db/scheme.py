@@ -10,7 +10,8 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.dialects.mysql import LONGTEXT
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 from config.settings import Settings
 

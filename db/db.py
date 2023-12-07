@@ -43,7 +43,7 @@ class Invoices:
         company: str,
         amount: float,
         pdf: str,
-        user_id: str,
+        user_id: int,
     ):
         invoice_data = InvoiceSchema(
             id=id, date=date, company=company, amount=amount, pdf=pdf, user_id=user_id

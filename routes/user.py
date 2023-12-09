@@ -99,7 +99,11 @@ async def send_file(
     """上传与下载发票功能"""
     try:
         # ---------- 下载区 ----------
+        # TODO make and check dir before run this code
         PATH = os.getcwd() + "/user_file/"
+        if not os.path.exists(PATH):
+            os.makedirs(PATH)
+
         USER_PATH = PATH + username
         if not os.path.exists(USER_PATH):
             os.mkdir(USER_PATH)

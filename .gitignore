@@ -73,3 +73,6 @@ _sample/
 _problem/
 /tmp/
 *.log
+
+# Railway
+.cache/

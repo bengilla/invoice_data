@@ -511,6 +511,27 @@
             box-shadow: 0 4px 12px rgba(59,130,246,0.4);
             transform: scale(1.05);
         }
+        
+        .clear-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: var(--text-light);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .clear-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239,68,68,0.1);
+        }
     </style>
 </head>
 <body>
@@ -528,6 +549,8 @@
             <p class="upload-hint">支持 PDF / PNG / JPG / BMP / GIF 格式发票文件</p>
             <input type="file" id="folder-input" webkitdirectory multiple accept=".pdf,.png,.jpg,.jpeg,.bmp,.gif">
         </div>
+
+        <button class="clear-btn" id="clear-btn" style="display: none;" onclick="clearAllData()">🗑️ 清除所有数据</button>
 
         <div id="stats" class="stats" style="display: none;">
             <div class="stat-card">
@@ -622,6 +645,7 @@
                     renderBuyerSection();
                     renderMonthList();
                     document.getElementById('download-all-btn').disabled = allData.invoices.length === 0;
+                    document.getElementById('clear-btn').style.display = allData.invoices.length > 0 ? 'block' : 'none';
                     
                     // 显示重复文件提示
                     if (result.duplicates && result.duplicates.length > 0) {
@@ -635,6 +659,19 @@
                 document.getElementById('month-list').innerHTML = '<div class="no-data">上传失败: ' + err.message + '</div>';
             }
         });
+
+        function clearAllData() {
+            allData = { months: [], total_amount: 0, invoices: [], invoiceFiles: {}, session_id: null };
+            currentBuyer = null;
+            currentInvoice = null;
+            
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('buyer-section').style.display = 'none';
+            document.getElementById('month-list').innerHTML = '';
+            document.getElementById('download-all-btn').disabled = true;
+            document.getElementById('clear-btn').style.display = 'none';
+            document.getElementById('folder-input').value = '';
+        }
 
         function renderStats() {
             const filteredInvoices = currentBuyer 
@@ -752,13 +789,13 @@
                     '</div>' +
                     '<div class="invoice-list" id="list-' + monthData.year + '-' + monthData.month + '">' +
                     '<div class="invoice-item header">' +
-                    '<span>日期</span><span>销方</span><span>金额</span><span>查看</span>' +
+                    '<span># 日期</span><span>销方</span><span>金额</span><span>查看</span>' +
                     '</div>';
                 
                 let invoiceHtml = '';
-                filteredInvoices.forEach(function(inv) {
+                filteredInvoices.forEach(function(inv, idx) {
                     invoiceHtml += '<div class="invoice-item">' +
-                        '<span class="invoice-date">' + (inv.date || '-') + '</span>' +
+                        '<span class="invoice-date">' + (idx + 1) + '. ' + (inv.date || '-') + '</span>' +
                         '<span class="invoice-company">' + (inv.company || '-') + '</span>' +
                         '<span class="invoice-amount">¥' + inv.amount.toFixed(2) + '</span>' +
                         '<span class="invoice-view"><a href="#" class="view-btn" onclick="viewInvoice(\'' + inv.file_name + '\'); return false;">查看</a></span>' +
@@ -851,7 +888,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = year + '.' + String(month).padStart(2, '0') + '-¥' + filteredTotal.toFixed(2) + '.zip';
+                a.download = year + '.' + String(month).padStart(2, '0') + '（' + filteredInvoices.length + '张发票）-¥' + filteredTotal.toFixed(2) + '.zip';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

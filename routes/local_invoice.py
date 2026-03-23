@@ -349,7 +349,7 @@ async def download_all_zip(data: dict):
                 month_total = month_data.get("total", 0)
                 invoices = month_data.get("invoices", [])
                 
-                folder_name = f"{year}.{month:02d}-¥{month_total:.2f}/"
+                folder_name = f"{year}.{month:02d}（{len(invoices)}张发票）-¥{month_total:.2f}/"
                 
                 for inv in invoices:
                     file_name = inv.get("file_name")

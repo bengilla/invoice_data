@@ -1,22 +1,28 @@
 """发票系统主页"""
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 
-from routes.index import index_routes
-from routes.login import login_routes
-from routes.register import register_routes
-from routes.user import user_routes
-from routes.modify import modify_routes
+from routes.local_invoice import local_invoice_routes
 
-from config.settings import Settings
+app = FastAPI(title="发票管理系统", docs_url=None, redoc_url=None)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-_settings = Settings
 
-app = FastAPI(title=_settings.TITLE, docs_url=None, redoc_url=None)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/local", status_code=302)
 
-app.include_router(index_routes)
-app.include_router(login_routes)
-app.include_router(register_routes)
-app.include_router(user_routes)
-app.include_router(modify_routes)
+
+@app.get("/local")
+async def local_page():
+    return FileResponse("invoice_system.html")
+
+
+app.include_router(local_invoice_routes)

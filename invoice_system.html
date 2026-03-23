@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>懒人发票统计</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+:root {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-dark: #2563eb;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --card-hover: #334155;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --radius: 16px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
+        }
+        
+        :root.light {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --card-hover: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: var(--text); 
+            margin-bottom: 28px;
+            font-weight: 700;
+            font-size: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        .theme-switch {
+            width: 56px;
+            height: 30px;
+            background: var(--card);
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid var(--border);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .theme-switch:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .theme-switch::before {
+            content: '🌙';
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+            border-radius: 50%;
+            right: 3px;
+            top: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .theme-switch.active {
+            background: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .theme-switch.active::before {
+            content: '☀️';
+            left: 26px;
+            font-size: 12px;
+        }
+        
+        .theme-switch.active::after {
+            left: 3px;
+            right: auto;
+            background: linear-gradient(135deg, #fef08a, #fde047);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        :root.light .theme-switch::after {
+            background: linear-gradient(135deg, #fef08a, #fde047);
+        }
+        
+        :root.light .theme-switch.active::after {
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: var(--text); 
+            margin-bottom: 28px;
+            font-weight: 700;
+            font-size: 30px;
+        }
+        
+        :root.light h1 {
+            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 52px 28px;
+            text-align: center;
+            margin-bottom: 28px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .upload-area:hover { 
+            border-color: var(--primary);
+            background: var(--card-hover);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px) scale(1.01);
+            animation: none;
+        }
+        
+        .upload-area input { display: none; }
+        .upload-icon { font-size: 52px; margin-bottom: 14px; }
+        .upload-text { font-size: 17px; color: var(--text); margin-bottom: 6px; font-weight: 600; }
+        .upload-hint { font-size: 14px; color: var(--text-light); }
+        
+.upload-area:hover .upload-text,
+        .upload-area:hover .upload-hint {
+            color: var(--text);
+        }
+        
+        .invoice-item:hover .invoice-company { color: var(--primary-light); }
+        .invoice-item:hover .invoice-amount { color: var(--primary-light); }
+        .invoice-view { text-align: center; }
+        
+        .view-btn {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .view-btn:hover { 
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        :root.light .view-btn {
+            color: var(--primary);
+        }
+        
+        :root.light .invoice-item:hover .invoice-company,
+        :root.light .invoice-item:hover .invoice-amount {
+            color: var(--primary);
+        }
+        
+        .download-btn {
+            display: block;
+            width: calc(100% - 48px);
+            margin: 18px 24px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+        
+        .download-btn:hover { 
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59,130,246,0.4);
+        }
+        
+        .download-btn:disabled { 
+            background: var(--border);
+            box-shadow: none; 
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+        
+        .loading { 
+            text-align: center; 
+            padding: 60px 24px; 
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        
+        .no-data { 
+            text-align: center; 
+            padding: 60px 24px; 
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        
+        .modal.show { display: flex; }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: 20px;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: auto;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 38px;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+        
+        .modal-close:hover { 
+            background: rgba(239,68,68,0.9);
+            transform: scale(1.1);
+        }
+        
+        :root.light .modal-close {
+            background: rgba(0,0,0,0.4);
+        }
+        
+        :root.light .modal-close:hover {
+            background: rgba(239,68,68,0.9);
+        }
+        
+#pdf-preview { 
+            max-width: 100%; 
+            max-height: 85vh;
+            display: block;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .month-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .month-section:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+        
+        .month-section:nth-child(1) { animation-delay: 0ms; }
+        .month-section:nth-child(2) { animation-delay: 80ms; }
+        .month-section:nth-child(3) { animation-delay: 160ms; }
+        .month-section:nth-child(4) { animation-delay: 240ms; }
+        .month-section:nth-child(5) { animation-delay: 320ms; }
+        
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        
+        .month-header:hover { background: var(--card-hover); }
+        
+        .month-header::after {
+            content: '›';
+            font-size: 24px;
+            color: var(--text-light);
+            transition: transform 0.3s;
+        }
+        
+        .month-section:hover .month-header::after {
+            transform: translateX(4px);
+        }
+        
+        .month-title { font-weight: 600; font-size: 17px; color: var(--text); }
+        .month-meta { color: var(--text-light); font-size: 14px; margin-top: 2px; }
+        
+        .month-total {
+            font-weight: 700;
+            color: var(--primary-light);
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .month-section:hover .month-total {
+            transform: scale(1.05);
+        }
+        
+        .invoice-list {
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+        
+        .invoice-list.show { display: block; }
+        
+        .invoice-item {
+            display: grid;
+            grid-template-columns: 1fr 2fr 80px 60px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .invoice-item:hover {
+            background: var(--card-hover);
+            padding-left: 28px;
+        }
+        
+        .invoice-item:last-child { border-bottom: none; }
+        .invoice-item.header { 
+            background: var(--bg);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .invoice-date { font-size: 14px; color: var(--text-light); }
+        .invoice-company { font-size: 14px; font-weight: 500; color: var(--text); transition: color 0.2s; }
+        .invoice-item:hover .invoice-company { color: var(--primary); }
+        .invoice-amount { font-size: 14px; font-weight: 700; text-align: right; color: var(--text); transition: color 0.2s; }
+        .invoice-item:hover .invoice-amount { color: var(--primary); }
+        .invoice-view { text-align: center; }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 18px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: bounceIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .stat-card:nth-child(1) { animation-delay: 0ms; }
+        .stat-card:nth-child(2) { animation-delay: 50ms; }
+        .stat-card:nth-child(3) { animation-delay: 100ms; }
+        
+        .stat-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--primary-light); transition: transform 0.3s; }
+        .stat-card:hover .stat-value { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="display: flex; justify-content: space-between; align-items: center;">
+            <span>懒人发票统计</span>
+            <div id="theme-toggle" class="theme-switch">
+                <div class="theme-switch-slider"></div>
+            </div>
+        </h1>
+        
+        <div class="upload-area" onclick="document.getElementById('folder-input').click()">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">点击选择文件夹</p>
+            <p class="upload-hint">支持 PDF 格式发票文件</p>
+            <input type="file" id="folder-input" webkitdirectory multiple accept=".pdf,.png,.jpg,.jpeg,.bmp,.gif">
+        </div>
+
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">发票总数</div>
+                <div class="stat-value" id="invoice-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总金额</div>
+                <div class="stat-value" id="total-amount">¥0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">月份</div>
+                <div class="stat-value" id="month-count">0</div>
+            </div>
+        </div>
+
+        <div id="buyer-section" class="buyer-section" style="display: none;">
+            <div class="buyer-title">购买方筛选</div>
+            <div id="buyer-buttons" class="buyer-buttons"></div>
+        </div>
+
+        <div id="month-list"></div>
+
+        <button id="download-all-btn" class="download-btn" onclick="downloadAllInvoices()" disabled>
+            下载全部发票
+        </button>
+    </div>
+
+    <div id="pdf-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <canvas id="pdf-preview"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        let isDark = true;
+        
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            isDark = !isDark;
+            document.documentElement.classList.toggle('light', !isDark);
+            this.classList.toggle('active', !isDark);
+        });
+        
+        let currentInvoice = null;
+        let allData = { months: [], total_amount: 0, invoices: [], invoiceFiles: {}, session_id: null };
+        let currentBuyer = null;
+
+        document.getElementById('folder-input').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            const pdfFiles = files.filter(f => f.name.match(/\.(pdf|png|jpg|jpeg|bmp|gif)$/i));
+            
+            if (pdfFiles.length === 0) {
+                document.getElementById('month-list').innerHTML = '<div class="no-data">未找到PDF文件</div>';
+                return;
+            }
+
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('month-list').innerHTML = '<div class="loading">正在处理发票...</div>';
+            document.getElementById('buyer-section').style.display = 'none';
+            document.getElementById('download-all-btn').disabled = true;
+
+            allData.invoiceFiles = {};
+            pdfFiles.forEach(file => {
+                allData.invoiceFiles[file.name] = file;
+            });
+
+            const formData = new FormData();
+            pdfFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                const response = await fetch('/api/parse-invoices', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    allData.months = result.months || [];
+                    allData.total_amount = result.total_amount || 0;
+                    allData.invoices = result.invoices || [];
+                    allData.session_id = result.session_id || null;
+                    currentBuyer = null;
+                    renderStats();
+                    renderBuyerSection();
+                    renderMonthList();
+                    document.getElementById('download-all-btn').disabled = allData.invoices.length === 0;
+                } else {
+                    document.getElementById('month-list').innerHTML = '<div class="no-data">' + (result.error || '解析失败') + '</div>';
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('month-list').innerHTML = '<div class="no-data">上传失败: ' + err.message + '</div>';
+            }
+        });
+
+        function renderStats() {
+            const filteredInvoices = currentBuyer 
+                ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+                : allData.invoices;
+            
+            const filteredMonths = {};
+            filteredInvoices.forEach(function(inv) {
+                const key = inv.year + '-' + inv.month;
+                if (!filteredMonths[key]) {
+                    filteredMonths[key] = { year: inv.year, month: inv.month, total: 0 };
+                }
+                filteredMonths[key].total += inv.amount;
+            });
+            
+            document.getElementById('invoice-count').textContent = filteredInvoices.length;
+            document.getElementById('total-amount').textContent = '¥' + filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0).toFixed(2);
+            document.getElementById('month-count').textContent = Object.keys(filteredMonths).length;
+            document.getElementById('stats').style.display = 'grid';
+        }
+
+        function renderBuyerSection() {
+            const buyerSection = document.getElementById('buyer-section');
+            const buyerButtons = document.getElementById('buyer-buttons');
+            
+            const buyerMap = {};
+            allData.invoices.forEach(function(inv) {
+                const buyer = inv.buyer || '未知';
+                if (!buyerMap[buyer]) {
+                    buyerMap[buyer] = { count: 0, total: 0 };
+                }
+                buyerMap[buyer].count++;
+                buyerMap[buyer].total += inv.amount;
+            });
+            
+            const buyers = Object.keys(buyerMap);
+            
+            if (buyers.length <= 1) {
+                buyerSection.style.display = 'none';
+                return;
+            }
+            
+            buyerSection.style.display = 'block';
+            buyerButtons.innerHTML = '';
+            
+            buyers.forEach(function(buyer) {
+                const btn = document.createElement('button');
+                btn.className = 'buyer-btn';
+                btn.innerHTML = buyer + ' <span style="opacity:0.7">¥' + buyerMap[buyer].total.toFixed(2) + '</span>';
+                btn.onclick = function() { toggleBuyer(buyer); };
+                buyerButtons.appendChild(btn);
+            });
+            
+            const allBtn = document.createElement('button');
+            allBtn.className = 'buyer-btn';
+            allBtn.innerHTML = '全部';
+            allBtn.onclick = function() { toggleBuyer(null); };
+            buyerButtons.appendChild(allBtn);
+            
+            if (buyers.length > 0) {
+                toggleBuyer(buyers[0]);
+            }
+        }
+
+        function toggleBuyer(buyer) {
+            currentBuyer = buyer;
+            
+            document.querySelectorAll('.buyer-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+                if ((buyer === null && btn.innerHTML === '全部') ||
+                    (btn.innerHTML.startsWith(buyer))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderStats();
+            renderMonthList();
+        }
+
+        function renderMonthList() {
+            const container = document.getElementById('month-list');
+            container.innerHTML = '';
+
+            const sortedMonths = allData.months.sort(function(a, b) {
+                if (a.year !== b.year) return b.year - a.year;
+                return b.month - a.month;
+            });
+
+            if (sortedMonths.length === 0) {
+                container.innerHTML = '<div class="no-data">未找到发票文件</div>';
+                return;
+            }
+
+            sortedMonths.forEach(function(monthData) {
+                const filteredInvoices = currentBuyer 
+                    ? monthData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+                    : monthData.invoices;
+                
+                if (filteredInvoices.length === 0) return;
+                
+                const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
+                
+                const section = document.createElement('div');
+                section.className = 'month-section';
+                
+                const html = '<div class="month-header" onclick="toggleMonth(\'' + monthData.year + '-' + monthData.month + '\')">' +
+                    '<div><div class="month-title">' + monthData.year + '年' + monthData.month + '月</div>' +
+                    '<div class="month-meta">' + filteredInvoices.length + '张发票</div></div>' +
+                    '<div class="month-total">¥' + filteredTotal.toFixed(2) + '</div>' +
+                    '</div>' +
+                    '<div class="invoice-list" id="list-' + monthData.year + '-' + monthData.month + '">' +
+                    '<div class="invoice-item header">' +
+                    '<span>日期</span><span>销方</span><span>金额</span><span>查看</span>' +
+                    '</div>';
+                
+                let invoiceHtml = '';
+                filteredInvoices.forEach(function(inv) {
+                    invoiceHtml += '<div class="invoice-item">' +
+                        '<span class="invoice-date">' + (inv.date || '-') + '</span>' +
+                        '<span class="invoice-company">' + (inv.company || '-') + '</span>' +
+                        '<span class="invoice-amount">¥' + inv.amount.toFixed(2) + '</span>' +
+                        '<span class="invoice-view"><a href="#" class="view-btn" onclick="viewInvoice(\'' + inv.file_name + '\'); return false;">查看</a></span>' +
+                        '</div>';
+                });
+                
+                section.innerHTML = html + invoiceHtml + 
+                    '<button class="download-btn" onclick="downloadMonth(' + monthData.year + ',' + monthData.month + ')">' +
+                    '下载 ' + monthData.year + '.' + monthData.month + '月 发票原件</button></div>';
+                
+                container.appendChild(section);
+            });
+        }
+
+        function toggleMonth(key) {
+            const list = document.getElementById('list-' + key);
+            if (list) list.classList.toggle('show');
+        }
+
+        async function viewInvoice(fileName) {
+            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            if (!inv) return;
+            
+            const file = allData.invoiceFiles[inv.file_name];
+            
+            if (!file) {
+                alert('找不到文件');
+                return;
+            }
+            
+            currentInvoice = { inv: inv, file: file };
+            
+            const canvas = document.getElementById('pdf-preview');
+            const isImage = fileName.match(/\.(png|jpg|jpeg|bmp|gif)$/i);
+            
+            if (isImage) {
+                const img = new Image();
+                img.onload = function() {
+                    const scale = window.innerWidth < 640 ? 0.5 : 1.0;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = URL.createObjectURL(file);
+            } else {
+                const ctx = canvas.getContext('2d');
+                pdfjsLib.getDocument(await file.arrayBuffer()).promise.then(function(pdf) {
+                    pdf.getPage(1).then(function(page) {
+                        const scale = window.innerWidth < 640 ? 1.0 : 1.5;
+                        const viewport = page.getViewport({ scale: scale });
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        page.render({
+                            canvasContext: ctx,
+                            viewport: viewport
+                        });
+                    });
+                });
+            }
+            
+            document.getElementById('pdf-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('pdf-modal').classList.remove('show');
+            currentInvoice = null;
+        }
+
+        document.getElementById('pdf-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        async function downloadMonth(year, month) {
+            const monthData = allData.months.find(function(m) {
+                return m.year === parseInt(year) && m.month === parseInt(month);
+            });
+            if (!monthData) return;
+
+            const filteredInvoices = currentBuyer 
+                ? monthData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+                : monthData.invoices;
+            
+            const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
+
+            const downloadData = { 
+                session_id: allData.session_id,
+                year: year,
+                month: month,
+                invoices: filteredInvoices,
+                total: filteredTotal
+            };
+
+            try {
+                const response = await fetch('/api/download-month-zip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(downloadData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('下载失败');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = year + '.' + String(month).padStart(2, '0') + '-¥' + filteredTotal.toFixed(2) + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('下载失败: ' + err.message);
+            }
+        }
+
+        async function downloadAllInvoices() {
+            try {
+                const filteredInvoices = currentBuyer 
+                    ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+                    : allData.invoices;
+                
+                const filteredMonths = {};
+                filteredInvoices.forEach(function(inv) {
+                    const key = inv.year + '-' + inv.month;
+                    if (!filteredMonths[key]) {
+                        filteredMonths[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
+                    }
+                    filteredMonths[key].invoices.push(inv);
+                    filteredMonths[key].total += inv.amount;
+                });
+                
+                const monthsList = Object.values(filteredMonths);
+                const totalAmount = filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0);
+                const firstYear = monthsList.length > 0 ? monthsList[0].year : '2026';
+
+                const downloadData = {
+                    session_id: allData.session_id,
+                    months: monthsList,
+                    total_amount: totalAmount
+                };
+
+                const response = await fetch('/api/download-all-zip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(downloadData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('下载失败');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = firstYear + '-¥' + totalAmount.toFixed(2) + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('下载失败: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

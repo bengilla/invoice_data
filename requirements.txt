@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+numpy
+pdfplumber
+pillow
+rapidocr-onnxruntime
+reportlab
+python-multipart

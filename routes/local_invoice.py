@@ -19,6 +19,125 @@ local_invoice_routes = APIRouter()
 
 TEMP_SESSIONS = {}
 
+TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "_sample", "invoice_sample.xls")
+
+CN_NUMS = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖']
+CN_INT_RADICE = ['','拾','佰','仟']
+CN_INT_UNITS = ['','万','亿','兆']
+CN_DEC_UNITS = ['角','分']
+
+
+def to_chinese_upper(amount):
+    integer_num = int(amount)
+    decimal_num = round((amount - integer_num) * 100)
+    s = ''
+    if integer_num == 0:
+        s = CN_NUMS[0]
+    else:
+        zero_count = 0
+        int_str = str(integer_num)
+        int_len = len(int_str)
+        for i in range(int_len):
+            n = int(int_str[i])
+            p = int_len - i - 1
+            quotient = p // 4
+            modulus = p % 4
+            if n == 0:
+                zero_count += 1
+            else:
+                if zero_count > 0:
+                    s += CN_NUMS[0]
+                zero_count = 0
+                s += CN_NUMS[n] + CN_INT_RADICE[modulus]
+            if modulus == 0 and zero_count < 4:
+                s += CN_INT_UNITS[quotient]
+    s += '元'
+    if decimal_num == 0:
+        s += '整'
+    else:
+        jiao = decimal_num // 10
+        fen = decimal_num % 10
+        if jiao > 0:
+            s += CN_NUMS[jiao] + CN_DEC_UNITS[0]
+        if fen > 0:
+            s += CN_NUMS[fen] + CN_DEC_UNITS[1]
+    return '人民币 ' + s
+
+
+def generate_excel(meta, invoices, total_amount, total_invoice, total_other_invoice):
+    import xlrd
+    from openpyxl import load_workbook
+    from io import BytesIO
+
+    # 先用xlrd读取.xls模板，转存为.xlsx供openpyxl使用
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Border, Side, Font
+
+    rb = xlrd.open_workbook(TEMPLATE_PATH, formatting_info=True)
+    rs = rb.sheet_by_index(0)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'invoice'
+
+    # 复制数据和基本格式
+    for r in range(rs.nrows):
+        for c in range(rs.ncols):
+            cell = rs.cell(r, c)
+            new_cell = ws.cell(row=r+1, column=c+1, value=cell.value)
+            new_cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+    # 数据映射: (row, col) - 0-indexed转1-indexed
+    data_map = {
+        'department': (2, 3),
+        'date': (2, 6),
+        'name': (3, 3),
+        'position': (3, 6),
+        'chinese_price': (13, 1),
+        'total_invoice': (16, 3),
+        'total_other_invoice': (17, 3),
+        'total': (12, 4),
+    }
+
+    for key, (r, c) in data_map.items():
+        val = meta.get(key)
+        if val is not None:
+            ws.cell(row=r, column=c, value=val)
+
+    # 填充发票数据到item行 (row 7-11, 1-indexed对应6-10的0-indexed数据行)
+    for i, inv in enumerate(invoices[:5]):
+        row = 7 + i  # 1-indexed: row 7 = item1
+        company = inv.get('company', '')
+        amount = inv.get('amount', 0)
+        inv_no = inv.get('invoice_no', '')
+        ws.cell(row=row, column=2, value=company)
+        ws.cell(row=row, column=4, value=amount)
+        ws.cell(row=row, column=5, value=inv_no)
+
+    # 合计
+    ws.cell(row=12, column=4, value=total_amount)
+
+    # 大写金额
+    ws.cell(row=13, column=1, value=f'金额大写：{to_chinese_upper(total_amount)}')
+
+    # 发票数
+    ws.cell(row=16, column=3, value=total_invoice)
+    ws.cell(row=17, column=3, value=total_other_invoice)
+
+    # 调整列宽
+    for col in ws.columns:
+        max_len = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            if cell.value:
+                max_len = max(max_len, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = max(max_len + 2, 10)
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
 OCR_ENGINE = None
 
 def get_ocr_engine():
@@ -284,34 +403,49 @@ async def download_month_zip(data: dict):
     from fastapi.responses import StreamingResponse
     import zipfile
     from io import BytesIO
-    
+
     session_id = data.get("session_id")
     year = data.get("year")
     month = data.get("month")
     invoices = data.get("invoices", [])
     total = data.get("total", 0)
-    
+    meta = data.get("meta", {})
+
     if not session_id or session_id not in TEMP_SESSIONS:
         return JSONResponse({"success": False, "error": "Session expired"}, status_code=400)
-    
+
     temp_dir = TEMP_SESSIONS[session_id]
-    
+
     buffer = BytesIO()
-    
+
     try:
         with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for inv in invoices:
                 file_name = inv.get("file_name")
                 if not file_name:
                     continue
-                
+
                 file_path = os.path.join(temp_dir, file_name)
-                
+
                 if os.path.exists(file_path):
                     zip_file.write(file_path, file_name)
-        
+
+            # 生成Excel报销单
+            try:
+                meta["total"] = total
+                meta["chinese_price"] = f'金额大写：{to_chinese_upper(total)}'
+                meta["total_invoice"] = len(invoices)
+                meta["total_other_invoice"] = data.get("total_other_invoice", 0)
+                excel_buf = generate_excel(meta, invoices, total, len(invoices), meta["total_other_invoice"])
+                zip_file.writestr("费用报销单.xlsx", excel_buf.read())
+                print("Excel added to ZIP successfully")
+            except Exception as e:
+                print(f"Excel generation failed: {e}")
+                import traceback
+                traceback.print_exc()
+
         buffer.seek(0)
-        
+
         filename = f"{year}-{total:.2f}.zip"
         return StreamingResponse(
             buffer,
@@ -328,19 +462,25 @@ async def download_all_zip(data: dict):
     from fastapi.responses import StreamingResponse
     import zipfile
     from io import BytesIO
-    
+
     session_id = data.get("session_id")
     months = data.get("months", [])
     total_amount = data.get("total_amount", 0)
-    
+    meta = data.get("meta", {})
+
     if not session_id or session_id not in TEMP_SESSIONS:
         return JSONResponse({"success": False, "error": "Session expired"}, status_code=400)
-    
+
     temp_dir = TEMP_SESSIONS[session_id]
     first_year = months[0].get("year") if months else "2026"
-    
+
+    # 收集全部发票
+    all_invoices = []
+    for m in months:
+        all_invoices.extend(m.get("invoices", []))
+
     buffer = BytesIO()
-    
+
     try:
         with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for month_data in months:
@@ -348,21 +488,35 @@ async def download_all_zip(data: dict):
                 month = month_data.get("month")
                 month_total = month_data.get("total", 0)
                 invoices = month_data.get("invoices", [])
-                
+
                 folder_name = f"{year}.{month:02d}（{len(invoices)}张发票）-¥{month_total:.2f}/"
-                
+
                 for inv in invoices:
                     file_name = inv.get("file_name")
                     if not file_name:
                         continue
-                    
+
                     file_path = os.path.join(temp_dir, file_name)
-                    
+
                     if os.path.exists(file_path):
                         zip_file.write(file_path, folder_name + file_name)
-        
+
+            # 生成Excel报销单
+            try:
+                meta["total"] = total_amount
+                meta["chinese_price"] = f'金额大写：{to_chinese_upper(total_amount)}'
+                meta["total_invoice"] = len(all_invoices)
+                meta["total_other_invoice"] = data.get("total_other_invoice", 0)
+                excel_buf = generate_excel(meta, all_invoices, total_amount, len(all_invoices), meta["total_other_invoice"])
+                zip_file.writestr("费用报销单.xlsx", excel_buf.read())
+                print("Excel added to ZIP successfully")
+            except Exception as e:
+                print(f"Excel generation failed: {e}")
+                import traceback
+                traceback.print_exc()
+
         buffer.seek(0)
-        
+
         filename = f"{first_year}-¥{total_amount:.2f}.zip"
         return StreamingResponse(
             buffer,

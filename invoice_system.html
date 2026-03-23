@@ -572,6 +572,44 @@
             <div id="buyer-buttons" class="buyer-buttons"></div>
         </div>
 
+        <div id="summary-section" style="display:none;background:var(--card);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+            <div style="margin-bottom:10px;">
+                <span style="font-size:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.8px;">大写金额</span>
+                <div id="amount-upper" name="chinese_price" style="font-size:15px;font-weight:600;color:var(--text);margin-top:4px;">-</div>
+            </div>
+            <div style="display:flex;gap:24px;">
+                <div>
+                    <span style="font-size:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.8px;">发票总数</span>
+                    <div id="summary-total" name="total_invoice" style="font-size:15px;font-weight:600;color:var(--text);margin-top:4px;">0 张</div>
+                </div>
+                <div>
+                    <span style="font-size:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.8px;">其他发票</span>
+                    <div id="summary-other" name="total_other_invoice" style="font-size:15px;font-weight:600;color:var(--text);margin-top:4px;">0 张</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div>
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销部门</label>
+                <input name="department" type="text" placeholder="请输入报销部门" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">日期</label>
+                <input name="date" type="text" readonly style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;cursor:default;">
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+            <div>
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销人</label>
+                <input name="name" type="text" placeholder="请输入报销人" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">所属岗位</label>
+                <input name="position" type="text" placeholder="请输入所属岗位" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+        </div>
+
         <div id="month-list"></div>
 
         <button id="download-all-btn" class="download-btn" onclick="downloadAllInvoices()" disabled>
@@ -598,6 +636,9 @@
             this.classList.toggle('active', !isDark);
         });
         
+        const today = new Date();
+        document.querySelector('input[name="date"]').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
         let currentInvoice = null;
         let allData = { months: [], total_amount: 0, invoices: [], invoiceFiles: {}, session_id: null };
         let currentBuyer = null;
@@ -667,16 +708,68 @@
             
             document.getElementById('stats').style.display = 'none';
             document.getElementById('buyer-section').style.display = 'none';
+            document.getElementById('summary-section').style.display = 'none';
             document.getElementById('month-list').innerHTML = '';
             document.getElementById('download-all-btn').disabled = true;
             document.getElementById('clear-btn').style.display = 'none';
             document.getElementById('folder-input').value = '';
         }
 
+        function toChineseUpper(amount) {
+            const cnNums = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
+            const cnIntRadice = ['','拾','佰','仟'];
+            const cnIntUnits = ['','万','亿','兆'];
+            const cnDecUnits = ['角','分'];
+            const cnInteger = '整';
+            const cnIntLast = '元';
+            const maxNum = 9999999999999.99;
+
+            if (amount >= maxNum) return '金额超出范围';
+            let integerNum = Math.floor(amount);
+            let decimalNum = Math.round((amount - integerNum) * 100);
+            let chineseStr = '';
+
+            if (integerNum === 0) {
+                chineseStr = cnNums[0];
+            } else {
+                let zeroCount = 0;
+                let intLen = integerNum.toString().length;
+                for (let i = 0; i < intLen; i++) {
+                    let n = Math.floor(integerNum / Math.pow(10, intLen - i - 1)) % 10;
+                    let p = intLen - i - 1;
+                    let quotient = Math.floor(p / 4);
+                    let modulus = p % 4;
+                    if (n === 0) {
+                        zeroCount++;
+                    } else {
+                        if (zeroCount > 0) chineseStr += cnNums[0];
+                        zeroCount = 0;
+                        chineseStr += cnNums[n] + cnIntRadice[modulus];
+                    }
+                    if (modulus === 0 && zeroCount < 4) {
+                        chineseStr += cnIntUnits[quotient];
+                    }
+                }
+            }
+            chineseStr += cnIntLast;
+
+            if (decimalNum === 0) {
+                chineseStr += cnInteger;
+            } else {
+                let jiao = Math.floor(decimalNum / 10);
+                let fen = decimalNum % 10;
+                if (jiao > 0) chineseStr += cnNums[jiao] + cnDecUnits[0];
+                if (fen > 0) chineseStr += cnNums[fen] + cnDecUnits[1];
+            }
+
+            return '人民币 ' + chineseStr;
+        }
+
         function renderStats() {
             const filteredInvoices = currentBuyer 
                 ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
                 : allData.invoices;
+            const otherCount = allData.invoices.length - filteredInvoices.length;
             
             const filteredMonths = {};
             filteredInvoices.forEach(function(inv) {
@@ -687,10 +780,17 @@
                 filteredMonths[key].total += inv.amount;
             });
             
+            const totalAmount = filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0);
+            
             document.getElementById('invoice-count').textContent = filteredInvoices.length;
-            document.getElementById('total-amount').textContent = '¥' + filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0).toFixed(2);
+            document.getElementById('total-amount').textContent = '¥' + totalAmount.toFixed(2);
             document.getElementById('month-count').textContent = Object.keys(filteredMonths).length;
             document.getElementById('stats').style.display = 'grid';
+
+            document.getElementById('amount-upper').textContent = toChineseUpper(totalAmount);
+            document.getElementById('summary-total').textContent = filteredInvoices.length + ' 张';
+            document.getElementById('summary-other').textContent = otherCount + ' 张';
+            document.getElementById('summary-section').style.display = 'block';
         }
 
         function renderBuyerSection() {
@@ -853,6 +953,15 @@
             if (e.key === 'Escape') closeModal();
         });
 
+        function getMeta() {
+            return {
+                department: document.querySelector('[name="department"]').value || '',
+                date: document.querySelector('[name="date"]').value || '',
+                name: document.querySelector('[name="name"]').value || '',
+                position: document.querySelector('[name="position"]').value || '',
+            };
+        }
+
         async function downloadMonth(year, month) {
             const monthData = allData.months.find(function(m) {
                 return m.year === parseInt(year) && m.month === parseInt(month);
@@ -864,13 +973,16 @@
                 : monthData.invoices;
             
             const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
+            const otherCount = allData.invoices.length - filteredInvoices.length;
 
             const downloadData = { 
                 session_id: allData.session_id,
                 year: year,
                 month: month,
                 invoices: filteredInvoices,
-                total: filteredTotal
+                total: filteredTotal,
+                total_other_invoice: otherCount,
+                meta: getMeta()
             };
 
             try {
@@ -921,7 +1033,9 @@
                 const downloadData = {
                     session_id: allData.session_id,
                     months: monthsList,
-                    total_amount: totalAmount
+                    total_amount: totalAmount,
+                    total_other_invoice: allData.invoices.length - filteredInvoices.length,
+                    meta: getMeta()
                 };
 
                 const response = await fetch('/api/download-all-zip', {

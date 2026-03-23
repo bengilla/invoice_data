@@ -21,10 +21,8 @@ from .utils import (
     get_file_md5,
     to_chinese_upper,
     generate_excel,
-    get_ocr_engine,
-    parse_invoice_image,
-    parse_invoice_pdf,
 )
+from services.invoice_parser import InvoiceData, InvoiceParser, parse_invoice
 
 local_invoice_routes = APIRouter()
 
@@ -84,10 +82,7 @@ async def parse_invoices(files: List[UploadFile] = File(...)):
                 buffer.write(content)
             print(f"Saved: {file_path}")
 
-            if ext == ".pdf":
-                invoice = parse_invoice_pdf(file_path)
-            else:
-                invoice = parse_invoice_image(file_path)
+            invoice = parse_invoice(file_path).to_dict()
 
             if invoice["success"]:
                 all_invoices.append(invoice)

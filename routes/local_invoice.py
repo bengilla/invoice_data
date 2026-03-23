@@ -433,7 +433,8 @@ def parse_invoice_image(file_path: str) -> dict:
         for old, new in kangxi_map.items():
             result["buyer"] = result["buyer"].replace(old, new)
 
-        amount_match = re.search(r"[小写（(][）)]?\s*[¥￥]?\s*([\d,]+\.?\d*)", text)
+        # 提取金额 - 支持普通发票和火车票(票价:￥xxx)
+        amount_match = re.search(r"[¥￥]([0-9,]+\.?\d*)", text)
         if amount_match:
             amount_str = amount_match.group(1).replace(",", "")
             result["amount"] = float(amount_str)
@@ -507,8 +508,8 @@ def parse_invoice_pdf(file_path: str) -> dict:
         for old, new in kangxi_map.items():
             result["buyer"] = result["buyer"].replace(old, new)
 
-        # 提取金额 - 小写后面的金额
-        amount_match = re.search(r"小写[）):]*\s*[¥￥]?\s*([\d]+\.?\d*)", text)
+        # 提取金额 - 支持普通发票和火车票(票价:￥xxx)
+        amount_match = re.search(r"[¥￥]([0-9,]+\.?\d*)", text)
         if amount_match:
             result["amount"] = float(amount_match.group(1))
 

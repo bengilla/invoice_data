@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-:root {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
             --primary: #3b82f6;
             --primary-light: #60a5fa;
             --primary-dark: #2563eb;
@@ -21,10 +26,10 @@
             --border: #334155;
             --success: #10b981;
             --radius: 16px;
-            --shadow: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
-            --shadow-hover: 0 8px 24px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.4);
         }
-        
+
         :root.light {
             --bg: #f1f5f9;
             --card: #ffffff;
@@ -32,39 +37,39 @@
             --text: #1e293b;
             --text-light: #64748b;
             --border: #cbd5e1;
-            --shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-hover: 0 8px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
-        body { 
+
+        body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             padding: 24px;
         }
-        
-        h1 { 
-            text-align: center; 
-            color: var(--text); 
+
+        h1 {
+            text-align: center;
+            color: var(--text);
             margin-bottom: 28px;
             font-weight: 700;
             font-size: 30px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .container {
             max-width: 900px;
             margin: 0 auto;
         }
-        
+
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 28px;
         }
-        
+
         .theme-switch {
             width: 56px;
             height: 30px;
@@ -74,14 +79,14 @@
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid var(--border);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .theme-switch:hover {
             border-color: var(--primary);
             transform: scale(1.05);
         }
-        
+
         .theme-switch::before {
             content: '🌙';
             position: absolute;
@@ -91,7 +96,7 @@
             font-size: 13px;
             transition: all 0.3s ease;
         }
-        
+
         .theme-switch::after {
             content: '';
             position: absolute;
@@ -102,47 +107,47 @@
             right: 3px;
             top: 3px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
-        
+
         .theme-switch.active {
             background: var(--primary);
             border-color: var(--primary-light);
         }
-        
+
         .theme-switch.active::before {
             content: '☀️';
             left: 26px;
             font-size: 12px;
         }
-        
+
         .theme-switch.active::after {
             left: 3px;
             right: auto;
             background: linear-gradient(135deg, #fef08a, #fde047);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
-        
+
         :root.light .theme-switch::after {
             background: linear-gradient(135deg, #fef08a, #fde047);
         }
-        
+
         :root.light .theme-switch.active::after {
             background: linear-gradient(135deg, #94a3b8, #64748b);
         }
-        
-        h1 { 
-            text-align: center; 
-            color: var(--text); 
+
+        h1 {
+            text-align: center;
+            color: var(--text);
             margin-bottom: 28px;
             font-weight: 700;
             font-size: 30px;
         }
-        
+
         :root.light h1 {
-            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
         }
-        
+
         .upload-area {
             border: 2px dashed var(--border);
             border-radius: var(--radius);
@@ -155,34 +160,68 @@
             box-shadow: var(--shadow);
             animation: float 3s ease-in-out infinite;
         }
-        
+
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
-        
-        .upload-area:hover { 
+
+        .upload-area:hover {
             border-color: var(--primary);
             background: var(--card-hover);
             box-shadow: var(--shadow-hover);
             transform: translateY(-4px) scale(1.01);
             animation: none;
         }
-        
-        .upload-area input { display: none; }
-        .upload-icon { font-size: 52px; margin-bottom: 14px; }
-        .upload-text { font-size: 17px; color: var(--text); margin-bottom: 6px; font-weight: 600; }
-        .upload-hint { font-size: 14px; color: var(--text-light); }
-        
-.upload-area:hover .upload-text,
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 52px;
+            margin-bottom: 14px;
+        }
+
+        .upload-text {
+            font-size: 17px;
+            color: var(--text);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .upload-area:hover .upload-text,
         .upload-area:hover .upload-hint {
             color: var(--text);
         }
-        
-        .invoice-item:hover .invoice-matter { color: var(--primary-light); }
-        .invoice-item:hover .invoice-amount { color: var(--primary-light); }
-        .invoice-view { text-align: center; display: flex; align-items: center; justify-content: center; }
-        
+
+        .invoice-item:hover .invoice-matter {
+            color: var(--primary-light);
+        }
+
+        .invoice-item:hover .invoice-amount {
+            color: var(--primary-light);
+        }
+
+        .invoice-view {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .view-btn {
             color: var(--text-light);
             text-decoration: none;
@@ -192,22 +231,22 @@
             border-radius: 6px;
             transition: all 0.2s;
         }
-        
-        .view-btn:hover { 
+
+        .view-btn:hover {
             background: var(--primary);
             color: white;
             transform: scale(1.05);
         }
-        
+
         :root.light .view-btn {
             color: #444;
         }
-        
+
         :root.light .invoice-item:hover .invoice-matter,
         :root.light .invoice-item:hover .invoice-amount {
             color: var(--primary);
         }
-        
+
         .download-btn {
             display: block;
             width: calc(100% - 48px);
@@ -221,37 +260,37 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        
-        .download-btn:hover { 
+
+        .download-btn:hover {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(59,130,246,0.4);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
         }
-        
-        .download-btn:disabled { 
+
+        .download-btn:disabled {
             background: var(--border);
-            box-shadow: none; 
+            box-shadow: none;
             cursor: not-allowed;
             transform: none;
             opacity: 0.6;
         }
-        
-        .loading { 
-            text-align: center; 
-            padding: 60px 24px; 
+
+        .loading {
+            text-align: center;
+            padding: 60px 24px;
             color: var(--text-light);
             font-size: 16px;
         }
-        
-        .no-data { 
-            text-align: center; 
-            padding: 60px 24px; 
+
+        .no-data {
+            text-align: center;
+            padding: 60px 24px;
             color: var(--text-light);
             font-size: 16px;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -259,15 +298,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             padding: 24px;
         }
-        
-        .modal.show { display: flex; }
-        
+
+        .modal.show {
+            display: flex;
+        }
+
         .modal-content {
             background: var(--card);
             border-radius: 20px;
@@ -276,18 +317,18 @@
             max-height: 90vh;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 10px 20px rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
             transform: scale(0.8);
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        
+
         .modal.show .modal-content {
             transform: scale(1);
             opacity: 1;
         }
-        
+
         .modal-close {
             position: absolute;
             top: 16px;
@@ -295,7 +336,7 @@
             font-size: 24px;
             cursor: pointer;
             color: white;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -304,60 +345,61 @@
             transition: all 0.2s;
             border: 1px solid var(--border);
         }
-        
-        .modal-close:hover { 
-            background: rgba(239,68,68,0.9);
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.9);
             transform: scale(1.1);
         }
-        
+
         :root.light .modal-close {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
         }
-        
+
         :root.light .modal-close:hover {
-            background: rgba(239,68,68,0.9);
+            background: rgba(239, 68, 68, 0.9);
         }
-        
-#pdf-preview iframe { 
+
+        #pdf-preview iframe {
             width: 100%;
             height: 100%;
             border-radius: 12px;
         }
-        
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .month-section {
             background: var(--card);
             border-radius: var(--radius);
             margin-bottom: 20px;
-            box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            overflow: visible;
+            box-shadow: var(--shadow);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         .month-section:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
             border-color: var(--primary);
         }
         
-        .month-section:nth-child(1) { animation-delay: 0ms; }
-        .month-section:nth-child(2) { animation-delay: 80ms; }
-        .month-section:nth-child(3) { animation-delay: 160ms; }
-        .month-section:nth-child(4) { animation-delay: 240ms; }
-        .month-section:nth-child(5) { animation-delay: 320ms; }
+        .month-section:hover .month-title {
+            transform: scale(1.02);
+            display: inline-block;
+        }
         
+        .month-section:hover .month-total {
+            transform: scale(1.05);
+        }
+
         .month-header {
             display: flex;
             justify-content: space-between;
@@ -367,41 +409,50 @@
             transition: background 0.2s;
             user-select: none;
         }
-        
-        .month-header:hover { background: var(--card-hover); }
-        
+
         .month-header::after {
             content: '›';
             font-size: 24px;
             color: var(--text-light);
             transition: transform 0.3s;
         }
-        
+
         .month-section:hover .month-header::after {
             transform: translateX(4px);
         }
-        
-        .month-title { font-weight: 600; font-size: 17px; color: var(--text); }
-        .month-meta { color: var(--text-light); font-size: 14px; margin-top: 2px; }
-        
+
+        .month-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: var(--text);
+        }
+
+        .month-meta {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
         .month-total {
             font-weight: 700;
             color: var(--primary-light);
             font-size: 20px;
             transition: transform 0.3s;
         }
-        
+
         .month-section:hover .month-total {
             transform: scale(1.05);
         }
-        
+
         .invoice-list {
             display: none;
             border-top: 1px solid var(--border);
         }
-        
-        .invoice-list.show { display: block; }
-        
+
+        .invoice-list.show {
+            display: block;
+        }
+
         .invoice-item {
             display: grid;
             grid-template-columns: 40px 80px 100px 1fr 1fr 80px 50px 50px;
@@ -416,9 +467,12 @@
             background: var(--card-hover);
             padding-left: 28px;
         }
-        
-        .invoice-item:last-child { border-bottom: none; }
-        .invoice-item.header { 
+
+        .invoice-item:last-child {
+            border-bottom: none;
+        }
+
+        .invoice-item.header {
             background: var(--bg);
             font-size: 12px;
             font-weight: 600;
@@ -426,7 +480,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        
+
         .invoice-item.header span {
             font-size: 12px;
             font-weight: 600;
@@ -434,23 +488,48 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        
+
         .invoice-item.header .invoice-amount {
             text-align: center;
         }
-        
+
         .invoice-item.header .invoice-view,
         .invoice-item.header .invoice-delete {
             text-align: center;
         }
-        
-        .invoice-index { min-width: 30px; text-align: center; }
-        .invoice-date { text-align: center; }
-        .invoice-matter { transition: color 0.2s; width: 100%; box-sizing: border-box; text-align: center; }
-        .invoice-item:hover .invoice-matter { color: var(--primary); }
-        .invoice-reason { text-align: center; }
-        .invoice-remark { text-align: center; }
-        .invoice-amount { text-align: center; }
+
+        .invoice-index {
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .invoice-date {
+            text-align: center;
+        }
+
+        .invoice-matter {
+            transition: color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .invoice-item:hover .invoice-matter {
+            color: var(--primary);
+        }
+
+        .invoice-reason {
+            text-align: center;
+        }
+
+        .invoice-remark {
+            text-align: center;
+        }
+
+        .invoice-amount {
+            text-align: center;
+        }
+
         .item-select {
             background: transparent;
             color: var(--text);
@@ -461,14 +540,16 @@
             cursor: pointer;
             min-width: 80px;
         }
+
         .item-select:hover {
             border-color: var(--border);
         }
-        
+
         .custom-select {
             position: relative;
             width: 100%;
         }
+
         .custom-select-trigger {
             padding: 4px 8px;
             border: 1px solid transparent;
@@ -481,9 +562,11 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         .custom-select-trigger:hover {
             border-color: var(--border);
         }
+
         .custom-select-dropdown {
             display: none;
             position: absolute;
@@ -494,35 +577,41 @@
             border: 1px solid var(--primary);
             border-radius: 4px;
             box-shadow: var(--shadow-hover);
-            z-index: 9999;
+            z-index: 1;
             max-height: 150px;
             overflow-y: auto;
         }
-        
+
         .custom-select-dropdown.open-above {
             top: auto;
             bottom: 100%;
         }
+
         .custom-select.open .custom-select-dropdown {
             display: block;
         }
+
         .custom-select-option {
             padding: 6px 10px;
             cursor: pointer;
             font-size: 13px;
         }
+
         .custom-select-option:hover {
             background: var(--primary);
             color: white;
         }
+
         .custom-select-option.selected {
             color: var(--primary);
             font-weight: 600;
         }
+
         .item-select:focus {
             outline: none;
             border-color: var(--primary);
         }
+
         .reason-input {
             background: var(--card);
             color: var(--text);
@@ -533,18 +622,38 @@
             width: 100%;
             min-width: 80px;
         }
+
         .reason-input:hover {
             border-color: var(--primary-light);
         }
+
         .reason-input:focus {
             outline: none;
             border-color: var(--primary);
         }
-        .invoice-reason { width: 100%; box-sizing: border-box; }
-        .invoice-remark { width: 100%; box-sizing: border-box; }
-        .invoice-amount { font-size: 14px; font-weight: 700; text-align: center; color: var(--text); transition: color 0.2s; }
-        .invoice-delete { text-align: center; }
-        
+
+        .invoice-reason {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .invoice-remark {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .invoice-amount {
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text);
+            transition: color 0.2s;
+        }
+
+        .invoice-delete {
+            text-align: center;
+        }
+
         .remark-input {
             background: var(--card);
             color: var(--text);
@@ -555,22 +664,43 @@
             width: 100%;
             min-width: 80px;
         }
+
         .remark-input:hover {
             border-color: var(--primary-light);
         }
+
         .remark-input:focus {
             outline: none;
             border-color: var(--primary);
         }
-        .invoice-item:hover .invoice-amount { color: var(--primary); }
-        .invoice-view { text-align: center; display: flex; align-items: center; justify-content: center; }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
+
+        .invoice-item:hover .invoice-amount {
+            color: var(--primary);
         }
-        
+
+        .invoice-view {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         .stat-card {
             background: var(--card);
             border-radius: var(--radius);
@@ -581,25 +711,49 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: bounceIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-4px) scale(1.02);
             box-shadow: var(--shadow-hover);
             border-color: var(--primary);
         }
-        
-        .stat-card:nth-child(1) { animation-delay: 0ms; }
-        .stat-card:nth-child(2) { animation-delay: 50ms; }
-        .stat-card:nth-child(3) { animation-delay: 100ms; }
-        
-        .stat-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
-        .stat-value { font-size: 26px; font-weight: 700; color: var(--primary-light); transition: transform 0.3s; }
-        .stat-card:hover .stat-value { transform: scale(1.1); }
-        
+
+        .stat-card:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 50ms;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 100ms;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary-light);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover .stat-value {
+            transform: scale(1.1);
+        }
+
         .buyer-section {
             margin-bottom: 28px;
         }
-        
+
         .buyer-title {
             font-size: 14px;
             font-weight: 600;
@@ -608,13 +762,13 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
+
         .buyer-buttons {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
-        
+
         .buyer-btn {
             padding: 12px 20px;
             border: 2px solid var(--border);
@@ -625,24 +779,24 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        
-        .buyer-btn:hover { 
+
+        .buyer-btn:hover {
             border-color: var(--primary);
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 6px 16px rgba(59,130,246,0.3);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
             background: var(--card-hover);
         }
-        
+
         .buyer-btn.active {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             border-color: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
             transform: scale(1.05);
         }
-        
+
         .clear-btn {
             display: block;
             width: 100%;
@@ -657,11 +811,11 @@
             transition: all 0.3s;
             margin-bottom: 20px;
         }
-        
+
         .clear-btn:hover {
             border-color: #ef4444;
             color: #ef4444;
-            background: rgba(239,68,68,0.1);
+            background: rgba(239, 68, 68, 0.1);
         }
     </style>
     <div id="toast" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.5);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);opacity:0;min-width:280px;">
@@ -670,6 +824,7 @@
     </div>
     <div id="toast-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);opacity:0;transition:opacity 0.3s;"></div>
 </head>
+
 <body>
     <div class="container">
         <h1 style="display: flex; justify-content: space-between; align-items: center;">
@@ -678,7 +833,7 @@
                 <div class="theme-switch-slider"></div>
             </div>
         </h1>
-        
+
         <div style="display:flex;gap:12px;margin-bottom:28px;">
             <div id="upload-area" class="upload-area" style="flex:4;margin-bottom:0;" onclick="document.getElementById('folder-input').click()">
                 <div class="upload-icon">📁</div>
@@ -759,21 +914,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        
+
         function showToast(msg) {
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 var toast = document.getElementById('toast');
                 var overlay = document.getElementById('toast-overlay');
                 document.getElementById('toast-msg').textContent = msg;
                 toast.style.display = 'block';
                 overlay.style.display = 'block';
-                setTimeout(function() {
+                setTimeout(function () {
                     toast.style.opacity = '1';
                     toast.style.transform = 'translate(-50%,-50%) scale(1)';
                     overlay.style.opacity = '1';
                 }, 10);
-                overlay.onclick = function() { hideToast(); resolve(); };
-                toast.onclick = function() { hideToast(); resolve(); };
+                overlay.onclick = function () { hideToast(); resolve(); };
+                toast.onclick = function () { hideToast(); resolve(); };
             });
         }
         function hideToast() {
@@ -782,22 +937,22 @@
             toast.style.opacity = '0';
             toast.style.transform = 'translate(-50%,-50%) scale(0.9)';
             overlay.style.opacity = '0';
-            setTimeout(function() {
+            setTimeout(function () {
                 toast.style.display = 'none';
                 overlay.style.display = 'none';
             }, 300);
         }
 
         let isDark = true;
-        
-        document.getElementById('theme-toggle').addEventListener('click', function() {
+
+        document.getElementById('theme-toggle').addEventListener('click', function () {
             isDark = !isDark;
             document.documentElement.classList.toggle('light', !isDark);
             this.classList.toggle('active', !isDark);
         });
-        
+
         const today = new Date();
-        document.querySelector('input[name="date"]').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+        document.querySelector('input[name="date"]').value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
         let currentInvoice = null;
         let allData = { months: [], total_amount: 0, invoices: [], invoiceFiles: {}, session_id: null };
@@ -805,19 +960,19 @@
 
         // 拖拽上传
         const uploadArea = document.getElementById('upload-area');
-        uploadArea.addEventListener('dragover', function(e) {
+        uploadArea.addEventListener('dragover', function (e) {
             e.preventDefault();
             e.stopPropagation();
             this.style.borderColor = 'var(--primary)';
             this.style.background = 'var(--card-hover)';
         });
-        uploadArea.addEventListener('dragleave', function(e) {
+        uploadArea.addEventListener('dragleave', function (e) {
             e.preventDefault();
             e.stopPropagation();
             this.style.borderColor = '';
             this.style.background = '';
         });
-        uploadArea.addEventListener('drop', function(e) {
+        uploadArea.addEventListener('drop', function (e) {
             e.preventDefault();
             e.stopPropagation();
             this.style.borderColor = '';
@@ -828,7 +983,7 @@
 
         async function processFiles(allFiles) {
             const pdfFiles = allFiles.filter(f => f.name.match(/\.(pdf|png|jpg|jpeg|bmp|gif)$/i));
-            
+
             if (pdfFiles.length === 0) {
                 document.getElementById('month-list').innerHTML = '<div class="no-data">未找到发票文件</div>';
                 return;
@@ -857,10 +1012,25 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    allData.months = result.months || [];
-                    allData.total_amount = result.total_amount || 0;
-                    allData.invoices = result.invoices || [];
-                    allData.session_id = result.session_id || null;
+                    // 合并发票数据（支持多次上传）
+                    const existingFiles = new Set(allData.invoices.map(inv => inv.file_name));
+                    const newInvoices = (result.invoices || []).filter(inv => !existingFiles.has(inv.file_name));
+                    allData.invoices = [...allData.invoices, ...newInvoices];
+                    
+                    // 重新计算月份数据
+                    const monthsMap = {};
+                    allData.invoices.forEach(inv => {
+                        const key = inv.year + '-' + inv.month;
+                        if (!monthsMap[key]) {
+                            monthsMap[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
+                        }
+                        monthsMap[key].invoices.push(inv);
+                        monthsMap[key].total += inv.amount;
+                    });
+                    allData.months = Object.values(monthsMap);
+                    allData.total_amount = allData.invoices.reduce((sum, inv) => sum + inv.amount, 0);
+                    
+                    allData.session_id = result.session_id || allData.session_id;
                     currentBuyer = null;
                     renderStats();
                     renderBuyerSection();
@@ -868,7 +1038,7 @@
                     document.getElementById('download-all-btn').style.display = allData.invoices.length > 0 ? 'block' : 'none';
                     document.getElementById('clear-btn').style.display = allData.invoices.length > 0 ? 'block' : 'none';
                     document.getElementById('meta-form').style.display = allData.invoices.length > 0 ? 'block' : 'none';
-                    
+
                     if (result.duplicates && result.duplicates.length > 0) {
                         showToast('以下文件重复已跳过：\n' + result.duplicates.join('\n'));
                     }
@@ -881,7 +1051,7 @@
             }
         }
 
-        document.getElementById('folder-input').addEventListener('change', function(e) {
+        document.getElementById('folder-input').addEventListener('change', function (e) {
             processFiles(Array.from(e.target.files));
         });
 
@@ -889,7 +1059,7 @@
             allData = { months: [], total_amount: 0, invoices: [], invoiceFiles: {}, session_id: null };
             currentBuyer = null;
             currentInvoice = null;
-            
+
             document.getElementById('stats').style.display = 'none';
             document.getElementById('buyer-section').style.display = 'none';
             document.getElementById('meta-form').style.display = 'none';
@@ -900,10 +1070,10 @@
         }
 
         function toChineseUpper(amount) {
-            const cnNums = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
-            const cnIntRadice = ['','拾','佰','仟'];
-            const cnIntUnits = ['','万','亿','兆'];
-            const cnDecUnits = ['角','分'];
+            const cnNums = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+            const cnIntRadice = ['', '拾', '佰', '仟'];
+            const cnIntUnits = ['', '万', '亿', '兆'];
+            const cnDecUnits = ['角', '分'];
             const cnInteger = '整';
             const cnIntLast = '元';
             const maxNum = 9999999999999.99;
@@ -950,22 +1120,22 @@
         }
 
         function renderStats() {
-            const filteredInvoices = currentBuyer 
-                ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+            const filteredInvoices = currentBuyer
+                ? allData.invoices.filter(function (inv) { return inv.buyer === currentBuyer; })
                 : allData.invoices;
             const otherCount = allData.invoices.length - filteredInvoices.length;
-            
+
             const filteredMonths = {};
-            filteredInvoices.forEach(function(inv) {
+            filteredInvoices.forEach(function (inv) {
                 const key = inv.year + '-' + inv.month;
                 if (!filteredMonths[key]) {
                     filteredMonths[key] = { year: inv.year, month: inv.month, total: 0 };
                 }
                 filteredMonths[key].total += inv.amount;
             });
-            
-            const totalAmount = filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0);
-            
+
+            const totalAmount = filteredInvoices.reduce(function (s, i) { return s + i.amount; }, 0);
+
             document.getElementById('invoice-count').textContent = filteredInvoices.length;
             document.getElementById('total-amount').textContent = '¥' + totalAmount.toFixed(2);
             document.getElementById('stats').style.display = 'grid';
@@ -977,9 +1147,9 @@
         function renderBuyerSection() {
             const buyerSection = document.getElementById('buyer-section');
             const buyerButtons = document.getElementById('buyer-buttons');
-            
+
             const buyerMap = {};
-            allData.invoices.forEach(function(inv) {
+            allData.invoices.forEach(function (inv) {
                 const buyer = inv.buyer || '未知';
                 if (!buyerMap[buyer]) {
                     buyerMap[buyer] = { count: 0, total: 0 };
@@ -987,31 +1157,31 @@
                 buyerMap[buyer].count++;
                 buyerMap[buyer].total += inv.amount;
             });
-            
+
             const buyers = Object.keys(buyerMap);
-            
+
             if (buyers.length <= 1) {
                 buyerSection.style.display = 'none';
                 return;
             }
-            
+
             buyerSection.style.display = 'block';
             buyerButtons.innerHTML = '';
-            
-            buyers.forEach(function(buyer) {
+
+            buyers.forEach(function (buyer) {
                 const btn = document.createElement('button');
                 btn.className = 'buyer-btn';
                 btn.innerHTML = buyer + ' <span style="opacity:0.7">¥' + buyerMap[buyer].total.toFixed(2) + '</span>';
-                btn.onclick = function() { toggleBuyer(buyer); };
+                btn.onclick = function () { toggleBuyer(buyer); };
                 buyerButtons.appendChild(btn);
             });
-            
+
             const allBtn = document.createElement('button');
             allBtn.className = 'buyer-btn';
             allBtn.innerHTML = '全部';
-            allBtn.onclick = function() { toggleBuyer(null); };
+            allBtn.onclick = function () { toggleBuyer(null); };
             buyerButtons.appendChild(allBtn);
-            
+
             if (buyers.length > 0) {
                 toggleBuyer(buyers[0]);
             }
@@ -1019,15 +1189,15 @@
 
         function toggleBuyer(buyer) {
             currentBuyer = buyer;
-            
-            document.querySelectorAll('.buyer-btn').forEach(function(btn) {
+
+            document.querySelectorAll('.buyer-btn').forEach(function (btn) {
                 btn.classList.remove('active');
                 if ((buyer === null && btn.innerHTML === '全部') ||
                     (btn.innerHTML.startsWith(buyer))) {
                     btn.classList.add('active');
                 }
             });
-            
+
             renderStats();
             renderMonthList();
         }
@@ -1036,7 +1206,7 @@
             const container = document.getElementById('month-list');
             container.innerHTML = '';
 
-            const sortedMonths = allData.months.sort(function(a, b) {
+            const sortedMonths = allData.months.sort(function (a, b) {
                 if (a.year !== b.year) return b.year - a.year;
                 return b.month - a.month;
             });
@@ -1046,23 +1216,23 @@
                 return;
             }
 
-            sortedMonths.forEach(function(monthData) {
-                let filteredInvoices = currentBuyer 
-                    ? monthData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+            sortedMonths.forEach(function (monthData) {
+                let filteredInvoices = currentBuyer
+                    ? monthData.invoices.filter(function (inv) { return inv.buyer === currentBuyer; })
                     : monthData.invoices;
-                
+
                 if (filteredInvoices.length === 0) return;
-                
-                filteredInvoices = filteredInvoices.slice().sort(function(a, b) {
+
+                filteredInvoices = filteredInvoices.slice().sort(function (a, b) {
                     if (a.date && b.date) return a.date.localeCompare(b.date);
                     return 0;
                 });
-                
-                const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
-                
+
+                const filteredTotal = filteredInvoices.reduce(function (sum, inv) { return sum + inv.amount; }, 0);
+
                 const section = document.createElement('div');
                 section.className = 'month-section';
-                
+
                 const html = '<div class="month-header" onclick="toggleMonth(\'' + monthData.year + '-' + monthData.month + '\')">' +
                     '<div><div class="month-title">' + monthData.year + '年' + monthData.month + '月</div>' +
                     '<div class="month-meta">' + filteredInvoices.length + '张发票</div></div>' +
@@ -1072,9 +1242,9 @@
                     '<div class="invoice-item header">' +
                     '<span class="invoice-index">#</span><span class="invoice-date">日期</span><span class="invoice-company">事项</span><span class="invoice-reason">明细/原由</span><span class="invoice-remark">备注</span><span class="invoice-amount">金额</span><span class="invoice-view">查看</span><span class="invoice-delete">删除</span>' +
                     '</div>';
-                
+
                 let invoiceHtml = '';
-                filteredInvoices.forEach(function(inv, idx) {
+                filteredInvoices.forEach(function (inv, idx) {
                     const itemValue = inv.company || '';
                     const reasonValue = inv.reason || '';
                     const remarkValue = inv.remark || '';
@@ -1101,9 +1271,9 @@
                         '<span class="invoice-delete"><a href="#" style="color:#ef4444;font-size:14px;text-decoration:none;" onclick="deleteInvoice(\'' + inv.file_name + '\'); return false;">✕</a></span>' +
                         '</div>';
                 });
-                
+
                 section.innerHTML = html + invoiceHtml + '</div>';
-                
+
                 container.appendChild(section);
             });
         }
@@ -1116,14 +1286,14 @@
         function deleteInvoice(fileName) {
             // 保存展开状态
             var openMonths = [];
-            document.querySelectorAll('.invoice-list.show').forEach(function(el) {
+            document.querySelectorAll('.invoice-list.show').forEach(function (el) {
                 openMonths.push(el.id.replace('list-', ''));
             });
 
-            allData.invoices = allData.invoices.filter(function(inv) { return inv.file_name !== fileName; });
+            allData.invoices = allData.invoices.filter(function (inv) { return inv.file_name !== fileName; });
             delete allData.invoiceFiles[fileName];
             var monthsMap = {};
-            allData.invoices.forEach(function(inv) {
+            allData.invoices.forEach(function (inv) {
                 var key = inv.year + '-' + inv.month;
                 if (!monthsMap[key]) {
                     monthsMap[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
@@ -1132,14 +1302,14 @@
                 monthsMap[key].total += inv.amount;
             });
             allData.months = Object.values(monthsMap);
-            allData.total_amount = allData.invoices.reduce(function(s, i) { return s + i.amount; }, 0);
+            allData.total_amount = allData.invoices.reduce(function (s, i) { return s + i.amount; }, 0);
             currentBuyer = null;
             renderStats();
             renderBuyerSection();
             renderMonthList();
 
             // 恢复展开状态
-            openMonths.forEach(function(key) {
+            openMonths.forEach(function (key) {
                 var list = document.getElementById('list-' + key);
                 if (list) list.classList.add('show');
             });
@@ -1148,25 +1318,25 @@
         function viewInvoice(fileName) {
             console.log('Viewing invoice:', fileName);
             console.log('Available files:', Object.keys(allData.invoiceFiles));
-            
-            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+
+            const inv = allData.invoices.find(function (i) { return i.file_name === fileName; });
             if (!inv) return;
-            
+
             console.log('Looking for file:', inv.file_name);
             const file = allData.invoiceFiles[inv.file_name];
-            
+
             if (!file) {
                 showToast('找不到文件');
                 return;
             }
-            
+
             currentInvoice = { inv: inv, file: file };
-            
+
             const preview = document.getElementById('pdf-preview');
             const url = URL.createObjectURL(file);
-            
+
             preview.innerHTML = '<iframe src="' + url + '" style="width:100%;height:85vh;border:none;"></iframe>';
-            
+
             document.getElementById('pdf-modal').classList.add('show');
         }
 
@@ -1184,7 +1354,7 @@
             const select = trigger.closest('.custom-select');
             const dropdown = select.querySelector('.custom-select-dropdown');
             const wasOpen = select.classList.contains('open');
-            document.querySelectorAll('.custom-select.open').forEach(function(el) {
+            document.querySelectorAll('.custom-select.open').forEach(function (el) {
                 el.classList.remove('open');
                 el.classList.remove('open-above');
             });
@@ -1203,14 +1373,14 @@
             const trigger = e.currentTarget;
             const select = trigger.closest('.custom-select');
             const options = select.querySelectorAll('.custom-select-option');
-            options.forEach(function(opt) {
+            options.forEach(function (opt) {
                 opt.classList.remove('selected');
                 if (opt.dataset.value === value) {
                     opt.classList.add('selected');
                 }
             });
             trigger.textContent = value || '选择事项';
-            
+
             if (value === '其他') {
                 pendingOtherItemFileName = fileName;
                 pendingOtherItemSelect = select;
@@ -1223,9 +1393,9 @@
             }
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (!e.target.closest('.custom-select')) {
-                document.querySelectorAll('.custom-select.open').forEach(function(el) {
+                document.querySelectorAll('.custom-select.open').forEach(function (el) {
                     el.classList.remove('open');
                 });
             }
@@ -1238,10 +1408,10 @@
                 document.getElementById('other-item-input').value = '';
                 document.getElementById('other-item-modal').classList.add('show');
                 document.getElementById('other-item-input').focus();
-                setTimeout(function() { selectEl.blur(); }, 0);
+                setTimeout(function () { selectEl.blur(); }, 0);
             } else {
                 updateInvoiceItem(fileName, value);
-                setTimeout(function() { selectEl.blur(); }, 0);
+                setTimeout(function () { selectEl.blur(); }, 0);
             }
         }
 
@@ -1267,14 +1437,14 @@
         }
 
         function handleReasonChange(fileName, value) {
-            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            const inv = allData.invoices.find(function (i) { return i.file_name === fileName; });
             if (inv) {
                 inv.reason = value;
             }
         }
 
         function handleRemarkChange(fileName, value) {
-            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            const inv = allData.invoices.find(function (i) { return i.file_name === fileName; });
             if (inv) {
                 inv.remark = value;
             }
@@ -1282,19 +1452,19 @@
 
         function updateInvoiceItem(fileName, value) {
             var openMonths = [];
-            document.querySelectorAll('.invoice-list.show').forEach(function(el) {
+            document.querySelectorAll('.invoice-list.show').forEach(function (el) {
                 openMonths.push(el.id.replace('list-', ''));
             });
-            
-            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+
+            const inv = allData.invoices.find(function (i) { return i.file_name === fileName; });
             if (inv) {
                 inv.company = value;
                 rebuildMonthsData();
                 renderStats();
                 renderBuyerSection();
                 renderMonthList();
-                
-                openMonths.forEach(function(key) {
+
+                openMonths.forEach(function (key) {
                     var list = document.getElementById('list-' + key);
                     if (list) list.classList.add('show');
                 });
@@ -1303,7 +1473,7 @@
 
         function rebuildMonthsData() {
             var monthsMap = {};
-            allData.invoices.forEach(function(inv) {
+            allData.invoices.forEach(function (inv) {
                 var key = inv.year + '-' + inv.month;
                 if (!monthsMap[key]) {
                     monthsMap[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
@@ -1314,15 +1484,15 @@
             allData.months = Object.values(monthsMap);
         }
 
-        document.getElementById('pdf-modal').addEventListener('click', function(e) {
+        document.getElementById('pdf-modal').addEventListener('click', function (e) {
             if (e.target === this) closeModal();
         });
 
-        document.getElementById('other-item-modal').addEventListener('click', function(e) {
+        document.getElementById('other-item-modal').addEventListener('click', function (e) {
             if (e.target === this) closeOtherItemModal();
         });
 
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeModal();
                 closeOtherItemModal();
@@ -1344,19 +1514,19 @@
                 document.querySelector('[name="name"]').focus();
                 return;
             }
-            const monthData = allData.months.find(function(m) {
+            const monthData = allData.months.find(function (m) {
                 return m.year === parseInt(year) && m.month === parseInt(month);
             });
             if (!monthData) return;
 
-            const filteredInvoices = currentBuyer 
-                ? monthData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+            const filteredInvoices = currentBuyer
+                ? monthData.invoices.filter(function (inv) { return inv.buyer === currentBuyer; })
                 : monthData.invoices;
-            
-            const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
+
+            const filteredTotal = filteredInvoices.reduce(function (sum, inv) { return sum + inv.amount; }, 0);
             const otherCount = allData.invoices.length - filteredInvoices.length;
 
-            const downloadData = { 
+            const downloadData = {
                 session_id: allData.session_id,
                 year: year,
                 month: month,
@@ -1398,12 +1568,12 @@
                 return;
             }
             try {
-                const filteredInvoices = currentBuyer 
-                    ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
+                const filteredInvoices = currentBuyer
+                    ? allData.invoices.filter(function (inv) { return inv.buyer === currentBuyer; })
                     : allData.invoices;
-                
+
                 const filteredMonths = {};
-                filteredInvoices.forEach(function(inv) {
+                filteredInvoices.forEach(function (inv) {
                     const key = inv.year + '-' + inv.month;
                     if (!filteredMonths[key]) {
                         filteredMonths[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
@@ -1411,9 +1581,9 @@
                     filteredMonths[key].invoices.push(inv);
                     filteredMonths[key].total += inv.amount;
                 });
-                
+
                 const monthsList = Object.values(filteredMonths);
-                const totalAmount = filteredInvoices.reduce(function(s, i) { return s + i.amount; }, 0);
+                const totalAmount = filteredInvoices.reduce(function (s, i) { return s + i.amount; }, 0);
                 const firstYear = monthsList.length > 0 ? monthsList[0].year : '2026';
 
                 const downloadData = {
@@ -1449,4 +1619,5 @@
         }
     </script>
 </body>
+
 </html>

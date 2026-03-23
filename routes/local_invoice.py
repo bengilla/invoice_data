@@ -57,20 +57,37 @@ def parse_invoice_image(file_path: str) -> dict:
         text_lines = [line[1] for line in ocr_result]
         text = "\n".join(text_lines)
         
-        date_match = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", text)
+        date_match = re.search(r"(\d{4})年(\d{1,2})[⽉月](\d{1,2})[⽇日]", text)
         if date_match:
             result["year"] = int(date_match.group(1))
             result["month"] = int(date_match.group(2))
             result["date"] = f"{date_match.group(1)}-{date_match.group(2).zfill(2)}-{date_match.group(3).zfill(2)}"
         
-        double_match = re.findall(r'名称[：:]\s*([^\s\n]{2,50})', text)
+        double_match = re.findall(r'名\s*称[：:]\s*([^\s\n]{2,50})', text)
         if len(double_match) >= 2:
             result["buyer"] = double_match[0].strip()
             result["company"] = double_match[1].strip()
-        elif len(double_match) == 1:
-            seller_match = re.search(r'销售方[：:]\s*([^\s\n]{2,50})', text)
-            if seller_match:
-                result["company"] = seller_match.group(1).strip()
+        else:
+            lines = text.split('\n')
+            for line in lines:
+                parts = line.split()
+                company_candidates = [p for p in parts if len(p) >= 4 and '公司' in p]
+                if len(company_candidates) >= 2:
+                    result["buyer"] = company_candidates[0]
+                    result["company"] = company_candidates[1]
+                    break
+        
+        # 移除"名称："前缀
+        if result["buyer"].startswith('名称：') or result["buyer"].startswith('名称:'):
+            result["buyer"] = result["buyer"][3:]
+        if result["company"].startswith('名称：') or result["company"].startswith('名称:'):
+            result["company"] = result["company"][3:]
+        
+        # 规范化Unicode字符 - Kangxi radicals转正常中文
+        kangxi_map = {'⽂': '文', '⽉': '月', '⽇': '日', '⽕': '火', '⽔': '水'}
+        for old, new in kangxi_map.items():
+            result["buyer"] = result["buyer"].replace(old, new)
+            result["company"] = result["company"].replace(old, new)
         
         amount_match = re.search(r"[小写（(][）)]?\s*[¥￥]?\s*([\d,]+\.?\d*)", text)
         if amount_match:
@@ -115,22 +132,39 @@ def parse_invoice_pdf(file_path: str) -> dict:
                 if page_text:
                     text += page_text + "\n"
         
-        # 提取日期 (2026年03月10日)
-        date_match = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", text)
+        # 提取日期 (2026年03月10日) - 支持月(月/⽉)和日(日/⽇)的多种Unicode字符
+        date_match = re.search(r"(\d{4})年(\d{1,2})[⽉月](\d{1,2})[⽇日]", text)
         if date_match:
             result["year"] = int(date_match.group(1))
             result["month"] = int(date_match.group(2))
             result["date"] = f"{date_match.group(1)}-{date_match.group(2).zfill(2)}-{date_match.group(3).zfill(2)}"
         
         # 提取公司名称 - 名称：xxx 名称：xxx 格式，取第一个为购方，第二个为销方
-        double_match = re.findall(r'名称[：:]\s*([^\s\n]{2,50})', text)
+        double_match = re.findall(r'名\s*称[：:]\s*([^\s\n]{2,50})', text)
         if len(double_match) >= 2:
             result["buyer"] = double_match[0].strip()
             result["company"] = double_match[1].strip()
-        elif len(double_match) == 1:
-            seller_match = re.search(r'[销售]\s*名\s*称[：:\s]*([^\s\n]{2,50})', text)
-            if seller_match:
-                result["company"] = seller_match.group(1).strip()
+        else:
+            lines = text.split('\n')
+            for line in lines:
+                parts = line.split()
+                company_candidates = [p for p in parts if len(p) >= 4 and '公司' in p]
+                if len(company_candidates) >= 2:
+                    result["buyer"] = company_candidates[0]
+                    result["company"] = company_candidates[1]
+                    break
+        
+        # 移除"名称："前缀
+        if result["buyer"].startswith('名称：') or result["buyer"].startswith('名称:'):
+            result["buyer"] = result["buyer"][3:]
+        if result["company"].startswith('名称：') or result["company"].startswith('名称:'):
+            result["company"] = result["company"][3:]
+        
+        # 规范化Unicode字符 - Kangxi radicals转正常中文
+        kangxi_map = {'⽂': '文', '⽉': '月', '⽇': '日', '⽕': '火', '⽔': '水'}
+        for old, new in kangxi_map.items():
+            result["buyer"] = result["buyer"].replace(old, new)
+            result["company"] = result["company"].replace(old, new)
         
         # 提取金额 - 小写后面的金额
         amount_match = re.search(r"小写[）):]*\s*[¥￥]?\s*([\d]+\.?\d*)", text)
@@ -157,8 +191,13 @@ def parse_invoice_pdf(file_path: str) -> dict:
 @local_invoice_routes.post("/api/parse-invoices")
 async def parse_invoices(files: List[UploadFile] = File(...)):
     """解析上传的发票文件（PDF或图片）"""
+    import hashlib
+    
     all_invoices = []
     months_data = {}
+    duplicate_files = []
+    processed_filenames = set()
+    processed_hashes = set()
     
     session_id = str(uuid.uuid4())[:8]
     temp_dir = f"/tmp/invoice_{session_id}"
@@ -178,10 +217,29 @@ async def parse_invoices(files: List[UploadFile] = File(...)):
                 print(f"Skipping unsupported: {file.filename}")
                 continue
             
+            # 读取文件内容
+            content = await file.read()
+            
+            # 计算文件哈希
+            file_hash = hashlib.md5(content).hexdigest()
+            
+            # 检查重复 - 文件名重复或内容重复
+            if file.filename in processed_filenames:
+                duplicate_files.append(file.filename)
+                print(f"Duplicate filename skipped: {file.filename}")
+                continue
+            
+            if file_hash in processed_hashes:
+                duplicate_files.append(file.filename)
+                print(f"Duplicate content skipped: {file.filename}")
+                continue
+            
+            processed_filenames.add(file.filename)
+            processed_hashes.add(file_hash)
+            
             file_path = os.path.join(temp_dir, file.filename)
             
             with open(file_path, "wb") as buffer:
-                content = await file.read()
                 buffer.write(content)
             print(f"Saved: {file_path}")
             
@@ -209,7 +267,8 @@ async def parse_invoices(files: List[UploadFile] = File(...)):
             "session_id": session_id,
             "invoices": all_invoices,
             "months": list(months_data.values()),
-            "total_amount": sum(inv["amount"] for inv in all_invoices)
+            "total_amount": sum(inv["amount"] for inv in all_invoices),
+            "duplicates": duplicate_files
         })
         
     except Exception as e:

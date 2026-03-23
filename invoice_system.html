@@ -271,9 +271,10 @@
         .modal-content {
             background: var(--card);
             border-radius: 20px;
-            max-width: 100%;
-            max-height: 100%;
-            overflow: auto;
+            max-width: 90%;
+            width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
             position: relative;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
             border: 1px solid var(--border);
@@ -317,12 +318,10 @@
             background: rgba(239,68,68,0.9);
         }
         
-#pdf-preview { 
-            max-width: 100%; 
-            max-height: 85vh;
-            display: block;
+#pdf-preview iframe { 
+            width: 100%;
+            height: 100%;
             border-radius: 12px;
-            border: 2px solid var(--border);
         }
         
         @keyframes fadeInUp {
@@ -465,6 +464,53 @@
         .stat-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
         .stat-value { font-size: 26px; font-weight: 700; color: var(--primary-light); transition: transform 0.3s; }
         .stat-card:hover .stat-value { transform: scale(1.1); }
+        
+        .buyer-section {
+            margin-bottom: 28px;
+        }
+        
+        .buyer-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .buyer-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .buyer-btn {
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .buyer-btn:hover { 
+            border-color: var(--primary);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(59,130,246,0.3);
+            background: var(--card-hover);
+        }
+        
+        .buyer-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -513,7 +559,7 @@
     <div id="pdf-modal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
-            <canvas id="pdf-preview"></canvas>
+            <div id="pdf-preview" style="width:100%;height:85vh;"></div>
         </div>
     </div>
 
@@ -550,6 +596,7 @@
             allData.invoiceFiles = {};
             pdfFiles.forEach(file => {
                 allData.invoiceFiles[file.name] = file;
+                console.log('Stored file:', file.name);
             });
 
             const formData = new FormData();
@@ -575,6 +622,11 @@
                     renderBuyerSection();
                     renderMonthList();
                     document.getElementById('download-all-btn').disabled = allData.invoices.length === 0;
+                    
+                    // 显示重复文件提示
+                    if (result.duplicates && result.duplicates.length > 0) {
+                        alert('以下文件重复已跳过：\n' + result.duplicates.join('\n'));
+                    }
                 } else {
                     document.getElementById('month-list').innerHTML = '<div class="no-data">' + (result.error || '解析失败') + '</div>';
                 }
@@ -677,11 +729,16 @@
             }
 
             sortedMonths.forEach(function(monthData) {
-                const filteredInvoices = currentBuyer 
+                let filteredInvoices = currentBuyer 
                     ? monthData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
                     : monthData.invoices;
                 
                 if (filteredInvoices.length === 0) return;
+                
+                filteredInvoices = filteredInvoices.slice().sort(function(a, b) {
+                    if (a.date && b.date) return a.date.localeCompare(b.date);
+                    return 0;
+                });
                 
                 const filteredTotal = filteredInvoices.reduce(function(sum, inv) { return sum + inv.amount; }, 0);
                 
@@ -721,10 +778,14 @@
             if (list) list.classList.toggle('show');
         }
 
-        async function viewInvoice(fileName) {
+        function viewInvoice(fileName) {
+            console.log('Viewing invoice:', fileName);
+            console.log('Available files:', Object.keys(allData.invoiceFiles));
+            
             const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
             if (!inv) return;
             
+            console.log('Looking for file:', inv.file_name);
             const file = allData.invoiceFiles[inv.file_name];
             
             if (!file) {
@@ -734,34 +795,10 @@
             
             currentInvoice = { inv: inv, file: file };
             
-            const canvas = document.getElementById('pdf-preview');
-            const isImage = fileName.match(/\.(png|jpg|jpeg|bmp|gif)$/i);
+            const preview = document.getElementById('pdf-preview');
+            const url = URL.createObjectURL(file);
             
-            if (isImage) {
-                const img = new Image();
-                img.onload = function() {
-                    const scale = window.innerWidth < 640 ? 0.5 : 1.0;
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                };
-                img.src = URL.createObjectURL(file);
-            } else {
-                const ctx = canvas.getContext('2d');
-                pdfjsLib.getDocument(await file.arrayBuffer()).promise.then(function(pdf) {
-                    pdf.getPage(1).then(function(page) {
-                        const scale = window.innerWidth < 640 ? 1.0 : 1.5;
-                        const viewport = page.getViewport({ scale: scale });
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        page.render({
-                            canvasContext: ctx,
-                            viewport: viewport
-                        });
-                    });
-                });
-            }
+            preview.innerHTML = '<iframe src="' + url + '" style="width:100%;height:85vh;border:none;"></iframe>';
             
             document.getElementById('pdf-modal').classList.add('show');
         }

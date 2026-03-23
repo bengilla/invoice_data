@@ -179,7 +179,7 @@
             color: var(--text);
         }
         
-        .invoice-item:hover .invoice-company { color: var(--primary-light); }
+        .invoice-item:hover .invoice-matter { color: var(--primary-light); }
         .invoice-item:hover .invoice-amount { color: var(--primary-light); }
         .invoice-view { text-align: center; display: flex; align-items: center; justify-content: center; }
         
@@ -203,7 +203,7 @@
             color: #444;
         }
         
-        :root.light .invoice-item:hover .invoice-company,
+        :root.light .invoice-item:hover .invoice-matter,
         :root.light .invoice-item:hover .invoice-amount {
             color: var(--primary);
         }
@@ -341,7 +341,7 @@
             margin-bottom: 20px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            overflow: hidden;
+            overflow: visible;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -404,7 +404,7 @@
         
         .invoice-item {
             display: grid;
-            grid-template-columns: 1fr 2fr 80px 50px 40px;
+            grid-template-columns: 40px 80px 100px 1fr 1fr 80px 50px 50px;
             padding: 16px 24px;
             border-bottom: 1px solid var(--border);
             align-items: center;
@@ -427,10 +427,141 @@
             letter-spacing: 0.8px;
         }
         
-        .invoice-date { font-size: 14px; color: var(--text-light); }
-        .invoice-company { font-size: 14px; font-weight: 500; color: var(--text); transition: color 0.2s; }
-        .invoice-item:hover .invoice-company { color: var(--primary); }
-        .invoice-amount { font-size: 14px; font-weight: 700; text-align: right; color: var(--text); transition: color 0.2s; }
+        .invoice-item.header span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .invoice-item.header .invoice-amount {
+            text-align: center;
+        }
+        
+        .invoice-item.header .invoice-view,
+        .invoice-item.header .invoice-delete {
+            text-align: center;
+        }
+        
+        .invoice-index { min-width: 30px; text-align: center; }
+        .invoice-date { text-align: center; }
+        .invoice-matter { transition: color 0.2s; width: 100%; box-sizing: border-box; text-align: center; }
+        .invoice-item:hover .invoice-matter { color: var(--primary); }
+        .invoice-reason { text-align: center; }
+        .invoice-remark { text-align: center; }
+        .invoice-amount { text-align: center; }
+        .item-select {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 80px;
+        }
+        .item-select:hover {
+            border-color: var(--border);
+        }
+        
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+        .custom-select-trigger {
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .custom-select-trigger:hover {
+            border-color: var(--border);
+        }
+        .custom-select-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 120px;
+            background: var(--card);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            box-shadow: var(--shadow-hover);
+            z-index: 9999;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .custom-select-dropdown.open-above {
+            top: auto;
+            bottom: 100%;
+        }
+        .custom-select.open .custom-select-dropdown {
+            display: block;
+        }
+        .custom-select-option {
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .custom-select-option:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .custom-select-option.selected {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .item-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .reason-input {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 13px;
+            width: 100%;
+            min-width: 80px;
+        }
+        .reason-input:hover {
+            border-color: var(--primary-light);
+        }
+        .reason-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .invoice-reason { width: 100%; box-sizing: border-box; }
+        .invoice-remark { width: 100%; box-sizing: border-box; }
+        .invoice-amount { font-size: 14px; font-weight: 700; text-align: center; color: var(--text); transition: color 0.2s; }
+        .invoice-delete { text-align: center; }
+        
+        .remark-input {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 13px;
+            width: 100%;
+            min-width: 80px;
+        }
+        .remark-input:hover {
+            border-color: var(--primary-light);
+        }
+        .remark-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
         .invoice-item:hover .invoice-amount { color: var(--primary); }
         .invoice-view { text-align: center; display: flex; align-items: center; justify-content: center; }
         
@@ -533,11 +664,11 @@
             background: rgba(239,68,68,0.1);
         }
     </style>
-    <div id="toast" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;z-index:9999;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.5);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);opacity:0;min-width:280px;">
+    <div id="toast" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.5);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);opacity:0;min-width:280px;">
         <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
         <div id="toast-msg" style="font-size:16px;font-weight:600;color:var(--text);line-height:1.5;"></div>
     </div>
-    <div id="toast-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;opacity:0;transition:opacity 0.3s;"></div>
+    <div id="toast-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);opacity:0;transition:opacity 0.3s;"></div>
 </head>
 <body>
     <div class="container">
@@ -613,6 +744,15 @@
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
             <div id="pdf-preview" style="width:100%;height:85vh;"></div>
+        </div>
+    </div>
+
+    <div id="other-item-modal" class="modal">
+        <div class="modal-content" style="max-width:400px;padding:24px;">
+            <span class="modal-close" onclick="closeOtherItemModal()">&times;</span>
+            <h3 style="margin-bottom:16px;color:var(--text);">请输入事项内容</h3>
+            <input type="text" id="other-item-input" placeholder="请输入事项" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')confirmOtherItem()">
+            <button onclick="confirmOtherItem()" style="width:100%;padding:10px 14px;border-radius:10px;border:none;background:var(--primary);color:white;font-size:14px;font-weight:600;cursor:pointer;">确定</button>
         </div>
     </div>
 
@@ -930,23 +1070,39 @@
                     '</div>' +
                     '<div class="invoice-list" id="list-' + monthData.year + '-' + monthData.month + '">' +
                     '<div class="invoice-item header">' +
-                    '<span># 日期</span><span>销方</span><span>金额</span><span>查看</span><span></span>' +
+                    '<span class="invoice-index">#</span><span class="invoice-date">日期</span><span class="invoice-company">事项</span><span class="invoice-reason">明细/原由</span><span class="invoice-remark">备注</span><span class="invoice-amount">金额</span><span class="invoice-view">查看</span><span class="invoice-delete">删除</span>' +
                     '</div>';
                 
                 let invoiceHtml = '';
                 filteredInvoices.forEach(function(inv, idx) {
+                    const itemValue = inv.company || '';
+                    const reasonValue = inv.reason || '';
+                    const remarkValue = inv.remark || '';
                     invoiceHtml += '<div class="invoice-item">' +
-                        '<span class="invoice-date">' + (idx + 1) + '. ' + (inv.date || '-') + '</span>' +
-                        '<span class="invoice-company">' + (inv.company || '-') + '</span>' +
+                        '<span class="invoice-index">' + (idx + 1) + '</span>' +
+                        '<span class="invoice-date">' + ((inv.date && inv.date.length >= 5) ? inv.date.substring(5) : (inv.date || '-')) + '</span>' +
+                        '<span class="invoice-company">' +
+                        '<div class="custom-select" id="cs-' + inv.file_name + '">' +
+                        '<div class="custom-select-trigger" onclick="toggleCustomSelect(event)">' + (itemValue || '选择事项') + '</div>' +
+                        '<div class="custom-select-dropdown">' +
+                        '<div class="custom-select-option" data-value="" onclick="selectCustomOption(event, \'\', \'' + inv.file_name + '\')">选择事项</div>' +
+                        '<div class="custom-select-option" data-value="差旅费" onclick="selectCustomOption(event, \'差旅费\', \'' + inv.file_name + '\')">差旅费</div>' +
+                        '<div class="custom-select-option" data-value="交通费" onclick="selectCustomOption(event, \'交通费\', \'' + inv.file_name + '\')">交通费</div>' +
+                        '<div class="custom-select-option" data-value="住宿费" onclick="selectCustomOption(event, \'住宿费\', \'' + inv.file_name + '\')">住宿费</div>' +
+                        '<div class="custom-select-option" data-value="餐饮" onclick="selectCustomOption(event, \'餐饮\', \'' + inv.file_name + '\')">餐饮</div>' +
+                        '<div class="custom-select-option" data-value="办公用品" onclick="selectCustomOption(event, \'办公用品\', \'' + inv.file_name + '\')">办公用品</div>' +
+                        '<div class="custom-select-option" data-value="业务招待费" onclick="selectCustomOption(event, \'业务招待费\', \'' + inv.file_name + '\')">业务招待费</div>' +
+                        '<div class="custom-select-option" data-value="其他" onclick="selectCustomOption(event, \'其他\', \'' + inv.file_name + '\')">其他</div>' +
+                        '</div></div></span>' +
+                        '<span class="invoice-reason"><input type="text" class="reason-input" value="' + reasonValue + '" onchange="handleReasonChange(\'' + inv.file_name + '\', this.value)"></span>' +
+                        '<span class="invoice-remark"><input type="text" class="remark-input" value="' + remarkValue + '" onchange="handleRemarkChange(\'' + inv.file_name + '\', this.value)"></span>' +
                         '<span class="invoice-amount">¥' + inv.amount.toFixed(2) + '</span>' +
                         '<span class="invoice-view"><a href="#" class="view-btn" onclick="viewInvoice(\'' + inv.file_name + '\'); return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></a></span>' +
-                        '<span style="display:flex;align-items:center;justify-content:center;"><a href="#" style="color:#ef4444;font-size:16px;text-decoration:none;" onclick="deleteInvoice(\'' + inv.file_name + '\'); return false;" title="删除">✕</a></span>' +
+                        '<span class="invoice-delete"><a href="#" style="color:#ef4444;font-size:14px;text-decoration:none;" onclick="deleteInvoice(\'' + inv.file_name + '\'); return false;">✕</a></span>' +
                         '</div>';
                 });
                 
-                section.innerHTML = html + invoiceHtml + 
-                    '<button class="download-btn" onclick="downloadMonth(' + monthData.year + ',' + monthData.month + ')">' +
-                    '下载 ' + monthData.year + '.' + monthData.month + '月 发票原件</button></div>';
+                section.innerHTML = html + invoiceHtml + '</div>';
                 
                 container.appendChild(section);
             });
@@ -1019,12 +1175,158 @@
             currentInvoice = null;
         }
 
+        let pendingOtherItemFileName = null;
+        let pendingOtherItemSelect = null;
+
+        function toggleCustomSelect(e) {
+            e.stopPropagation();
+            const trigger = e.currentTarget;
+            const select = trigger.closest('.custom-select');
+            const dropdown = select.querySelector('.custom-select-dropdown');
+            const wasOpen = select.classList.contains('open');
+            document.querySelectorAll('.custom-select.open').forEach(function(el) {
+                el.classList.remove('open');
+                el.classList.remove('open-above');
+            });
+            if (!wasOpen) {
+                select.classList.add('open');
+                const rect = select.getBoundingClientRect();
+                const dropdownHeight = dropdown.offsetHeight;
+                if (rect.bottom + dropdownHeight > window.innerHeight) {
+                    select.classList.add('open-above');
+                }
+            }
+        }
+
+        function selectCustomOption(e, value, fileName) {
+            e.stopPropagation();
+            const trigger = e.currentTarget;
+            const select = trigger.closest('.custom-select');
+            const options = select.querySelectorAll('.custom-select-option');
+            options.forEach(function(opt) {
+                opt.classList.remove('selected');
+                if (opt.dataset.value === value) {
+                    opt.classList.add('selected');
+                }
+            });
+            trigger.textContent = value || '选择事项';
+            
+            if (value === '其他') {
+                pendingOtherItemFileName = fileName;
+                pendingOtherItemSelect = select;
+                document.getElementById('other-item-input').value = '';
+                document.getElementById('other-item-modal').classList.add('show');
+                document.getElementById('other-item-input').focus();
+            } else {
+                select.classList.remove('open');
+                updateInvoiceItem(fileName, value);
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-select')) {
+                document.querySelectorAll('.custom-select.open').forEach(function(el) {
+                    el.classList.remove('open');
+                });
+            }
+        });
+
+        function handleItemChange(fileName, value, selectEl) {
+            if (value === '其他') {
+                pendingOtherItemFileName = fileName;
+                pendingOtherItemSelect = selectEl;
+                document.getElementById('other-item-input').value = '';
+                document.getElementById('other-item-modal').classList.add('show');
+                document.getElementById('other-item-input').focus();
+                setTimeout(function() { selectEl.blur(); }, 0);
+            } else {
+                updateInvoiceItem(fileName, value);
+                setTimeout(function() { selectEl.blur(); }, 0);
+            }
+        }
+
+        function closeOtherItemModal() {
+            document.getElementById('other-item-modal').classList.remove('show');
+            if (pendingOtherItemSelect) {
+                pendingOtherItemSelect.value = '';
+            }
+            pendingOtherItemFileName = null;
+            pendingOtherItemSelect = null;
+        }
+
+        function confirmOtherItem() {
+            const value = document.getElementById('other-item-input').value.trim();
+            if (!value) {
+                showToast('请输入事项内容');
+                return;
+            }
+            if (pendingOtherItemFileName) {
+                updateInvoiceItem(pendingOtherItemFileName, value);
+            }
+            closeOtherItemModal();
+        }
+
+        function handleReasonChange(fileName, value) {
+            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            if (inv) {
+                inv.reason = value;
+            }
+        }
+
+        function handleRemarkChange(fileName, value) {
+            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            if (inv) {
+                inv.remark = value;
+            }
+        }
+
+        function updateInvoiceItem(fileName, value) {
+            var openMonths = [];
+            document.querySelectorAll('.invoice-list.show').forEach(function(el) {
+                openMonths.push(el.id.replace('list-', ''));
+            });
+            
+            const inv = allData.invoices.find(function(i) { return i.file_name === fileName; });
+            if (inv) {
+                inv.company = value;
+                rebuildMonthsData();
+                renderStats();
+                renderBuyerSection();
+                renderMonthList();
+                
+                openMonths.forEach(function(key) {
+                    var list = document.getElementById('list-' + key);
+                    if (list) list.classList.add('show');
+                });
+            }
+        }
+
+        function rebuildMonthsData() {
+            var monthsMap = {};
+            allData.invoices.forEach(function(inv) {
+                var key = inv.year + '-' + inv.month;
+                if (!monthsMap[key]) {
+                    monthsMap[key] = { year: inv.year, month: inv.month, invoices: [], total: 0 };
+                }
+                monthsMap[key].invoices.push(inv);
+                monthsMap[key].total += inv.amount;
+            });
+            allData.months = Object.values(monthsMap);
+        }
+
         document.getElementById('pdf-modal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
 
+        document.getElementById('other-item-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeOtherItemModal();
+        });
+
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
+            if (e.key === 'Escape') {
+                closeModal();
+                closeOtherItemModal();
+            }
         });
 
         function getMeta() {

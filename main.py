@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
@@ -25,7 +25,7 @@ async def root():
 
 @app.get("/local")
 async def local_page():
-    return FileResponse("invoice_system.html")
+    return FileResponse("static/index.html")
 
 
 app.include_router(local_invoice_routes)

@@ -64,7 +64,7 @@ def to_chinese_upper(amount):
 
 def generate_excel(meta, invoices, total_amount, total_invoice, total_other_invoice):
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
+    from openpyxl.styles import Alignment, Border, Side, Font
     from io import BytesIO
 
     wb = Workbook()
@@ -73,142 +73,221 @@ def generate_excel(meta, invoices, total_amount, total_invoice, total_other_invo
 
     # 样式
     title_font = Font(name='微软雅黑', size=16, bold=True)
+    label_font = Font(name='微软雅黑', size=10)
     header_font = Font(name='微软雅黑', size=10, bold=True)
-    normal_font = Font(name='微软雅黑', size=10)
-    small_font = Font(name='微软雅黑', size=9)
+    data_font = Font(name='微软雅黑', size=10)
     center = Alignment(horizontal='center', vertical='center')
     left = Alignment(horizontal='left', vertical='center')
     right = Alignment(horizontal='right', vertical='center')
-    thin_border = Border(
-        left=Side(style='thin'), right=Side(style='thin'),
-        top=Side(style='thin'), bottom=Side(style='thin')
-    )
-    header_fill = PatternFill(start_color='D9E1F2', end_color='D9E1F2', fill_type='solid')
+    thin = Side(style='thin')
+    border_all = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-    # 列宽
-    ws.column_dimensions['A'].width = 8
-    ws.column_dimensions['B'].width = 20
-    ws.column_dimensions['C'].width = 16
-    ws.column_dimensions['D'].width = 14
-    ws.column_dimensions['E'].width = 16
-    ws.column_dimensions['F'].width = 14
+    # 列宽 (匹配模板)
+    ws.column_dimensions['A'].width = 7.3
+    ws.column_dimensions['B'].width = 15.6
+    ws.column_dimensions['C'].width = 12.3
+    ws.column_dimensions['D'].width = 14.1
+    ws.column_dimensions['E'].width = 12.3
+    ws.column_dimensions['F'].width = 26.0
 
-    # 合并标题
+    # Row 1: 标题 (A1:F1 合并)
     ws.merge_cells('A1:F1')
-    c = ws['A1']
-    c.value = '费用报销单（正规通用版）'
-    c.font = title_font
-    c.alignment = center
-    ws.row_dimensions[1].height = 36
+    ws['A1'].value = '费用报销单（正规通用版）'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = center
+    ws.row_dimensions[1].height = 40
 
-    # Row 2: 报销部门 / 报销日期
+    # Row 2: 报销部门(A2:B2) / 部门值(C2:D2) / 报销日期(E2) / 日期值(F2)
+    ws.merge_cells('A2:B2')
     ws['A2'].value = '报销部门：'
-    ws['A2'].font = normal_font
-    ws.merge_cells('B2:C2')
-    ws['B2'].value = meta.get('department', '')
-    ws['B2'].font = normal_font
+    ws['A2'].font = label_font
+    ws['A2'].alignment = left
+    ws.merge_cells('C2:D2')
+    ws['C2'].value = meta.get('department', '')
+    ws['C2'].font = data_font
     ws['E2'].value = '报销日期：'
-    ws['E2'].font = normal_font
+    ws['E2'].font = label_font
     ws['E2'].alignment = right
     ws['F2'].value = meta.get('date', '')
-    ws['F2'].font = normal_font
+    ws['F2'].font = data_font
+    ws.row_dimensions[2].height = 20
 
-    # Row 3: 报销人 / 所属岗位
+    # Row 3: 报销人(A3:B3) / 值(C3:D3) / 所属岗位(E3) / 值(F3)
+    ws.merge_cells('A3:B3')
     ws['A3'].value = '报销人：'
-    ws['A3'].font = normal_font
-    ws.merge_cells('B3:C3')
-    ws['B3'].value = meta.get('name', '')
-    ws['B3'].font = normal_font
+    ws['A3'].font = label_font
+    ws['A3'].alignment = left
+    ws.merge_cells('C3:D3')
+    ws['C3'].value = meta.get('name', '')
+    ws['C3'].font = data_font
     ws['E3'].value = '所属岗位：'
-    ws['E3'].font = normal_font
+    ws['E3'].font = label_font
     ws['E3'].alignment = right
     ws['F3'].value = meta.get('position', '')
-    ws['F3'].font = normal_font
+    ws['F3'].font = data_font
+    ws.row_dimensions[3].height = 20
 
-    # Row 4: 空行
-    ws.row_dimensions[4].height = 8
+    # Row 4: 事由(A4:B4) / 值(C4:F4)
+    ws.merge_cells('A4:B4')
+    ws['A4'].value = '事由（用途说明）：'
+    ws['A4'].font = label_font
+    ws['A4'].alignment = left
+    ws.merge_cells('C4:F4')
+    ws['C4'].value = meta.get('use', '')
+    ws['C4'].font = data_font
+    ws.row_dimensions[4].height = 20
 
-    # Row 5: 表头
-    headers = ['序号', '费用项目', '', '金额（元）', '票据张数', '备注']
-    for i, h in enumerate(headers):
-        cell = ws.cell(row=5, column=i+1, value=h)
-        cell.font = header_font
-        cell.alignment = center
-        cell.fill = header_fill
-        cell.border = thin_border
-    ws.merge_cells('B5:C5')
-    ws.row_dimensions[5].height = 24
+    # Row 5: 分隔行 (A5:F5)
+    ws.merge_cells('A5:F5')
+    ws.row_dimensions[5].height = 25
 
-    # Row 6-10: 发票数据行 (最多5条)
+    # Row 6: 表头
+    ws['A6'].value = '序号'
+    ws['A6'].font = header_font
+    ws['A6'].alignment = center
+    ws['A6'].border = border_all
+    ws.merge_cells('B6:C6')
+    ws['B6'].value = '费用项目'
+    ws['B6'].font = header_font
+    ws['B6'].alignment = center
+    ws['B6'].border = border_all
+    ws['C6'].border = border_all
+    ws['D6'].value = '金额（元）'
+    ws['D6'].font = header_font
+    ws['D6'].alignment = center
+    ws['D6'].border = border_all
+    ws['E6'].value = '票据张数'
+    ws['E6'].font = header_font
+    ws['E6'].alignment = center
+    ws['E6'].border = border_all
+    ws['F6'].value = '备注'
+    ws['F6'].font = header_font
+    ws['F6'].alignment = center
+    ws['F6'].border = border_all
+    ws.row_dimensions[6].height = 22
+
+    # Row 7-11: 数据行 (最多5条)
     for idx in range(5):
-        row = 6 + idx
+        row = 7 + idx
         inv = invoices[idx] if idx < len(invoices) else None
-        ws.cell(row=row, column=1, value=f'{idx+1}.').font = small_font
-        ws.cell(row=row, column=1).alignment = center
-        ws.cell(row=row, column=1).border = thin_border
-        ws.cell(row=row, column=2).border = thin_border
-        ws.cell(row=row, column=2).font = small_font
+        ws.row_dimensions[row].height = 22
+
+        ws[f'A{row}'].value = f'{idx+1}.'
+        ws[f'A{row}'].font = data_font
+        ws[f'A{row}'].alignment = center
+        ws[f'A{row}'].border = border_all
+
         ws.merge_cells(f'B{row}:C{row}')
-        ws.cell(row=row, column=4).border = thin_border
-        ws.cell(row=row, column=4).font = small_font
-        ws.cell(row=row, column=4).alignment = right
-        ws.cell(row=row, column=5).border = thin_border
-        ws.cell(row=row, column=5).font = small_font
-        ws.cell(row=row, column=5).alignment = center
-        ws.cell(row=row, column=6).border = thin_border
-        ws.cell(row=row, column=6).font = small_font
-        if inv:
-            ws.cell(row=row, column=2, value=inv.get('company', ''))
-            ws.cell(row=row, column=4, value=inv.get('amount', 0))
-            ws.cell(row=row, column=5, value=inv.get('invoice_no', ''))
+        ws[f'B{row}'].value = inv.get('company', '') if inv else ''
+        ws[f'B{row}'].font = data_font
+        ws[f'B{row}'].border = border_all
+        ws[f'C{row}'].border = border_all
 
-    # Row 11: 合计
-    ws.merge_cells('A11:C11')
-    ws['A11'].value = '合计：'
-    ws['A11'].font = header_font
-    ws['A11'].alignment = right
-    ws['D11'].value = total_amount
-    ws['D11'].font = header_font
-    ws['D11'].alignment = right
-    ws['D11'].number_format = '#,##0.00'
-    for col in range(1, 7):
-        ws.cell(row=11, column=col).border = thin_border
+        amount = inv.get('amount', 0) if inv else ''
+        ws[f'D{row}'].value = f'¥{amount:.2f}' if inv else ''
+        ws[f'D{row}'].font = data_font
+        ws[f'D{row}'].alignment = right
+        ws[f'D{row}'].border = border_all
 
-    # Row 12: 金额大写
-    ws.merge_cells('A12:F12')
-    ws['A12'].value = f'金额大写：{to_chinese_upper(total_amount)}'
-    ws['A12'].font = normal_font
-    ws.row_dimensions[12].height = 24
+        ws[f'E{row}'].value = inv.get('invoice_no', '') if inv else ''
+        ws[f'E{row}'].font = data_font
+        ws[f'E{row}'].alignment = center
+        ws[f'E{row}'].border = border_all
 
-    # Row 13-14: 空行
-    ws.row_dimensions[13].height = 8
+        ws[f'F{row}'].value = ''
+        ws[f'F{row}'].font = data_font
+        ws[f'F{row}'].border = border_all
 
-    # Row 14: 附件说明
-    ws.merge_cells('A14:F14')
-    ws['A14'].value = '附件说明：'
-    ws['A14'].font = normal_font
+    # Row 12: 合计 (A12:B12 合并=合计: / C12:D12:F12 合并=total)
+    ws.merge_cells('A12:B12')
+    ws['A12'].value = ''
+    ws['A12'].border = border_all
+    ws['B12'].border = border_all
+    ws['C12'].value = '合计：'
+    ws['C12'].font = header_font
+    ws['C12'].alignment = right
+    ws['C12'].border = border_all
+    ws.merge_cells('D12:F12')
+    ws['D12'].value = f'¥{total_amount:.2f}'
+    ws['D12'].font = header_font
+    ws['D12'].alignment = right
+    ws['D12'].border = border_all
+    ws['E12'].border = border_all
+    ws['F12'].border = border_all
+    ws.row_dimensions[12].height = 22
 
-    # Row 15: 发票共__张
+    # Row 13: 金额大写 (A13:F13)
+    ws.merge_cells('A13:F13')
+    ws['A13'].value = f'金额大写：{to_chinese_upper(total_amount)}'
+    ws['A13'].font = label_font
+    ws['A13'].alignment = left
+    ws.row_dimensions[13].height = 25
+
+    # Row 14: 空行
+    ws.row_dimensions[14].height = 25
+
+    # Row 15: 附件说明 (A15:F15)
     ws.merge_cells('A15:F15')
-    ws['A15'].value = f'发票共 {total_invoice} 张'
-    ws['A15'].font = normal_font
+    ws['A15'].value = '附件说明：'
+    ws['A15'].font = label_font
+    ws['A15'].alignment = left
+    ws.row_dimensions[15].height = 25
 
-    # Row 16: 其他单据共__张
-    ws.merge_cells('A16:F16')
-    ws['A16'].value = f'其他单据共 {total_other_invoice} 张'
-    ws['A16'].font = normal_font
+    # Row 16: 发票共 (A16:B16) / total_invoice(C16) / 张(D16:F16)
+    ws.merge_cells('A16:B16')
+    ws['A16'].value = '发票共'
+    ws['A16'].font = label_font
+    ws['A16'].alignment = left
+    ws['C16'].value = total_invoice
+    ws['C16'].font = data_font
+    ws['C16'].alignment = center
+    ws.merge_cells('D16:F16')
+    ws['D16'].value = '张'
+    ws['D16'].font = label_font
+    ws['D16'].alignment = left
+    ws.row_dimensions[16].height = 25
 
-    # Row 17: 空行
-    ws.row_dimensions[17].height = 8
+    # Row 17: 其他单据共 (A17:B17) / total_other_invoice(C17) / 张(D17:F17)
+    ws.merge_cells('A17:B17')
+    ws['A17'].value = '其他单据共'
+    ws['A17'].font = label_font
+    ws['A17'].alignment = left
+    ws['C17'].value = total_other_invoice
+    ws['C17'].font = data_font
+    ws['C17'].alignment = center
+    ws.merge_cells('D17:F17')
+    ws['D17'].value = '张'
+    ws['D17'].font = label_font
+    ws['D17'].alignment = left
+    ws.row_dimensions[17].height = 25
 
-    # Row 18-22: 签字栏
-    sign_rows = ['审批签字：', '报销人签字：', '部门负责人：', '财务审核：', '公司负责人：']
-    for i, text in enumerate(sign_rows):
-        row = 18 + i
-        ws.merge_cells(f'A{row}:F{row}')
-        ws[f'A{row}'].value = text
-        ws[f'A{row}'].font = normal_font
-        ws.row_dimensions[row].height = 28
+    # Row 18: 空行
+    ws.row_dimensions[18].height = 25
+
+    # Row 19: 审批签字 (A19:F19)
+    ws.merge_cells('A19:F19')
+    ws['A19'].value = '审批签字：'
+    ws['A19'].font = label_font
+    ws['A19'].alignment = left
+    ws.row_dimensions[19].height = 25
+
+    # Row 20-23: 签字栏
+    sign_items = [
+        ('报销人签字：', '部门负责人：'),
+        ('财务审核：', '公司负责人：'),
+    ]
+    for i, (left_text, right_text) in enumerate(sign_items):
+        row = 20 + i * 2
+        ws.merge_cells(f'A{row}:B{row}')
+        ws[f'A{row}'].value = left_text
+        ws[f'A{row}'].font = label_font
+        ws[f'A{row}'].alignment = left
+        ws.merge_cells(f'C{row}:F{row}')
+        ws[f'C{row}'].value = right_text
+        ws[f'C{row}'].font = label_font
+        ws[f'C{row}'].alignment = left
+        ws.row_dimensions[row].height = 25
+        ws.row_dimensions[row + 1].height = 25
 
     buf = BytesIO()
     wb.save(buf)

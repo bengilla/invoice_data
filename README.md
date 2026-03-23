@@ -51,7 +51,7 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 
 ### 5. 查看统计
 
-- 顶部显示发票总数、总金额、月份数
+- 顶部显示发票总数、其他发票数、总金额
 - 如果有多个购买方，显示购买方筛选按钮
 - 点击月份卡片展开查看该月发票列表
 
@@ -102,14 +102,23 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ## 文件结构
 
 ```
-invoice_data/
-├── main.py                    # FastAPI主程序
-├── invoice_system.html        # 前端页面
+fapiao/
+├── main.py                      # FastAPI主程序
 ├── routes/
-│   └── local_invoice.py       # 发票解析API
-├── _sample/                   # 示例发票文件
-├── README.md                  # 本文档
-└── pyproject.toml             # 项目配置
+│   ├── __init__.py
+│   ├── local_invoice.py         # 发票解析API
+│   └── utils.py                 # 工具函数
+├── services/
+│   ├── __init__.py
+│   └── invoice_parser.py        # 发票解析服务
+├── static/
+│   ├── index.html               # 前端页面
+│   ├── css/style.css            # 样式
+│   ├── js/app.js                # JavaScript
+│   └── images/fapiao.png        # 网站图标
+├── _sample/                     # 示例发票文件
+├── requirements.txt             # Python依赖
+└── README.md                    # 本文档
 ```
 
 ## 技术栈

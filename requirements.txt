@@ -6,5 +6,4 @@ pillow
 rapidocr-onnxruntime
 reportlab
 python-multipart
-xlrd
 openpyxl

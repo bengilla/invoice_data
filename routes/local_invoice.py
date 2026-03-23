@@ -19,8 +19,6 @@ local_invoice_routes = APIRouter()
 
 TEMP_SESSIONS = {}
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "_sample", "invoice_sample.xls")
-
 CN_NUMS = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖']
 CN_INT_RADICE = ['','拾','佰','仟']
 CN_INT_UNITS = ['','万','亿','兆']
@@ -65,73 +63,152 @@ def to_chinese_upper(amount):
 
 
 def generate_excel(meta, invoices, total_amount, total_invoice, total_other_invoice):
-    import xlrd
-    from openpyxl import load_workbook
-    from io import BytesIO
-
-    # 先用xlrd读取.xls模板，转存为.xlsx供openpyxl使用
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Border, Side, Font
-
-    rb = xlrd.open_workbook(TEMPLATE_PATH, formatting_info=True)
-    rs = rb.sheet_by_index(0)
+    from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
+    from io import BytesIO
 
     wb = Workbook()
     ws = wb.active
     ws.title = 'invoice'
 
-    # 复制数据和基本格式
-    for r in range(rs.nrows):
-        for c in range(rs.ncols):
-            cell = rs.cell(r, c)
-            new_cell = ws.cell(row=r+1, column=c+1, value=cell.value)
-            new_cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    # 样式
+    title_font = Font(name='微软雅黑', size=16, bold=True)
+    header_font = Font(name='微软雅黑', size=10, bold=True)
+    normal_font = Font(name='微软雅黑', size=10)
+    small_font = Font(name='微软雅黑', size=9)
+    center = Alignment(horizontal='center', vertical='center')
+    left = Alignment(horizontal='left', vertical='center')
+    right = Alignment(horizontal='right', vertical='center')
+    thin_border = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+    header_fill = PatternFill(start_color='D9E1F2', end_color='D9E1F2', fill_type='solid')
 
-    # 数据映射: (row, col) - 0-indexed转1-indexed
-    data_map = {
-        'department': (2, 3),
-        'date': (2, 6),
-        'name': (3, 3),
-        'position': (3, 6),
-        'chinese_price': (13, 1),
-        'total_invoice': (16, 3),
-        'total_other_invoice': (17, 3),
-        'total': (12, 4),
-    }
+    # 列宽
+    ws.column_dimensions['A'].width = 8
+    ws.column_dimensions['B'].width = 20
+    ws.column_dimensions['C'].width = 16
+    ws.column_dimensions['D'].width = 14
+    ws.column_dimensions['E'].width = 16
+    ws.column_dimensions['F'].width = 14
 
-    for key, (r, c) in data_map.items():
-        val = meta.get(key)
-        if val is not None:
-            ws.cell(row=r, column=c, value=val)
+    # 合并标题
+    ws.merge_cells('A1:F1')
+    c = ws['A1']
+    c.value = '费用报销单（正规通用版）'
+    c.font = title_font
+    c.alignment = center
+    ws.row_dimensions[1].height = 36
 
-    # 填充发票数据到item行 (row 7-11, 1-indexed对应6-10的0-indexed数据行)
-    for i, inv in enumerate(invoices[:5]):
-        row = 7 + i  # 1-indexed: row 7 = item1
-        company = inv.get('company', '')
-        amount = inv.get('amount', 0)
-        inv_no = inv.get('invoice_no', '')
-        ws.cell(row=row, column=2, value=company)
-        ws.cell(row=row, column=4, value=amount)
-        ws.cell(row=row, column=5, value=inv_no)
+    # Row 2: 报销部门 / 报销日期
+    ws['A2'].value = '报销部门：'
+    ws['A2'].font = normal_font
+    ws.merge_cells('B2:C2')
+    ws['B2'].value = meta.get('department', '')
+    ws['B2'].font = normal_font
+    ws['E2'].value = '报销日期：'
+    ws['E2'].font = normal_font
+    ws['E2'].alignment = right
+    ws['F2'].value = meta.get('date', '')
+    ws['F2'].font = normal_font
 
-    # 合计
-    ws.cell(row=12, column=4, value=total_amount)
+    # Row 3: 报销人 / 所属岗位
+    ws['A3'].value = '报销人：'
+    ws['A3'].font = normal_font
+    ws.merge_cells('B3:C3')
+    ws['B3'].value = meta.get('name', '')
+    ws['B3'].font = normal_font
+    ws['E3'].value = '所属岗位：'
+    ws['E3'].font = normal_font
+    ws['E3'].alignment = right
+    ws['F3'].value = meta.get('position', '')
+    ws['F3'].font = normal_font
 
-    # 大写金额
-    ws.cell(row=13, column=1, value=f'金额大写：{to_chinese_upper(total_amount)}')
+    # Row 4: 空行
+    ws.row_dimensions[4].height = 8
 
-    # 发票数
-    ws.cell(row=16, column=3, value=total_invoice)
-    ws.cell(row=17, column=3, value=total_other_invoice)
+    # Row 5: 表头
+    headers = ['序号', '费用项目', '', '金额（元）', '票据张数', '备注']
+    for i, h in enumerate(headers):
+        cell = ws.cell(row=5, column=i+1, value=h)
+        cell.font = header_font
+        cell.alignment = center
+        cell.fill = header_fill
+        cell.border = thin_border
+    ws.merge_cells('B5:C5')
+    ws.row_dimensions[5].height = 24
 
-    # 调整列宽
-    for col in ws.columns:
-        max_len = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            if cell.value:
-                max_len = max(max_len, len(str(cell.value)))
-        ws.column_dimensions[col_letter].width = max(max_len + 2, 10)
+    # Row 6-10: 发票数据行 (最多5条)
+    for idx in range(5):
+        row = 6 + idx
+        inv = invoices[idx] if idx < len(invoices) else None
+        ws.cell(row=row, column=1, value=f'{idx+1}.').font = small_font
+        ws.cell(row=row, column=1).alignment = center
+        ws.cell(row=row, column=1).border = thin_border
+        ws.cell(row=row, column=2).border = thin_border
+        ws.cell(row=row, column=2).font = small_font
+        ws.merge_cells(f'B{row}:C{row}')
+        ws.cell(row=row, column=4).border = thin_border
+        ws.cell(row=row, column=4).font = small_font
+        ws.cell(row=row, column=4).alignment = right
+        ws.cell(row=row, column=5).border = thin_border
+        ws.cell(row=row, column=5).font = small_font
+        ws.cell(row=row, column=5).alignment = center
+        ws.cell(row=row, column=6).border = thin_border
+        ws.cell(row=row, column=6).font = small_font
+        if inv:
+            ws.cell(row=row, column=2, value=inv.get('company', ''))
+            ws.cell(row=row, column=4, value=inv.get('amount', 0))
+            ws.cell(row=row, column=5, value=inv.get('invoice_no', ''))
+
+    # Row 11: 合计
+    ws.merge_cells('A11:C11')
+    ws['A11'].value = '合计：'
+    ws['A11'].font = header_font
+    ws['A11'].alignment = right
+    ws['D11'].value = total_amount
+    ws['D11'].font = header_font
+    ws['D11'].alignment = right
+    ws['D11'].number_format = '#,##0.00'
+    for col in range(1, 7):
+        ws.cell(row=11, column=col).border = thin_border
+
+    # Row 12: 金额大写
+    ws.merge_cells('A12:F12')
+    ws['A12'].value = f'金额大写：{to_chinese_upper(total_amount)}'
+    ws['A12'].font = normal_font
+    ws.row_dimensions[12].height = 24
+
+    # Row 13-14: 空行
+    ws.row_dimensions[13].height = 8
+
+    # Row 14: 附件说明
+    ws.merge_cells('A14:F14')
+    ws['A14'].value = '附件说明：'
+    ws['A14'].font = normal_font
+
+    # Row 15: 发票共__张
+    ws.merge_cells('A15:F15')
+    ws['A15'].value = f'发票共 {total_invoice} 张'
+    ws['A15'].font = normal_font
+
+    # Row 16: 其他单据共__张
+    ws.merge_cells('A16:F16')
+    ws['A16'].value = f'其他单据共 {total_other_invoice} 张'
+    ws['A16'].font = normal_font
+
+    # Row 17: 空行
+    ws.row_dimensions[17].height = 8
+
+    # Row 18-22: 签字栏
+    sign_rows = ['审批签字：', '报销人签字：', '部门负责人：', '财务审核：', '公司负责人：']
+    for i, text in enumerate(sign_rows):
+        row = 18 + i
+        ws.merge_cells(f'A{row}:F{row}')
+        ws[f'A{row}'].value = text
+        ws[f'A{row}'].font = normal_font
+        ws.row_dimensions[row].height = 28
 
     buf = BytesIO()
     wb.save(buf)

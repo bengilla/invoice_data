@@ -533,6 +533,11 @@
             background: rgba(239,68,68,0.1);
         }
     </style>
+    <div id="toast" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;z-index:9999;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.5);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);opacity:0;min-width:280px;">
+        <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
+        <div id="toast-msg" style="font-size:16px;font-weight:600;color:var(--text);line-height:1.5;"></div>
+    </div>
+    <div id="toast-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;opacity:0;transition:opacity 0.3s;"></div>
 </head>
 <body>
     <div class="container">
@@ -591,8 +596,8 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
             <div>
-                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销部门</label>
-                <input name="department" type="text" placeholder="请输入报销部门" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销人<span style="color:#ef4444;"> *</span></label>
+                <input name="name" type="text" placeholder="请输入报销人" required style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
             </div>
             <div>
                 <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">日期</label>
@@ -601,8 +606,8 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
             <div>
-                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销人</label>
-                <input name="name" type="text" placeholder="请输入报销人" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">报销部门</label>
+                <input name="department" type="text" placeholder="请输入报销部门" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
             </div>
             <div>
                 <label style="font-size:13px;color:var(--text-light);display:block;margin-bottom:6px;">所属岗位</label>
@@ -628,6 +633,34 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
+        function showToast(msg) {
+            return new Promise(function(resolve) {
+                var toast = document.getElementById('toast');
+                var overlay = document.getElementById('toast-overlay');
+                document.getElementById('toast-msg').textContent = msg;
+                toast.style.display = 'block';
+                overlay.style.display = 'block';
+                setTimeout(function() {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translate(-50%,-50%) scale(1)';
+                    overlay.style.opacity = '1';
+                }, 10);
+                overlay.onclick = function() { hideToast(); resolve(); };
+                toast.onclick = function() { hideToast(); resolve(); };
+            });
+        }
+        function hideToast() {
+            var toast = document.getElementById('toast');
+            var overlay = document.getElementById('toast-overlay');
+            toast.style.opacity = '0';
+            toast.style.transform = 'translate(-50%,-50%) scale(0.9)';
+            overlay.style.opacity = '0';
+            setTimeout(function() {
+                toast.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
         let isDark = true;
         
         document.getElementById('theme-toggle').addEventListener('click', function() {
@@ -690,7 +723,7 @@
                     
                     // 显示重复文件提示
                     if (result.duplicates && result.duplicates.length > 0) {
-                        alert('以下文件重复已跳过：\n' + result.duplicates.join('\n'));
+                        showToast('以下文件重复已跳过：\n' + result.duplicates.join('\n'));
                     }
                 } else {
                     document.getElementById('month-list').innerHTML = '<div class="no-data">' + (result.error || '解析失败') + '</div>';
@@ -926,7 +959,7 @@
             const file = allData.invoiceFiles[inv.file_name];
             
             if (!file) {
-                alert('找不到文件');
+                showToast('找不到文件');
                 return;
             }
             
@@ -963,6 +996,11 @@
         }
 
         async function downloadMonth(year, month) {
+            if (!document.querySelector('[name="name"]').value.trim()) {
+                showToast('请填写报销人姓名');
+                document.querySelector('[name="name"]').focus();
+                return;
+            }
             const monthData = allData.months.find(function(m) {
                 return m.year === parseInt(year) && m.month === parseInt(month);
             });
@@ -1006,11 +1044,16 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             } catch (err) {
-                alert('下载失败: ' + err.message);
+                showToast('下载失败: ' + err.message);
             }
         }
 
         async function downloadAllInvoices() {
+            if (!document.querySelector('[name="name"]').value.trim()) {
+                showToast('请填写报销人姓名');
+                document.querySelector('[name="name"]').focus();
+                return;
+            }
             try {
                 const filteredInvoices = currentBuyer 
                     ? allData.invoices.filter(function(inv) { return inv.buyer === currentBuyer; })
@@ -1058,7 +1101,7 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             } catch (err) {
-                alert('下载失败: ' + err.message);
+                showToast('下载失败: ' + err.message);
             }
         }
     </script>

@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 
 from routes.local_invoice import local_invoice_routes
 
@@ -13,6 +14,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 
 @app.get("/")

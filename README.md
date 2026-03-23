@@ -2,7 +2,7 @@
 
 一个简单易用的本地发票管理系统，支持批量解析和管理电子发票。
 
-在线访问：https://fapiao.up.railway.app
+在线访问：<img src="images/fapiao.png" width="16" height="16"> https://fapiao.up.railway.app
 
 ## 支持格式
 

@@ -101,7 +101,11 @@ class InvoiceParser:
         return self._normalize_unicode(company)
 
     def _extract_amount(self, text: str) -> float:
-        """从文本中提取金额"""
+        """从文本中提取金额 - 优先取价税合计"""
+        tax_total_match = re.search(r"价税合计[^)]*[）)]\s*[¥￥]?\s*([0-9,]+\.?\d*)", text)
+        if tax_total_match:
+            amount_str = tax_total_match.group(1).replace(",", "")
+            return float(amount_str)
         amount_match = re.search(r"[¥￥]([0-9,]+\.?\d*)", text)
         if amount_match:
             amount_str = amount_match.group(1).replace(",", "")

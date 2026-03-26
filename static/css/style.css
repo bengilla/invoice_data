@@ -145,7 +145,10 @@ h1 {
     text-align: center;
     margin-bottom: 28px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: border-color 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                background 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                box-shadow 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     background: var(--card);
     box-shadow: var(--shadow);
     animation: float 3s ease-in-out infinite;
@@ -219,7 +222,7 @@ h1 {
     font-weight: 600;
     padding: 6px 12px;
     border-radius: 6px;
-    transition: all 0.2s;
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .view-btn:hover {
@@ -332,7 +335,7 @@ h1 {
     border-radius: 50%;
     text-align: center;
     line-height: 38px;
-    transition: all 0.2s;
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     border: 1px solid var(--border);
 }
 
@@ -396,7 +399,7 @@ h1 {
     align-items: center;
     padding: 20px 24px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     user-select: none;
 }
 
@@ -414,7 +417,7 @@ h1 {
 .month-title {
     font-weight: 600;
     font-size: 17px;
-    color: var(--text);
+    color: #1e293b;
 }
 
 .month-meta {
@@ -447,14 +450,14 @@ h1 {
     display: grid;
     grid-template-columns: 40px 80px 100px 1fr 1fr 80px 50px 50px;
     padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
     align-items: center;
+    justify-items: center;
     gap: 10px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .invoice-item:hover {
-    background: var(--card-hover);
+    background: #f3f4f6;
     padding-left: 28px;
 }
 
@@ -463,10 +466,10 @@ h1 {
 }
 
 .invoice-item.header {
-    background: var(--bg);
+    background: #d1d5db;
     font-size: 12px;
     font-weight: 600;
-    color: var(--text-light);
+    color: #111827;
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
@@ -474,7 +477,7 @@ h1 {
 .invoice-item.header span {
     font-size: 12px;
     font-weight: 600;
-    color: var(--text-light);
+    color: #111827;
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
@@ -498,7 +501,7 @@ h1 {
 }
 
 .invoice-matter {
-    transition: color 0.2s;
+    transition: color 0.4s;
     width: 100%;
     box-sizing: border-box;
     text-align: center;
@@ -637,11 +640,14 @@ h1 {
     font-weight: 700;
     text-align: center;
     color: var(--text);
-    transition: color 0.2s;
+    transition: color 0.4s;
 }
 
 .invoice-delete {
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .remark-input {
@@ -1054,13 +1060,14 @@ body:not(.night) .upload-area {
 body.night .stat-label,
 body.night .upload-hint,
 body.night .month-meta,
-body.night .header-subtitle {
+body.night .header-subtitle,
+body.night .upload-text {
     color: #A8B5C5;
 }
 
 body.night .upload-area:hover .upload-text,
 body.night .upload-area:hover .upload-hint {
-    color: #E8EDF2;
+    color: #ffffff;
 }
 
 body:not(.night) .stat-label,
@@ -1069,22 +1076,43 @@ body:not(.night) .month-meta {
     color: #6B7A8A;
 }
 
+body:not(.night) .upload-text {
+    color: #999;
+}
+
+body:not(.night) .upload-area:hover .upload-text,
+body:not(.night) .upload-area:hover .upload-hint {
+    color: #333;
+}
+
 body.night .matter-select,
 body.night .reason-input,
 body.night .remark-input,
-body.night .item-select {
+body.night .item-select,
+body.night input[name="name"],
+body.night input[name="date"],
+body.night input[name="department"],
+body.night input[name="position"] {
     border-color: rgba(60,80,100,0.5);
-    background: transparent;
-    color: #E8EDF2;
+    background: rgba(30,45,60,0.95);
+    color: var(--text);
 }
 
 body:not(.night) .matter-select,
 body:not(.night) .reason-input,
 body:not(.night) .remark-input,
-body:not(.night) .item-select {
+body:not(.night) .item-select,
+body:not(.night) input[name="name"],
+body:not(.night) input[name="date"],
+body:not(.night) input[name="department"],
+body:not(.night) input[name="position"] {
     border-color: rgba(200,210,220,0.6);
-    background: transparent;
-    color: #3A4553;
+    background: white;
+    color: #1e293b;
+}
+
+body.night .invoice-item:hover {
+    background: var(--card-hover);
 }
 
 body.night .invoice-item {
@@ -1093,6 +1121,38 @@ body.night .invoice-item {
 
 body:not(.night) .invoice-item {
     border-color: rgba(200,210,220,0.6);
+}
+
+body:not(.night) .invoice-amount {
+    color: #1e293b;
+}
+
+body:not(.night) .invoice-index,
+body:not(.night) .invoice-date,
+body:not(.night) .invoice-company,
+body:not(.night) .invoice-reason,
+body:not(.night) .invoice-remark,
+body:not(.night) .invoice-view,
+body:not(.night) .invoice-delete {
+    color: #1e293b;
+}
+
+body:not(.night) .custom-select-dropdown {
+    background: white;
+    color: #1e293b;
+}
+
+body:not(.night) .custom-select-option {
+    color: #1e293b;
+}
+
+body.night .custom-select-dropdown {
+    background: rgba(30,45,60,0.95);
+    color: #E8EDF2;
+}
+
+body.night .custom-select-option {
+    color: #E8EDF2;
 }
 
 body.night .stat-value,

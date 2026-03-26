@@ -144,21 +144,21 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                 <div>
                     <label style="font-size:13px;display:block;margin-bottom:6px;">报销人<span style="color:#E07B6B;"> *</span></label>
-                    <input name="name" type="text" placeholder="请输入报销人" required style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                    <input name="name" type="text" placeholder="请输入报销人" required style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
                 </div>
                 <div>
                     <label style="font-size:13px;display:block;margin-bottom:6px;">日期</label>
-                    <input name="date" type="text" readonly style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;cursor:default;">
+                    <input name="date" type="text" readonly style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);font-size:14px;outline:none;cursor:default;">
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
                     <label style="font-size:13px;display:block;margin-bottom:6px;">报销部门</label>
-                    <input name="department" type="text" placeholder="请输入报销部门" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                    <input name="department" type="text" placeholder="请输入报销部门" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
                 </div>
                 <div>
                     <label style="font-size:13px;display:block;margin-bottom:6px;">所属岗位</label>
-                    <input name="position" type="text" placeholder="请输入所属岗位" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+                    <input name="position" type="text" placeholder="请输入所属岗位" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
                 </div>
             </div>
         </div>
@@ -187,7 +187,7 @@
         <div class="modal-content" style="max-width:400px;padding:24px;">
             <span class="modal-close" onclick="closeOtherItemModal()">&times;</span>
             <h3 style="margin-bottom:16px;color:var(--text);">请输入事项内容</h3>
-            <input type="text" id="other-item-input" placeholder="请输入事项" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')confirmOtherItem()">
+            <input type="text" id="other-item-input" placeholder="请输入事项" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')confirmOtherItem()">
             <button onclick="confirmOtherItem()" style="width:100%;padding:10px 14px;border-radius:10px;border:none;background:var(--primary);color:white;font-size:14px;font-weight:600;cursor:pointer;">确定</button>
         </div>
     </div>

@@ -77,3 +77,6 @@ _problem/
 
 # Railway
 .cache/
+
+# Superpowers design files
+.superpowers/

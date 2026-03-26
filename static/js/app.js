@@ -28,13 +28,29 @@ function hideToast() {
     }, 300);
 }
 
-let isDark = true;
+let isNight = false;
 
-document.getElementById('theme-toggle').addEventListener('click', function () {
-    isDark = !isDark;
-    document.documentElement.classList.toggle('light', !isDark);
-    this.classList.toggle('active', !isDark);
-});
+var subtitles = ['让每一张发票都有价值 ✨', '辛苦了，今天也要好好报销 🍀', '每一分钱都值得被记录 💫', '报销路上一路顺风 🚗', '整理发票，整理心情 🌸', '小发票，大智慧 📝', '轻松报销，快乐工作 🎈', '发票整理好，加薪跑不了 💰', '认真填报销的人，运气都不会差 🌟', '每一笔花费都有意义 💎'];
+var subtitleEl = document.getElementById('subtitle');
+if (subtitleEl) {
+    subtitleEl.textContent = subtitles[Math.floor(Math.random() * subtitles.length)];
+}
+
+var sun = document.querySelector('.sun');
+var moon = document.querySelector('.moon');
+
+if (sun && moon) {
+    sun.addEventListener('click', function() {
+        if (isNight) return;
+        isNight = true;
+        document.body.classList.add('night');
+    });
+    moon.addEventListener('click', function() {
+        if (!isNight) return;
+        isNight = false;
+        document.body.classList.remove('night');
+    });
+}
 
 const today = new Date();
 document.querySelector('input[name="date"]').value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');

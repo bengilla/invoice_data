@@ -1058,6 +1058,11 @@ body.night .header-subtitle {
     color: #A8B5C5;
 }
 
+body.night .upload-area:hover .upload-text,
+body.night .upload-area:hover .upload-hint {
+    color: #E8EDF2;
+}
+
 body:not(.night) .stat-label,
 body:not(.night) .upload-hint,
 body:not(.night) .month-meta {

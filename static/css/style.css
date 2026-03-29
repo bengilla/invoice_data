@@ -1108,7 +1108,7 @@ body:not(.night) input[name="department"],
 body:not(.night) input[name="position"] {
     border-color: rgba(200,210,220,0.6);
     background: white;
-    color: #1e293b;
+    color: #1e293b !important;
 }
 
 body.night .invoice-item:hover {
@@ -1201,4 +1201,12 @@ footer {
     text-align: center;
     padding: 24px;
     font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .sun, .moon {
+        right: 16px;
+        width: 70px;
+        height: 70px;
+    }
 }

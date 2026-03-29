@@ -70,6 +70,7 @@ htmlcov/
 .pyright/
 
 # Project specific
+PROJECT_LOCAL.md
 _sample/
 _problem/
 /tmp/

@@ -113,6 +113,15 @@ async function processFiles(allFiles) {
         const result = await response.json();
 
         if (result.success) {
+            // 调用计数器 API
+            try {
+                const counterRes = await fetch('/api/counter/increment', { method: 'POST' });
+                const counterData = await counterRes.json();
+                if (window.updateCrystalCount) {
+                    window.updateCrystalCount(counterData.count);
+                }
+            } catch (e) {}
+
             // 合并发票数据（支持多次上传）
             const existingFiles = new Set(allData.invoices.map(inv => inv.file_name));
             const newInvoices = (result.invoices || []).filter(inv => !existingFiles.has(inv.file_name));

@@ -16,6 +16,7 @@
 - 🌗 亮色/暗色主题切换
 - 🔍 发票预览（iframe方式）
 - ⚠️ 重复文件自动检测
+- 🎯 左下角3D水晶计数器（显示使用次数）
 
 ## 使用方法
 
@@ -99,6 +100,76 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 
 ## 文件结构
 
+```
+fapiao/
+├── main.py                      # FastAPI主程序
+├── routes/
+│   ├── __init__.py
+│   ├── local_invoice.py         # 发票解析API
+│   └── utils.py                 # 工具函数
+├── services/
+│   ├── __init__.py
+│   └── invoice_parser.py        # 发票解析服务
+├── static/
+│   ├── index.html               # 前端页面
+│   ├── css/style.css           # 样式
+│   ├── js/
+│   │   ├── app.js              # 主JavaScript
+│   │   └── crystal-counter.js  # 3D计数器效果
+│   └── images/fapiao.png       # 网站图标
+├── data/                        # 数据目录（需手动创建）
+│   └── counter.json             # 使用计数器数据
+├── _sample/                     # 示例发票文件
+├── requirements.txt              # Python依赖
+└── README.md                    # 本文档
+```
+
+## 服务器部署
+
+### PM2 部署
+
+```bash
+# 拉取最新代码
+git pull
+
+# 重启服务
+pm2 restart fapiao
+
+# 查看日志
+pm2 logs fapiao
+```
+
+### 创建数据目录
+
+首次部署时需要手动创建计数器数据文件：
+
+```bash
+# 创建 data 目录
+mkdir -p data
+
+# 创建计数器文件（初始值为0）
+echo '{"count": 0}' > data/counter.json
+
+# 确保目录和文件有正确的权限
+chmod 755 data
+chmod 644 data/counter.json
+```
+
+**注意**：`data/counter.json` 已被 `.gitignore` 忽略，不会被提交到 GitHub。每个部署环境需要单独初始化。
+
+### Nginx 部署
+
+如果使用 Nginx 反向代理，确保添加 WebSocket 支持：
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
 ```
 fapiao/
 ├── main.py                      # FastAPI主程序

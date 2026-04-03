@@ -424,3 +424,36 @@ async def download_all_pdf(data: dict):
             "Content-Disposition": "attachment; filename*=UTF-8''发票汇总报告.pdf"
         },
     )
+
+
+COUNTER_FILE = "data/counter.json"
+
+
+def get_counter_data():
+    if not os.path.exists(COUNTER_FILE):
+        return {"count": 0}
+    try:
+        with open(COUNTER_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {"count": 0}
+
+
+def save_counter_data(data):
+    os.makedirs(os.path.dirname(COUNTER_FILE), exist_ok=True)
+    with open(COUNTER_FILE, "w") as f:
+        json.dump(data, f)
+
+
+@local_invoice_routes.get("/api/counter")
+async def get_counter():
+    data = get_counter_data()
+    return JSONResponse(data)
+
+
+@local_invoice_routes.post("/api/counter/increment")
+async def increment_counter():
+    data = get_counter_data()
+    data["count"] = data.get("count", 0) + 1
+    save_counter_data(data)
+    return JSONResponse({"count": data["count"]})

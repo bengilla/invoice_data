@@ -1203,6 +1203,19 @@ footer {
     font-size: 13px;
 }
 
+#crystal-counter {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    width: 200px;
+    height: 200px;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 100;
+    transform-style: preserve-3d;
+    perspective: 500px;
+}
+
 @media (max-width: 768px) {
     .sun, .moon {
         right: 16px;
